@@ -65,6 +65,11 @@ var resourceGroupNames = {
     enabled: deployDiagnostics && empty(externalLogAnalyticsWorkspace)
   }
 
+  networkRG: {
+    name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-network'
+    enabled: true
+  }
+
   batchRG: {
     name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-batch'
     enabled: true
@@ -101,6 +106,22 @@ module dplDiagnostics 'modules/diagnostics.bicep' = if (resourceGroupNames.diagn
   ]
 }
 
+@description('deploy networking resources')
+module dplSpoke 'modules/spoke.bicep' = {
+  scope: resourceGroup(resourceGroupNames.networkRG.name)
+  name: '${dplPrefix}-spoke'
+  params: {
+    location: location
+    rsPrefix: rsPrefix
+    tags: allTags
+  }
+  dependsOn: [
+    // this is necessary to ensure all resource groups have been deployed
+    // before we attempt to deploy resources under those resource groups.
+    resourceGroups
+  ]
+}
+
 @description('deployment for batch resources')
 module dplBatch 'modules/batch.bicep' = {
   name: '${dplPrefix}-batch'
@@ -125,8 +146,9 @@ resource logAnalyticWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-
   scope: resourceGroup(empty(externalLogAnalyticsWorkspace) ? dplDiagnostics.outputs.logAnalyticsWorkspace.group : externalLogAnalyticsWorkspace.group)
 }
 
+
 @description('log analytics workspace id')
-output logAnalyticWorkspceId string = enableDiagnostics ? logAnalyticWorkspace.id : ''
+output logAnalyticsWorkspaceId string = enableDiagnostics ? logAnalyticWorkspace.id : ''
 
 @description('resource groups created')
 output resourceGroupNames array = uniqueGroups

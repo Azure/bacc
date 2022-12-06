@@ -1,0 +1,35 @@
+{
+    "addressPrefixes": [
+        "10.10.0.0/16"
+    ],
+
+    "subnets": {
+        "private-endpoints": [
+            "10.10.0.0/24"
+        ],
+        "pool": [
+            "10.10.1.0/24"
+        ]
+    },
+
+    "networkSecurityGroups": {
+        "batch-legacy": [
+            {
+                "name": "AllowBatchNodeManagement",
+                "properties": {
+                    "priority": 100,
+                    "description": "allow batch service to communicate with nodes",
+                    "direction": "Inbound",
+                    "protocol": "tcp",
+                    "sourcePortRange": "*",
+                    "sourceAddressPrefix": "BatchNodeManagement",
+                    "destinationPortRange": "29876-29877",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow"
+                }
+            }
+        ],
+        "batch-simplified": [],
+        "default": []
+    }
+}

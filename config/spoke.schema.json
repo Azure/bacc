@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "schema for spoke configuration file",
+    "title": "spoke",
+    "description": "Virtual Network configuration",
+    "type": "object",
+    "properties": {
+        "addressPrefixes": {
+            "description": "address prefixes to use for the virtual network",
+            "type": "array",
+            "items": {
+                "description": "ip address prefix",
+                "type": "string"
+            }
+        },
+
+        "subnets": {
+            "description": "subnets",
+            "type": "object",
+            "properties": {
+                "private-endpoints": {
+                    "description": "address prefixes for private-endpoints subnet",
+                    "type": "array",
+                    "items": {
+                        "description": "ip address prefix",
+                        "type": "string"
+                    }
+                },
+                "pool": {
+                    "description": "address prefixes for batch pools subnet",
+                    "type": "array",
+                    "items": {
+                        "description": "ip address prefix",
+                        "type": "string"
+                    }
+                }
+            },
+
+            "required": ["private-endpoints", "pool"]
+        },
+
+        "networkSecurityGroups": {
+            "description": "security rules for network security groups",
+            "type": "object",
+            "properties": {
+                "batch-legacy": {
+                    "description": "security rules for batch pools with legacy communication model",
+                    "type": "array",
+                    "items": {
+                        "description": "security rules",
+                        "type": "object"
+                    }
+                },
+                "batch-simplified": {
+                    "description": "security rules for batch pools with simplified communication model",
+                    "type": "array",
+                    "items": {
+                        "description": "security rules",
+                        "type": "object"
+                    }
+                },
+                "default": {
+                    "description": "security rules for non-pool subnets",
+                    "type": "array",
+                    "items": {
+                        "description": "security rules",
+                        "type": "object"
+                    }
+                }
+            },
+            "required": ["batch-legacy", "batch-simplified", "default"]
+        }
+    },
+
+    "required": ["addressPrefixes", "subnets", "networkSecurityGroups"]
+}
