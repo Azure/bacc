@@ -1,0 +1,40 @@
+{
+    "keyVault": {
+        "name": null,
+        "enableSoftDelete": false
+    },
+    "containerRegistry": {
+        "name": null,
+        "publicNetworkAccess": true
+    },
+    "batchAccount": {
+        "name": null,
+        "poolAllocationMode": "UserSubscription",
+        "publicNetworkAccess": true
+    },
+    "batchAccountStorage": {
+        "name": null
+    },
+    "pools": [
+        {
+            "name": "linux",
+            "virtualMachine": {
+                "size": "Standard_DS5_V2",
+                "taskSlotsPerNode": 8,
+                "image": "ubuntu-20"
+            },
+            "interNodeCommunication": false
+        }
+    ],
+    "images": {
+        "ubuntu-20": {
+            "imageReference": {
+                "publisher": "microsoft-azure-batch",
+                "offer": "ubuntu-server-container",
+                "sku": "20-04-lts",
+                "version": "latest"
+            },
+            "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+        }
+    }
+}

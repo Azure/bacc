@@ -29,7 +29,7 @@ resource poolNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   location: location
   tags: tags
   properties: {
-    securityRules: config.networkSecurityGroups['batch-legacy']
+    securityRules: config.networkSecurityGroups['batch-simplified']
   }
 }
 

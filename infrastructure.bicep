@@ -25,6 +25,15 @@ param tags object = {}
 @description('when true, all resources will be deployed under a single resource-group')
 param useSingleResourceGroup bool = false
 
+@description('Batch Service Object Id (az ad sp show --id "ddbf3205-c6bd-46ae-8127-60eb93363864" --query id)')
+param batchServiceObjectId string
+
+@description('enable application packages for batch account')
+param enableApplicationPackages bool
+
+@description('enable container support for applications')
+param enableApplicationContainers bool
+
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
@@ -76,12 +85,14 @@ var resourceGroupNames = {
   }
 }
 
+output resourceGroupNames2 object = resourceGroupNames
+
 //------------------------------------------------------------------------------
 // Resources
 //------------------------------------------------------------------------------
 
 // dev notes: `union()` is used to remove duplicates
-var uniqueGroups = union(filter(map(items(resourceGroupNames), arg => arg.value.enabled ? arg.value.name : ''), name => !empty(name)), [])
+var uniqueGroups = map(filter(items(resourceGroupNames), arg => arg.value.enabled), arg => arg.value.name)
 
 @description('all resource groups')
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2021-04-01' = [for name in uniqueGroups: {
@@ -128,15 +139,34 @@ module dplBatch 'modules/batch.bicep' = {
   scope: resourceGroup(resourceGroupNames.batchRG.name)
   params: {
     location: location
-    dplPrefix: dplPrefix
     rsPrefix: rsPrefix
     tags: allTags
+    batchServiceObjectId: batchServiceObjectId
+    enableApplicationPackages: enableApplicationPackages
+    enableApplicationContainers: enableApplicationContainers
+    poolSubnetId: dplSpoke.outputs.snetPool.snetId
   }
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed
     // before we attempt to deploy resources under those resource groups.
     resourceGroups
   ]
+}
+
+var endpoints = dplBatch.outputs.endpoints
+
+@description('deploy private endpoints and all related resources')
+module dplEndpoints 'modules/endpoints.bicep' = {
+  name: '${dplPrefix}-endpoints'
+  scope: resourceGroup(resourceGroupNames.networkRG.name)
+  params: {
+    dplPrefix: dplPrefix
+    rsPrefix: rsPrefix
+    location: location
+    tags: allTags
+    endpoints: endpoints
+    snetInfo: dplSpoke.outputs.snetPrivateEndpoints
+  }
 }
 
 var enableDiagnostics = deployDiagnostics || !empty(externalLogAnalyticsWorkspace)
