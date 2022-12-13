@@ -11,7 +11,11 @@ param location string
 @description('tags to assign to all resources created')
 param tags object
 
+@description('diagnostics config')
+param diagnosticsConfig object = {}
+
 var config = loadJsonContent('../config/spoke.json')
+var diagConfig = loadJsonContent('../config/diagnostics.json')
 
 @description('default nsg')
 resource defaultNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
@@ -79,6 +83,27 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   }
 }
 
+//------------------------------------------------------------------------------
+// diagnostic settings
+resource defaultNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+  scope: defaultNSG
+  name: '${defaultNSG.name}-diag'
+  properties: union(diagnosticsConfig, {logs: diagConfig.logs})
+}
+
+resource poolNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+  scope: poolNSG
+  name: '${poolNSG.name}-diag'
+  properties: union(diagnosticsConfig, {logs: diagConfig.logs})
+}
+
+resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+  scope: vnet
+  name: '${vnet.name}-diag'
+  properties: union(diagnosticsConfig, diagConfig)
+}
+
+//------------------------------------------------------------------------------
 @description('virtual network')
 output vnet object = {
   group: resourceGroup().name

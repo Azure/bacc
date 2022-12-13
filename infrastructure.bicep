@@ -44,12 +44,8 @@ param timestamp string = utcNow('g')
 @description('when true, log analytics workspace and related resources will be deployed')
 param deployDiagnostics bool = false
 
-@description('existing log analytics workspace to use for logging all diagnostic information')
-@metadata({
-  group: 'resource group name'
-  name: 'resource name'
-})
-param externalLogAnalyticsWorkspace object = {}
+@description('existing log analytics workspace id')
+param externalLogAnalyticsWorkspaceId string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -71,7 +67,7 @@ var allTags = union(tags, {
 var resourceGroupNames = {
   diagnosticsRG:  {
     name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-diag'
-    enabled: deployDiagnostics && empty(externalLogAnalyticsWorkspace)
+    enabled: deployDiagnostics && empty(externalLogAnalyticsWorkspaceId)
   }
 
   networkRG: {
@@ -117,6 +113,11 @@ module dplDiagnostics 'modules/diagnostics.bicep' = if (resourceGroupNames.diagn
   ]
 }
 
+var workpaceId = resourceGroupNames.diagnosticsRG.enabled ? dplDiagnostics.outputs.logAnalyticsWorkspace.id : externalLogAnalyticsWorkspaceId
+var diagnosticsConfig = empty(workpaceId) ? {} : {
+  workspaceId: workpaceId
+}
+
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
   scope: resourceGroup(resourceGroupNames.networkRG.name)
@@ -125,6 +126,7 @@ module dplSpoke 'modules/spoke.bicep' = {
     location: location
     rsPrefix: rsPrefix
     tags: allTags
+    diagnosticsConfig: diagnosticsConfig
   }
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed
@@ -145,6 +147,7 @@ module dplBatch 'modules/batch.bicep' = {
     enableApplicationPackages: enableApplicationPackages
     enableApplicationContainers: enableApplicationContainers
     poolSubnetId: dplSpoke.outputs.snetPool.snetId
+    diagnosticsConfig: diagnosticsConfig
   }
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed
@@ -169,16 +172,8 @@ module dplEndpoints 'modules/endpoints.bicep' = {
   }
 }
 
-var enableDiagnostics = deployDiagnostics || !empty(externalLogAnalyticsWorkspace)
-@description('log analytics workspace to use for all diagnostic logging')
-resource logAnalyticWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = if (enableDiagnostics) {
-  name: empty(externalLogAnalyticsWorkspace) ? dplDiagnostics.outputs.logAnalyticsWorkspace.name : externalLogAnalyticsWorkspace.name
-  scope: resourceGroup(empty(externalLogAnalyticsWorkspace) ? dplDiagnostics.outputs.logAnalyticsWorkspace.group : externalLogAnalyticsWorkspace.group)
-}
-
-
 @description('log analytics workspace id')
-output logAnalyticsWorkspaceId string = enableDiagnostics ? logAnalyticWorkspace.id : ''
+output logAnalyticsWorkspaceId string = workpaceId
 
 @description('resource groups created')
 output resourceGroupNames array = uniqueGroups

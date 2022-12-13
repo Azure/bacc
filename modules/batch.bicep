@@ -23,8 +23,12 @@ param enableApplicationPackages bool
 @description('subnet id for batch pool subnet')
 param poolSubnetId string
 
+@description('diagnostics config')
+param diagnosticsConfig object = {}
+
 var config = loadJsonContent('../config/batch.json')
 var builtinRoles = loadJsonContent('builtinRoles.json')
+var diagConfig = loadJsonContent('../config/diagnostics.json')
 
 //------------------------------------------------------------------------------
 // Resources
@@ -107,6 +111,12 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
   }
 }
 
+resource keyVault_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (needsKeyVault && !empty(diagnosticsConfig)) {
+  name: '${keyVault.name}-diag'
+  scope: keyVault
+  properties: union(diagnosticsConfig, diagConfig)
+}
+
 /**
   When using application packages to upload applications / data to batch pool nodes
   we need a storage account.
@@ -158,6 +168,13 @@ resource roleSA 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enabl
   }
 }
 
+@description('storage account diagnostics setting')
+resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationPackages && !empty(diagnosticsConfig)) {
+  name: '${sa.name}-diag'
+  scope: sa
+  properties: union(diagnosticsConfig, diagConfig)
+}
+
 /**
  Deploy container registry if containers are renabled.
 */
@@ -184,6 +201,12 @@ resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' 
     principalType: 'ServicePrincipal'
   }
 }]
+
+resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationContainers && !empty(diagnosticsConfig)) {
+  name: '${acr.name}-diag'
+  scope: acr
+  properties: union(diagnosticsConfig, diagConfig)
+}
 
 /**
   The batch account.
@@ -239,6 +262,12 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
   dependsOn: [
     roleSA
   ]
+}
+
+resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+  name: '${batchAccount.name}-diag'
+  scope: batchAccount
+  properties: union(diagnosticsConfig, diagConfig)
 }
 
 resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in config.pools: {
