@@ -148,6 +148,7 @@ module dplBatch 'modules/batch.bicep' = {
     enableApplicationContainers: enableApplicationContainers
     poolSubnetId: dplSpoke.outputs.snetPool.snetId
     diagnosticsConfig: diagnosticsConfig
+    appInsightsInfo: resourceGroupNames.diagnosticsRG.enabled ? dplDiagnostics.outputs.appInsights : {}
   }
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed

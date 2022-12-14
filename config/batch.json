@@ -28,6 +28,7 @@
     ],
     "images": {
         "ubuntu-20": {
+            "isWindows": false,
             "imageReference": {
                 "publisher": "microsoft-azure-batch",
                 "offer": "ubuntu-server-container",

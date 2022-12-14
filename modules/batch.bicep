@@ -26,6 +26,8 @@ param poolSubnetId string
 @description('diagnostics config')
 param diagnosticsConfig object = {}
 
+param appInsightsInfo object = {}
+
 var config = loadJsonContent('../config/batch.json')
 var builtinRoles = loadJsonContent('builtinRoles.json')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
@@ -270,6 +272,51 @@ resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
   properties: union(diagnosticsConfig, diagConfig)
 }
 
+
+resource appInsighs 'Microsoft.Insights/components@2020-02-02' existing = if (!empty((appInsightsInfo))) {
+  scope: resourceGroup(appInsightsInfo.group)
+  name: appInsightsInfo.name
+}
+
+@description('start tasks for each os')
+var batchInsightsStartTask = {
+  windows: {
+    commandLine: 'cmd /c @"%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1\'))"'
+    environmentSettings: [
+      {
+        name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
+        value: !empty(appInsightsInfo) ? appInsighs.properties.InstrumentationKey : ''
+      }
+      {
+        name: 'APP_INSIGHTS_APP_ID'
+        value: !empty(appInsightsInfo) ? appInsighs.properties.AppId : ''
+      }
+      {
+        name: 'BATCH_INSIGHTS_DOWNLOAD_URL'
+        value: 'https://github.com/Azure/batch-insights/releases/download/v1.3.0/batch-insights.exe'
+      }
+    ]
+  }
+
+  linux: {
+    commandLine: '/bin/bash -c \'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash\''
+    environmentSettings: [
+      {
+        name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
+        value: !empty(appInsightsInfo) ? appInsighs.properties.InstrumentationKey : ''
+      }
+      {
+        name: 'APP_INSIGHTS_APP_ID'
+        value: !empty(appInsightsInfo) ? appInsighs.properties.AppId : ''
+      }
+      {
+        name: 'BATCH_INSIGHTS_DOWNLOAD_URL'
+        value: 'https://github.com/Azure/batch-insights/releases/download/v1.3.0/batch-insights'
+      }
+    ]
+  }
+}
+
 resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in config.pools: {
   name: item.name
   parent: batchAccount
@@ -329,6 +376,15 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         provision: 'NoPublicIPAddresses'
       }
     }
+
+    startTask: !empty(appInsightsInfo) ? union(batchInsightsStartTask[config.images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
+      maxTaskRetryCount: 1
+      userIdentity: {
+        autoUser: {
+          elevationLevel: 'admin'
+          scope: 'pool'
+        }
+      }}) : {}
   }
 }]
 
