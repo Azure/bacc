@@ -340,8 +340,8 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         imageReference: config.images[item.virtualMachine.image].imageReference
         nodeAgentSkuId: config.images[item.virtualMachine.image].nodeAgentSkuId
 
-        // provide ACR information if containers are enabled.
-        containerConfiguration: !enableApplicationContainers ? null : {
+        // provide ACR information if containers are enabled (and supported)
+        containerConfiguration: (!enableApplicationContainers || config.images[item.virtualMachine.image].isWindows) ? null : {
           type: 'DockerCompatible'
           containerRegistries: [
             {

@@ -24,6 +24,15 @@
                 "image": "ubuntu-20"
             },
             "interNodeCommunication": false
+        },
+        {
+            "name": "windows",
+            "virtualMachine": {
+                "size": "Standard_DS5_V2",
+                "taskSlotsPerNode": 8,
+                "image": "windows-server"
+            },
+            "interNodeCommunication": false
         }
     ],
     "images": {
@@ -36,6 +45,16 @@
                 "version": "latest"
             },
             "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+        },
+        "windows-server": {
+            "isWindows": true,
+            "imageReference": {
+                "publisher": "microsoftwindowsserver",
+                "offer": "windowsserver",
+                "sku": "2022-datacenter-smalldisk",
+                "version": "latest"
+            },
+            "nodeAgentSkuId": "batch.node.windows amd64"
         }
     }
 }
