@@ -74,7 +74,7 @@ module dplPrivateEndpoints 'privateEndpoint.bicep' = [for (item, idx) in endpoin
 
     privateLinkServiceId: item.privateLinkServiceId
     groupIds: item.groupIds
-    vnetInfo: snetInfo
+    subnetId: snetInfo.snetId
   }
   dependsOn: [
     privateDnsZones
