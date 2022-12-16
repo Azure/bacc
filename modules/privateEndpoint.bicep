@@ -17,28 +17,8 @@ param privateDnsZone object = {
 }
 
 @description('the subnet under which to deploy the private endpoints')
-@metadata({
-  group: 'name of the vnet group'
-  name: 'name of the vnet resource'
-  snet: 'name of the subnet'
-})
-param vnetInfo  object = {
-  name: null
-  group: null
-  snet: null
-}
-
+param subnetId string
 param tags object = {}
-
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  name: vnetInfo.name
-  scope: resourceGroup(vnetInfo .group)
-}
-
-resource snet 'Microsoft.Network/virtualNetworks/subnets@2022-05-01' existing = {
-  name: vnetInfo.snet
-  parent: virtualNetwork
-}
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' = {
   name: name
@@ -46,7 +26,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-05-01' = {
   location: location
   properties: {
     subnet: {
-      id: snet.id
+      id: subnetId
     }
     privateLinkServiceConnections: [
       {

@@ -136,25 +136,3 @@ output snetPool object = {
   snet: vnet::snetPool.name
   snetId: vnet::snetPool.id
 }
-
-@description('resources for which diagnostic settings can be added')
-output diagnosableResoures array = [
-  {
-    id: vnet.id
-    name: vnet.name
-    group: resourceGroup().name
-    type: vnet.type
-  }
-  {
-    id: defaultNSG.id
-    name: defaultNSG.name
-    group: resourceGroup().name
-    type: defaultNSG.type
-  }
-  {
-    id: poolNSG.id
-    name: poolNSG.name
-    group: resourceGroup().name
-    type: poolNSG.type
-  }
-]
