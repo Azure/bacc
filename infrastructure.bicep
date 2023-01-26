@@ -8,10 +8,8 @@ targetScope = 'subscription'
 param location string = deployment().location
 
 @description('short string used to identify deployment environment')
-@allowed([
-  'dev'
-  'prod'
-])
+@minLength(3)
+@maxLength(10)
 param environment string = 'dev'
 
 @description('short string used to generate all resources')
