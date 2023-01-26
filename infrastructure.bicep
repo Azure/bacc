@@ -84,7 +84,7 @@ var resourceGroupNames = {
 //------------------------------------------------------------------------------
 
 // dev notes: `union()` is used to remove duplicates
-var uniqueGroups = map(filter(items(resourceGroupNames), arg => arg.value.enabled), arg => arg.value.name)
+var uniqueGroups = union(map(filter(items(resourceGroupNames), arg => arg.value.enabled), arg => arg.value.name), [])
 
 @description('all resource groups')
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2021-04-01' = [for name in uniqueGroups: {
