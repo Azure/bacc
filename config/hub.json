@@ -1,0 +1,12 @@
+{
+    "comment": "this file is a stand in for a config file that provides relevant information from the hub deployment",
+    "diagnostics" : {
+        "logAnalyticsWorkspace": {
+            "id": null
+        },
+        "appInsights": {
+            "appId": null,
+            "instrumentationKey": null
+        }
+    }
+}

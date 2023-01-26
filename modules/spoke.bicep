@@ -12,7 +12,7 @@ param location string
 param tags object
 
 @description('diagnostics config')
-param diagnosticsConfig object = {}
+param logConfig object = {}
 
 var config = loadJsonContent('../config/spoke.json')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
@@ -85,22 +85,22 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
 
 //------------------------------------------------------------------------------
 // diagnostic settings
-resource defaultNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+resource defaultNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
   scope: defaultNSG
   name: '${defaultNSG.name}-diag'
-  properties: union(diagnosticsConfig, {logs: diagConfig.logs})
+  properties: union(logConfig, {logs: diagConfig.logs})
 }
 
-resource poolNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+resource poolNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
   scope: poolNSG
   name: '${poolNSG.name}-diag'
-  properties: union(diagnosticsConfig, {logs: diagConfig.logs})
+  properties: union(logConfig, {logs: diagConfig.logs})
 }
 
-resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
   scope: vnet
   name: '${vnet.name}-diag'
-  properties: union(diagnosticsConfig, diagConfig)
+  properties: union(logConfig, diagConfig)
 }
 
 //------------------------------------------------------------------------------
