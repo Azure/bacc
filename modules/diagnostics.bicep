@@ -1,58 +1,28 @@
 /**
-  Deploys all resources necessary for gathering diagnostics information.
+  This process diagnostics config from hub configuration and processes it
+  to a standard format that the other modules can use.
+
+  We intentionally handle this separately so that we can adopt this in future as needed
+  if the hub configuration changes.
 */
+targetScope = 'subscription'
 
-@description('prefix to use for resources created')
-param rsPrefix string
+@description('diagnotics config')
+param diagnosticsConfig object
 
-@description('location of all resources')
-param location string
+var workspaceId = contains(diagnosticsConfig, 'logAnalyticsWorkspace') && !contains(diagnosticsConfig.logAnalyticsWorkspace, 'id') ? diagnosticsConfig.logAnalyticsWorkspace.id : ''
 
-@description('tags to assign to all resources created')
-param tags object
+var appInsights = contains(diagnosticsConfig, 'appInsights') && !empty(diagnosticsConfig.appInsights) ? diagnosticsConfig.appInsights : {}
+var appId = contains(appInsights, 'appId') && !empty(appInsights.appId) ? appInsights.appId : ''
+var intrumentationKey = contains(appInsights, 'instrumentationKey') && !empty(appInsights.instrumentationKey) ? appInsights.instrumentationKey : ''
 
-@description('SKU name for log analytics workspace')
-@allowed([
-  'CapacityReservation'
-  'Free'
-  'LACluster'
-  'PerGB2018'
-  'PerNode'
-  'Premium'
-  'Standalone'
-  'Standard'
-])
-param workspaceSkuName string = 'PerGB2018'
+output loggingEnabled bool = !empty(workspaceId)
+output logConfig object = !empty(workspaceId) ? {
+  workspaceId: workspaceId
+} : {}
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
-  name: '${rsPrefix}-log-wks'
-  location: location
-  properties: {
-    sku: {
-      name: workspaceSkuName
-    }
-  }
-  tags: tags
-}
-
-resource appInsightsComponents 'Microsoft.Insights/components@2020-02-02' = {
-  name: '${rsPrefix}-appinsights'
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalyticsWorkspace.id
-  }
-  tags: tags
-}
-
-output logAnalyticsWorkspace object = {
-  group: resourceGroup().name
-  name: logAnalyticsWorkspace.name
-  id: logAnalyticsWorkspace.id
-}
-
-output appInsights object = {
-  group: resourceGroup().name
-  name: appInsightsComponents.name
-}
+output appInsightsEnabled bool = !empty(appId) && !empty(intrumentationKey)
+output appInsightsConfig object = !empty(appId) && !empty(intrumentationKey) ? {
+  appId: appId
+  instrumentationKey: intrumentationKey
+} : {}

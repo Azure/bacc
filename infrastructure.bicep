@@ -32,18 +32,17 @@ param enableApplicationPackages bool
 @description('enable container support for applications')
 param enableApplicationContainers bool
 
+@description('hub configuration')
+param hubConfig object = loadJsonContent('config/hub.json')
+
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
 //------------------------------------------------------------------------------
 // Features: additive components
 //------------------------------------------------------------------------------
+// none available currently
 
-@description('when true, log analytics workspace and related resources will be deployed')
-param deployDiagnostics bool = false
-
-@description('existing log analytics workspace id')
-param externalLogAnalyticsWorkspaceId string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -63,11 +62,6 @@ var allTags = union(tags, {
 
 @description('resource group names')
 var resourceGroupNames = {
-  diagnosticsRG:  {
-    name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-diag'
-    enabled: deployDiagnostics && empty(externalLogAnalyticsWorkspaceId)
-  }
-
   networkRG: {
     name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-network'
     enabled: true
@@ -93,25 +87,15 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2021-04-01' = [for n
   tags: allTags
 }]
 
-@description('deployment for diagnostics resources')
-module dplDiagnostics 'modules/diagnostics.bicep' = if (resourceGroupNames.diagnosticsRG.enabled) {
+// diagnostics configuration is set to empty object if logAnalyticsWorkspaceId is not provided
+// otherwise, it is set to the workspace id provided in the hub configuration. We then use
+// it to add diagnostics settings to all resources that support it.
+@description('diagnostics configuration')
+module dplDiagnostics 'modules/diagnostics.bicep' = {
   name: '${dplPrefix}-diagnostics'
-  scope: resourceGroup(resourceGroupNames.diagnosticsRG.name)
   params: {
-    rsPrefix: rsPrefix
-    location: location
-    tags: allTags
+    diagnosticsConfig: contains(hubConfig, 'diagnostics') ? hubConfig.diagnostics : {}
   }
-  dependsOn: [
-    // this is necessary to ensure all resource groups have been deployed
-    // before we attempt to deploy resources under those resource groups.
-    resourceGroups
-  ]
-}
-
-var workpaceId = resourceGroupNames.diagnosticsRG.enabled ? dplDiagnostics.outputs.logAnalyticsWorkspace.id : externalLogAnalyticsWorkspaceId
-var diagnosticsConfig = empty(workpaceId) ? {} : {
-  workspaceId: workpaceId
 }
 
 @description('deploy networking resources')
@@ -122,8 +106,9 @@ module dplSpoke 'modules/spoke.bicep' = {
     location: location
     rsPrefix: rsPrefix
     tags: allTags
-    diagnosticsConfig: diagnosticsConfig
+    logConfig: dplDiagnostics.outputs.logConfig
   }
+
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed
     // before we attempt to deploy resources under those resource groups.
@@ -143,9 +128,10 @@ module dplBatch 'modules/batch.bicep' = {
     enableApplicationPackages: enableApplicationPackages
     enableApplicationContainers: enableApplicationContainers
     poolSubnetId: dplSpoke.outputs.snetPool.snetId
-    diagnosticsConfig: diagnosticsConfig
-    appInsightsInfo: resourceGroupNames.diagnosticsRG.enabled ? dplDiagnostics.outputs.appInsights : {}
+    logConfig: dplDiagnostics.outputs.logConfig
+    appInsightsConfig: dplDiagnostics.outputs.appInsightsConfig
   }
+
   dependsOn: [
     // this is necessary to ensure all resource groups have been deployed
     // before we attempt to deploy resources under those resource groups.
@@ -168,9 +154,6 @@ module dplEndpoints 'modules/endpoints.bicep' = {
     snetInfo: dplSpoke.outputs.snetPrivateEndpoints
   }
 }
-
-@description('log analytics workspace id')
-output logAnalyticsWorkspaceId string = workpaceId
 
 @description('resource groups created')
 output resourceGroupNames array = uniqueGroups

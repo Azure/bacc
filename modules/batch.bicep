@@ -23,10 +23,11 @@ param enableApplicationPackages bool
 @description('subnet id for batch pool subnet')
 param poolSubnetId string
 
-@description('diagnostics config')
-param diagnosticsConfig object = {}
+@description('log workspace config')
+param logConfig object = {}
 
-param appInsightsInfo object = {}
+@description('app insights config')
+param appInsightsConfig object = {}
 
 var config = loadJsonContent('../config/batch.json')
 var builtinRoles = loadJsonContent('builtinRoles.json')
@@ -113,10 +114,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
   }
 }
 
-resource keyVault_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (needsKeyVault && !empty(diagnosticsConfig)) {
+resource keyVault_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (needsKeyVault && !empty(logConfig)) {
   name: '${keyVault.name}-diag'
   scope: keyVault
-  properties: union(diagnosticsConfig, diagConfig)
+  properties: union(logConfig, diagConfig)
 }
 
 /**
@@ -171,10 +172,10 @@ resource roleSA 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enabl
 }
 
 @description('storage account diagnostics setting')
-resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationPackages && !empty(diagnosticsConfig)) {
+resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationPackages && !empty(logConfig)) {
   name: '${sa.name}-diag'
   scope: sa
-  properties: union(diagnosticsConfig, diagConfig)
+  properties: union(logConfig, diagConfig)
 }
 
 /**
@@ -204,10 +205,10 @@ resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' 
   }
 }]
 
-resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationContainers && !empty(diagnosticsConfig)) {
+resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationContainers && !empty(logConfig)) {
   name: '${acr.name}-diag'
   scope: acr
-  properties: union(diagnosticsConfig, diagConfig)
+  properties: union(logConfig, diagConfig)
 }
 
 /**
@@ -266,17 +267,12 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
   ]
 }
 
-resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticsConfig)) {
+resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
   name: '${batchAccount.name}-diag'
   scope: batchAccount
-  properties: union(diagnosticsConfig, diagConfig)
+  properties: union(logConfig, diagConfig)
 }
 
-
-resource appInsighs 'Microsoft.Insights/components@2020-02-02' existing = if (!empty((appInsightsInfo))) {
-  scope: resourceGroup(appInsightsInfo.group)
-  name: appInsightsInfo.name
-}
 
 @description('start tasks for each os')
 var batchInsightsStartTask = {
@@ -285,11 +281,11 @@ var batchInsightsStartTask = {
     environmentSettings: [
       {
         name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
-        value: !empty(appInsightsInfo) ? appInsighs.properties.InstrumentationKey : ''
+        value: !empty(appInsightsConfig) ? appInsightsConfig.instrumentationKey : ''
       }
       {
         name: 'APP_INSIGHTS_APP_ID'
-        value: !empty(appInsightsInfo) ? appInsighs.properties.AppId : ''
+        value: !empty(appInsightsConfig) ? appInsightsConfig.appId : ''
       }
       {
         name: 'BATCH_INSIGHTS_DOWNLOAD_URL'
@@ -303,11 +299,11 @@ var batchInsightsStartTask = {
     environmentSettings: [
       {
         name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
-        value: !empty(appInsightsInfo) ? appInsighs.properties.InstrumentationKey : ''
+        value: !empty(appInsightsConfig) ? appInsightsConfig.instrumentationKey : ''
       }
       {
         name: 'APP_INSIGHTS_APP_ID'
-        value: !empty(appInsightsInfo) ? appInsighs.properties.AppId : ''
+        value: !empty(appInsightsConfig) ? appInsightsConfig.appId : ''
       }
       {
         name: 'BATCH_INSIGHTS_DOWNLOAD_URL'
@@ -377,7 +373,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
       }
     }
 
-    startTask: !empty(appInsightsInfo) ? union(batchInsightsStartTask[config.images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
+    startTask: !empty(appInsightsConfig) ? union(batchInsightsStartTask[config.images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
       maxTaskRetryCount: 1
       userIdentity: {
         autoUser: {
