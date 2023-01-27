@@ -14,6 +14,9 @@ param tags object
 @description('diagnostics config')
 param logConfig object = {}
 
+@description('udrs')
+param routes array = []
+
 var config = loadJsonContent('../config/spoke.json')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 
@@ -37,6 +40,21 @@ resource poolNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   }
 }
 
+@description('next-hop route table, if any')
+resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(routes)) {
+  name: 'route-table'
+  location: location
+  tags: tags
+  properties: {
+    routes: routes
+  }
+}
+
+var commonSubnetConfig = union({
+  privateEndpointNetworkPolicies: 'Disabled'
+  privateLinkServiceNetworkPolicies: 'Disabled'
+}, empty(routes) ? {} : { routeTable: { id: routeTable.id } })
+
 @description('the virtual network')
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   name: '${rsPrefix}-spoke'
@@ -49,27 +67,23 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
     subnets: [
       {
         name: 'snet-private-endpoints'
-        properties: {
+        properties: union(commonSubnetConfig, {
           // addressPrefixes: config.subnets['private-endpoints']
           addressPrefix: config.subnets['private-endpoints'][0]
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Disabled'
           networkSecurityGroup: {
             id: defaultNSG.id
           }
-        }
+        })
       }
       {
         name: 'snet-pool'
-        properties: {
+        properties: union(commonSubnetConfig, {
           // addressPrefixes: config.subnets.pool
           addressPrefix: config.subnets.pool[0]
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Disabled'
           networkSecurityGroup: {
             id: poolNSG.id
           }
-        }
+        })
       }
     ]
   }
