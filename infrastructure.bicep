@@ -87,6 +87,9 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2021-04-01' = [for n
   tags: allTags
 }]
 
+//------------------------------------------------------------------------------
+// Process hub config
+
 // diagnostics configuration is set to empty object if logAnalyticsWorkspaceId is not provided
 // otherwise, it is set to the workspace id provided in the hub configuration. We then use
 // it to add diagnostics settings to all resources that support it.
@@ -98,6 +101,17 @@ module dplDiagnostics 'modules/diagnostics.bicep' = {
   }
 }
 
+// process network configuration
+@description('network configuration')
+module dplHubNetwork 'modules/hub_network.bicep' = {
+  name: '${dplPrefix}-hub-network'
+  params: {
+    networkConfig: contains(hubConfig, 'network') ? hubConfig.network : {}
+  }
+}
+
+//------------------------------------------------------------------------------
+
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
   scope: resourceGroup(resourceGroupNames.networkRG.name)
@@ -107,6 +121,7 @@ module dplSpoke 'modules/spoke.bicep' = {
     rsPrefix: rsPrefix
     tags: allTags
     logConfig: dplDiagnostics.outputs.logConfig
+    routes: dplHubNetwork.outputs.routes
   }
 
   dependsOn: [
