@@ -17,7 +17,7 @@ param logConfig object = {}
 @description('udrs')
 param routes array = []
 
-var config = loadJsonContent('../config/spoke.json')
+var config = loadJsonContent('../config/spoke.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 
 @description('default nsg')
@@ -26,7 +26,7 @@ resource defaultNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   location: location
   tags: tags
   properties: {
-    securityRules: config.networkSecurityGroups.default
+    securityRules: config.networkSecurityGroups['private-endpoints']
   }
 }
 
@@ -55,6 +55,18 @@ var commonSubnetConfig = union({
   privateLinkServiceNetworkPolicies: 'Disabled'
 }, empty(routes) ? {} : { routeTable: { id: routeTable.id } })
 
+
+var osnets = filter(items(config.subnets), item => item.key != 'private-endpoints')
+var snets = map(osnets, item => {
+  name: item.key
+  properties: union(commonSubnetConfig, {
+      addressPrefix: item.value
+      networkSecurityGroup: {
+      id: poolNSG.id
+    }
+  })
+})
+
 @description('the virtual network')
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   name: '${rsPrefix}-spoke'
@@ -64,37 +76,21 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
     addressSpace: {
       addressPrefixes: config.addressPrefixes
     }
-    subnets: [
-      {
-        name: 'snet-private-endpoints'
+    subnets: concat(snets, [{
+        name: 'private-endpoints'
         properties: union(commonSubnetConfig, {
-          // addressPrefixes: config.subnets['private-endpoints']
-          addressPrefix: config.subnets['private-endpoints'][0]
+          addressPrefix: config.subnets['private-endpoints']
           networkSecurityGroup: {
             id: defaultNSG.id
           }
         })
-      }
-      {
-        name: 'snet-pool'
-        properties: union(commonSubnetConfig, {
-          // addressPrefixes: config.subnets.pool
-          addressPrefix: config.subnets.pool[0]
-          networkSecurityGroup: {
-            id: poolNSG.id
-          }
-        })
-      }
-    ]
+      }])
   }
 
   resource snetPrivateEndpoints 'subnets' existing = {
-    name: 'snet-private-endpoints'
+    name: 'private-endpoints'
   }
 
-  resource snetPool 'subnets' existing = {
-    name: 'snet-pool'
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -123,16 +119,6 @@ output vnet object = {
   group: resourceGroup().name
   name: vnet.name
   id: vnet.id
-  subnets: {
-    privateEndpoints: {
-      name: vnet::snetPrivateEndpoints.name
-      id: vnet::snetPrivateEndpoints.id
-    }
-    pool: {
-      name: vnet::snetPool.name
-      id: vnet::snetPool.id
-    }
-  }
 }
 
 @description('subnet to use for all private endpoints')
@@ -141,12 +127,4 @@ output snetPrivateEndpoints object = {
   name: vnet.name
   snet: vnet::snetPrivateEndpoints.name
   snetId: vnet::snetPrivateEndpoints.id
-}
-
-@description('subnet to use for all batch pools')
-output snetPool object = {
-  group: resourceGroup().name
-  name: vnet.name
-  snet: vnet::snetPool.name
-  snetId: vnet::snetPool.id
 }

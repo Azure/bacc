@@ -1,0 +1,109 @@
+{
+    /// This configuration file controls the creation of the batch account and other required resources.
+
+    /// "batchAccount" is the configuration for the batch account.
+    "batchAccount": {
+
+        /// Specify the pool allocation mode. Accepted values are "UserSubscription" or "BatchService".
+        "poolAllocationMode": "UserSubscription",
+
+        /// Specify whether the batch service supports public network access. This is useful for debugging and testing
+        /// as it allows clients to connect to the batch service to perform tasks like resize pool, submit jobs etc.
+        "publicNetworkAccess": true
+    },
+
+    /// "batchAccountStorage" is the configuration for the storage account used by the batch service. This is required
+    /// when `enableApplicationPackages` is set to true for the deployment. Application packages and other resources
+    /// are stored on this storage account.
+    "batchAccountStorage": {
+    },
+    
+    /// "pools" is a list of pools to create in the batch account. You can define arbitrary number of pools here, limited
+    /// by batch account limits and quotas. Each pool is a set of nodes that are homogeneous in terms of the operating
+    /// system, virtual machine size, and other attributes. The nodes in a pool are created in a subnet under the
+    /// spoke vnet defined in `spoke.jsonc`.
+    "pools": [
+        {
+            /// Name for the pool. This is used to identify the pool in the batch account. It must be unique
+            /// across all pools on this batch account.
+            "name": "linux",
+
+            /// Virtual machine configuration. "image" refers to an image definition in the "images" section.
+            "virtualMachine": {
+                "size": "Standard_DS5_V2",
+                "taskSlotsPerNode": 8,
+                "image": "ubuntu-20"
+            },
+
+            /// Specify whether internode communication is needed for the tasks. Applications that use MPI, for example,
+            /// require that internode communication is enabled.
+            "interNodeCommunication": false,
+
+            /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
+            /// configuration files.
+            "subnet": "pool-linux"
+        },
+
+        {
+            "name": "windows",
+            "virtualMachine": {
+                "size": "Standard_DS5_V2",
+                "taskSlotsPerNode": 8,
+                "image": "windows-server"
+            },
+            "interNodeCommunication": false,
+            "subnet": "pool-windows"
+        }
+    ],
+
+    /// "images" is a list of images that can be used to create virtual machines in the batch account. The images
+    /// are referenced by name in the "virtualMachine" section of the pool configuration. The image name must match
+    /// one of the keys in this section.
+    "images": {
+        "ubuntu-20": {
+
+            /// Specify whether this is a Windows image. This ensures that any tools installed
+            /// on the image for things like monitoring etc. are appropriate for the target OS.
+            "isWindows": false,
+
+            /// Specify the image reference. This is used to create the virtual machine image.
+            /// TODO: where does one get the details about supported types etc.?
+            "imageReference": {
+                "publisher": "microsoft-azure-batch",
+                "offer": "ubuntu-server-container",
+                "sku": "20-04-lts",
+                "version": "latest"
+            },
+
+            /// TODO:
+            "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+        },
+
+        "windows-server": {
+            "isWindows": true,
+            "imageReference": {
+                "publisher": "microsoftwindowsserver",
+                "offer": "windowsserver",
+                "sku": "2022-datacenter-smalldisk",
+                "version": "latest"
+            },
+            "nodeAgentSkuId": "batch.node.windows amd64"
+        }
+    },
+
+    /// This is the configuration for the key vault. Key vault is necessary to pass secrets and certificates
+    /// to the batch nodes.
+    "keyVault": {
+        /// Set to true to enable soft delete for the key vault.
+        "enableSoftDelete": false
+    },
+
+    /// This is the container registry configuration. Container registry is used to store application container images
+    /// when `enableApplicationContainers` parameter is set to true for the deployment.
+    "containerRegistry": {
+        
+        // Specify whether to enable public network access on the container registry. For production, this is best set to false.
+        // enabling public network access can make it easier to push / pull container images externally.
+        "publicNetworkAccess": true
+    }
+}
