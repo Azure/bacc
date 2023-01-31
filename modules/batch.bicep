@@ -20,8 +20,15 @@ param enableApplicationContainers bool
 @description('enable application pakacges support')
 param enableApplicationPackages bool
 
-@description('subnet id for batch pool subnet')
-param poolSubnetId string
+@description('vnet under which pool subsets are defined')
+@metadata({
+  group: 'vnet group name'
+  name: 'vnet name'
+})
+param vnet object = {
+  group: ''
+  name: ''
+}
 
 @description('log workspace config')
 param logConfig object = {}
@@ -29,7 +36,7 @@ param logConfig object = {}
 @description('app insights config')
 param appInsightsConfig object = {}
 
-var config = loadJsonContent('../config/batch.json')
+var config = loadJsonContent('../config/batch.jsonc')
 var builtinRoles = loadJsonContent('builtinRoles.json')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 
@@ -60,7 +67,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-
 var needsKeyVault = config.batchAccount.poolAllocationMode == 'UserSubscription'
 @description('key vault required to use fo')
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
-  name: config.keyVault.name ?? take('kv-${guid('kv', rsPrefix, resourceGroup().id)}', 24)
+  name: take('kv-${guid('kv', rsPrefix, resourceGroup().id)}', 24)
   location: location
   tags: tags
   properties: {
@@ -125,7 +132,7 @@ resource keyVault_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
   we need a storage account.
 */
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = if (enableApplicationPackages) {
-  name: config.batchAccountStorage.name ?? take('sa0${join(split(guid('sa', rsPrefix, resourceGroup().id), '-'), '')}', 24)
+  name: take('sa0${join(split(guid('sa', rsPrefix, resourceGroup().id), '-'), '')}', 24)
   location: location
   tags: tags
   sku: {
@@ -182,7 +189,7 @@ resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if
  Deploy container registry if containers are renabled.
 */
 resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = if (enableApplicationContainers) {
-  name: config.containerRegistry.name ?? take('acr${join(split(guid('acr', rsPrefix, resourceGroup().id), '-'), '')}', 50)
+  name: take('acr${join(split(guid('acr', rsPrefix, resourceGroup().id), '-'), '')}', 50)
   location: location
   sku: {
     name: 'Premium' // needed for private endpoints
@@ -215,7 +222,7 @@ resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
   The batch account.
 */
 resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
-  name: config.batchAccount.name ?? take('ba${join(split(guid('ba', rsPrefix, resourceGroup().id), '-'), '')}', 24)
+  name: take('ba${join(split(guid('ba', rsPrefix, resourceGroup().id), '-'), '')}', 24)
   location: location
   tags: tags
   identity: {
@@ -313,6 +320,12 @@ var batchInsightsStartTask = {
   }
 }
 
+
+resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
+  name: vnet.name
+  scope: resourceGroup(vnet.group)
+}
+
 resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in config.pools: {
   name: item.name
   parent: batchAccount
@@ -367,7 +380,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
     targetNodeCommunicationMode: 'Simplified'
     interNodeCommunication: item.interNodeCommunication ? 'Enabled' : 'Disabled'
     networkConfiguration: {
-      subnetId: poolSubnetId
+      subnetId: '${poolVNet.id}/subnets/${item.subnet}'
       publicIPAddressConfiguration: {
         provision: 'NoPublicIPAddresses'
       }

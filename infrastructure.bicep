@@ -27,13 +27,13 @@ param useSingleResourceGroup bool = false
 param batchServiceObjectId string
 
 @description('enable application packages for batch account')
-param enableApplicationPackages bool
+param enableApplicationPackages bool = false
 
 @description('enable container support for applications')
-param enableApplicationContainers bool
+param enableApplicationContainers bool = false
 
 @description('hub configuration')
-param hubConfig object = loadJsonContent('config/hub.json')
+param hubConfig object = loadJsonContent('config/hub.jsonc')
 
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
@@ -142,7 +142,7 @@ module dplBatch 'modules/batch.bicep' = {
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages
     enableApplicationContainers: enableApplicationContainers
-    poolSubnetId: dplSpoke.outputs.snetPool.snetId
+    vnet: dplSpoke.outputs.vnet
     logConfig: dplDiagnostics.outputs.logConfig
     appInsightsConfig: dplDiagnostics.outputs.appInsightsConfig
   }

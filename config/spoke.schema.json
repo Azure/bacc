@@ -19,24 +19,12 @@
             "type": "object",
             "properties": {
                 "private-endpoints": {
-                    "description": "address prefixes for private-endpoints subnet",
-                    "type": "array",
-                    "items": {
-                        "description": "ip address prefix",
-                        "type": "string"
-                    }
-                },
-                "pool": {
-                    "description": "address prefixes for batch pools subnet",
-                    "type": "array",
-                    "items": {
-                        "description": "ip address prefix",
-                        "type": "string"
-                    }
+                    "description": "address prefix for private-endpoints subnet",
+                    "type": "string"
                 }
             },
 
-            "required": ["private-endpoints", "pool"]
+            "required": ["private-endpoints"]
         },
 
         "networkSecurityGroups": {
@@ -68,7 +56,7 @@
                     }
                 }
             },
-            "required": ["batch-legacy", "batch-simplified", "default"]
+            "required": ["batch-classic", "batch-simplified", "default"]
         }
     },
 

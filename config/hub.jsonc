@@ -1,0 +1,40 @@
+{
+    /// This configuration file is intended to provide information about the hub network and resources, if any.
+    /// The default version of this file simply documents the structure of the file and is suitable for standalone
+    /// deployments, i.e. deployments without a hub. The hub deployment typically will generate a similar config file
+    /// which can be directly passed as parameters to the deployment to be used insted of this default version.
+
+    /// "diagnostics" is the configuration for the diagnostic logs and metrics.
+    "diagnostics": {
+
+        /// if "logAnalyticsWorkspace" is specified, diagnostic logs will be sent to the workspace.
+        "logAnalyticsWorkspace": {
+
+            /// log analytics workspace id
+            "id": null
+        },
+
+        /// Application Insights is used to collect metrics and logs from the application.
+        "appInsights": {
+            "appId": null,
+            "instrumentationKey": null
+        }
+    },
+
+    /// "network" is the configuration for the hub network.
+    "network": {
+        /// user defined routes to use as first hop for the spoke vnets. This is useful for routing traffic to
+        /// firewall, for example. Routes are specified as a list of objects in the `Route` format defined
+        /// here: https://learn.microsoft.com/en-us/azure/templates/microsoft.network/routetables?tabs=bicep&pivots=deployment-language-bicep#route
+        /// e.g. 
+        /// routes: [{
+        ///     name: 'r-nexthop-to-fw'
+        ///     properties: {
+        ///         nextHopType: 'VirtualAppliance'
+        ///         addressPrefix: '0.0.0.0/0'
+        ///         nextHopIpAddress: fwHub.properties.ipConfigurations[0].properties.privateIPAddress
+        ///     }
+        /// }]
+        "routes": [ ]
+    }
+}
