@@ -1,5 +1,6 @@
 # azbatch-starter
 
+![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 [![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
 
 ## Preamble
