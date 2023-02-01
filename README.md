@@ -26,3 +26,9 @@ files.
 
 * [**hub.jsonc**](./config/hub.jsonc): This file specifies the configuration for the hub network. This file is
   used to provide the information about the hub network.
+
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [MIT License](./LICENSE)
