@@ -1,5 +1,7 @@
 # azbatch-starter
 
+[![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
+
 ## Preamble
 
 This repository is under development, as is this document. Expect everything to change
