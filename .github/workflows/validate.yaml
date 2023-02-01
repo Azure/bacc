@@ -20,10 +20,6 @@ jobs:
     steps:
       - name: 'checkout source'
         uses: actions/checkout@v3
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: python3-jsonschema
-          version: 1.0
       - name: validate spoke.jsonc
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json

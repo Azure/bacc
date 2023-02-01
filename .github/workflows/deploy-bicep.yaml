@@ -1,0 +1,17 @@
+name: 'deploy-bicep'
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: 'Deployment location'
+        required: false
+        default: 'eastus'
+        type: string
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-callable.yaml
+    with:
+      location: ${{ github.event.inputs.location }}
+      prefix: uda-dpl-test
+      use_single_resource_group: false
+    secrets: inherit
