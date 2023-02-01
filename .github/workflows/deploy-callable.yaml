@@ -1,0 +1,29 @@
+name: deploy-callable
+on:
+  workflow_call:
+    inputs:
+      location:
+        type: string
+        required: true
+      prefix:
+        type: string
+        required: true
+      use_single_resource_group:
+        type: boolean
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+      - uses: azure/arm-deploy@v1
+        with:
+          scope: subscription
+          subscriptionId: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+          region: ${{ inputs.location }}
+          template: ./infrastructure.bicep
+          deploymentName: dpl-${{ inputs.prefix }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} useSingleResourceGroup=${{ inputs.use_single_resource_group }}
