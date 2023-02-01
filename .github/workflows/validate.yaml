@@ -28,7 +28,7 @@ jobs:
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
           jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/config/spoke.schema.json
-  az-cli-test:
+  validate-azure-credentials:
     runs-on: ubuntu-22.04
     steps:
       - uses: azure/login@v1
