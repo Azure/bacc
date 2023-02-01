@@ -1,0 +1,21 @@
+name: validate
+on: [push]
+jobs:
+  validate:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: 'checkout source'
+        uses: actions/checkout@v3
+
+      - name: 'azure '
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.42.0
+          inlineScript: |
+            az --version
+            az bicep build --file $GITHUB_WORKSPACE/infrastructure.bicep
+
+      - name: 'check output'
+        run: file $GITHUB_WORKSPACE/infrastructure.json
+      
