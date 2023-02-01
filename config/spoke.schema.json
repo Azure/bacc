@@ -47,7 +47,7 @@
                         "type": "object"
                     }
                 },
-                "default": {
+                "private-endpoints": {
                     "description": "security rules for non-pool subnets",
                     "type": "array",
                     "items": {
@@ -56,7 +56,7 @@
                     }
                 }
             },
-            "required": ["batch-classic", "batch-simplified", "default"]
+            "required": ["batch-classic", "batch-simplified", "private-endpoints"]
         }
     },
 

@@ -1,13 +1,11 @@
 name: validate
 on: [push]
 jobs:
-  validate:
+  validate-bicep:
     runs-on: ubuntu-22.04
     steps:
-
       - name: 'checkout source'
         uses: actions/checkout@v3
-
       - name: 'azure '
         uses: azure/CLI@v1
         with:
@@ -15,7 +13,18 @@ jobs:
           inlineScript: |
             az --version
             az bicep build --file $GITHUB_WORKSPACE/infrastructure.bicep
-
       - name: 'check output'
         run: file $GITHUB_WORKSPACE/infrastructure.json
-      
+  validate-json:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 'checkout source'
+        uses: actions/checkout@v3
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: python3-jsonschema
+          version: 1.0
+      - name: validate spoke.jsonc
+        run: |
+          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
+          jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/config/spoke.schema.json
