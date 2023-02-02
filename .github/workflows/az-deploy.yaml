@@ -1,0 +1,25 @@
+name: 'az-deploy'
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: 'Deployment location'
+        required: false
+        default: 'eastus'
+        type: string
+jobs:
+  deploy:
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        use_single_resource_group: [false, true]
+        enable_application_containers: [false, true]
+    uses: ./.github/workflows/deploy-callable.yaml
+    with:
+      location: ${{ github.event.inputs.location }}
+      prefix: batch-starter
+      suffix_salt: ${{ github.run_id }} ${{ matrix.use_single_resource_group }}
+      use_single_resource_group: ${{ matrix.use_single_resource_group }}
+      enable_application_containers: ${{ matrix }}
+    secrets: inherit

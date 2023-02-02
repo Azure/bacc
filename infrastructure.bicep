@@ -17,6 +17,9 @@ param environment string = 'dev'
 @maxLength(13)
 param prefix string = uniqueString(environment, subscription().id, location)
 
+@description('string used as salt for generating unique suffix for all resources')
+param suffixSalt string = ''
+
 @description('additonal tags to attach to resources created')
 param tags object = {}
 
@@ -48,11 +51,13 @@ param timestamp string = utcNow('g')
 // Variables
 //------------------------------------------------------------------------------
 
+var suffix = empty(suffixSalt) ? '' : '-${uniqueString(suffixSalt)}'
+
 @description('resources prefix')
-var rsPrefix = '${environment}-${prefix}'
+var rsPrefix = '${environment}-${prefix}${suffix}'
 
 @description('deployments prefix')
-var dplPrefix = 'dpl-${environment}-${prefix}'
+var dplPrefix = 'dpl-${environment}-${prefix}${suffix}'
 
 @description('tags for all resources')
 var allTags = union(tags, {
