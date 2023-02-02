@@ -1,7 +1,8 @@
 # azbatch-starter
 
-![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 [![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
+[![az-deploy-matrix](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml)
+![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 
 ## Preamble
 
@@ -35,3 +36,9 @@ files.
 Copyright (c) Microsoft Corporation. All rights reserved.
 
 Licensed under the [MIT License](./LICENSE)
+
+## Prerequisites
+
+* The account creating the deployment needs to have **Owner** role on the subscription. This is essential to assign the
+  correct roles to the resources being deployed. **Contributor** role is not adequate since that does not allow us to assign
+  roles to the managed identity created by the deployment.
