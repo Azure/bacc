@@ -61,15 +61,22 @@ on:
         description: 'Cleanup resources'
         required: false
         default: true
+permissions:
+  # these are needed for azure login with OIDC
+  contents: read
+  id-token: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: azure
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         id: az_login
         with:
-          creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+          client-id: ${{ secrets.AZ_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZ_TENANT_ID }}
+          subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - uses: azure/arm-deploy@v1
         with:
           scope: subscription
