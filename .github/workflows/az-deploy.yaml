@@ -1,25 +1,86 @@
-name: 'az-deploy'
+name: az-deploy
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       location:
-        description: 'Deployment location'
-        required: false
-        default: 'eastus'
         type: string
+        description: 'Deployment location'
+        required: true
+      prefix:
+        type: string
+        description: 'Deployment prefix'
+        required: true
+      suffix_salt:
+        type: string
+        description: 'Randomizer string for suffix'
+        required: false
+        default: ''
+      use_single_resource_group:
+        type: boolean
+        description: 'Use single resource group for all resources'
+        required: false
+        default: false
+      enable_application_containers:
+        type: boolean
+        description: 'Enable application containers'
+        required: false
+        default: false
+      cleanup:
+        type: boolean
+        description: 'Cleanup resources'
+        required: false
+        default: true
+  workflow_dispatch:
+    # ensure inputs are same as workflow_call.inputs
+    inputs:
+      location:
+        type: string
+        description: 'Deployment location'
+        required: true
+      prefix:
+        type: string
+        description: 'Deployment prefix'
+        required: true
+      suffix_salt:
+        type: string
+        description: 'Randomizer string for suffix'
+        required: false
+        default: ''
+      use_single_resource_group:
+        type: boolean
+        description: 'Use single resource group for all resources'
+        required: false
+        default: false
+      enable_application_containers:
+        type: boolean
+        description: 'Enable application containers'
+        required: false
+        default: false
+      cleanup:
+        type: boolean
+        description: 'Cleanup resources'
+        required: false
+        default: true
 jobs:
   deploy:
-    strategy:
-      max-parallel: 1
-      fail-fast: true
-      matrix:
-        use_single_resource_group: [false, true]
-        enable_application_containers: [false, true]
-    uses: ./.github/workflows/deploy-callable.yaml
-    with:
-      location: ${{ github.event.inputs.location }}
-      prefix: batch-starter
-      suffix_salt: ${{ github.run_id }} ${{ matrix.use_single_resource_group }} ${{ matrix.enable_application_containers }}
-      use_single_resource_group: ${{ matrix.use_single_resource_group }}
-      enable_application_containers: ${{ matrix.enable_application_containers }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        id: az_login
+        with:
+          creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+      - uses: azure/arm-deploy@v1
+        with:
+          scope: subscription
+          subscriptionId: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+          region: ${{ inputs.location }}
+          template: ./infrastructure.bicep
+          deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" useSingleResourceGroup=${{ inputs.use_single_resource_group }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }}
+      - name: cleanup
+        if: always() && inputs.cleanup && steps.az_login.conclusion == 'success'
+        run: |
+          az deployment sub show -n dpl-${{ inputs.prefix }}-${{ github.run_id }} --query properties.outputs
+          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv
+          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --no-wait --name

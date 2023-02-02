@@ -1,0 +1,25 @@
+name: az-deploy-matrix
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: 'Deployment location'
+        required: false
+        default: 'eastus'
+        type: string
+jobs:
+  deploy:
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        use_single_resource_group: [false, true]
+        enable_application_containers: [false, true]
+    uses: ./.github/workflows/az-deploy.yaml
+    with:
+      location: ${{ github.event.inputs.location }}
+      prefix: batch-starter
+      suffix_salt: ${{ github.run_id }} ${{ matrix.use_single_resource_group }} ${{ matrix.enable_application_containers }}
+      use_single_resource_group: ${{ matrix.use_single_resource_group }}
+      enable_application_containers: ${{ matrix.enable_application_containers }}
+    secrets: inherit

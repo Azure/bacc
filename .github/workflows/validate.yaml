@@ -1,35 +1,21 @@
 name: validate
 on: [push]
 jobs:
-  validate-bicep:
+  validate:
     runs-on: ubuntu-22.04
     steps:
-      - name: 'checkout source'
+      - name: checkout source
         uses: actions/checkout@v3
-      - name: 'azure '
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.42.0
-          inlineScript: |
-            az --version
-            az bicep build --file $GITHUB_WORKSPACE/infrastructure.bicep
-      - name: 'check output'
-        run: file $GITHUB_WORKSPACE/infrastructure.json
-  validate-json:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 'checkout source'
-        uses: actions/checkout@v3
+      - name: az bicep build
+        run: |
+          az --version
+          az bicep build --file $GITHUB_WORKSPACE/infrastructure.bicep
+          file $GITHUB_WORKSPACE/infrastructure.json
       - name: validate spoke.jsonc
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
           jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/config/spoke.schema.json
-  validate-azure-credentials:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: azure/login@v1
+      - name: validate azure credentials
+        uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
-      - name: 'run az commands'
-        run: |
-          az account show
