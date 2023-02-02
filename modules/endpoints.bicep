@@ -62,7 +62,7 @@ resource links 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01
 }]
 
 module dplPrivateEndpoints 'privateEndpoint.bicep' = [for (item, idx) in endpoints: {
-  name: '${dplPrefix}-${item.name}-${idx}-eps'
+  name: '${dplPrefix}-${uniqueString(item.name, '${idx}')}-eps'
   scope: resourceGroup(item.group)
   params: {
     name: '${item.name}-${idx}-pl'
