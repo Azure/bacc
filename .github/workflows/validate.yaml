@@ -1,8 +1,13 @@
 name: validate
 on: [push]
+permissions:
+  # these are needed for azure login with OIDC
+  contents: read
+  id-token: write
 jobs:
   validate:
     runs-on: ubuntu-22.04
+    environment: azure
     steps:
       - name: checkout source
         uses: actions/checkout@v3
@@ -18,4 +23,6 @@ jobs:
       - name: validate azure credentials
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZ_CLIENT_ID }}","clientSecret":"${{ secrets.AZ_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZ_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZ_TENANT_ID }}"}'
+          client-id: ${{ secrets.AZ_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZ_TENANT_ID }}
+          subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
