@@ -441,3 +441,12 @@ var endpoints = [
 ]
 
 output endpoints array = filter(endpoints, arg => !empty(arg))
+
+@description('batch account endpoint')
+output batchAccountEndpoint string = batchAccount.properties.accountEndpoint
+
+@description('batch account name')
+output batchAccountName string = batchAccount.name
+
+@description('batch account resource group')
+output batchAccountResourceGroup string = resourceGroup().name

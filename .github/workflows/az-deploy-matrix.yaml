@@ -22,4 +22,6 @@ jobs:
       suffix_salt: ${{ github.run_id }} ${{ matrix.use_single_resource_group }} ${{ matrix.enable_application_containers }}
       use_single_resource_group: ${{ matrix.use_single_resource_group }}
       enable_application_containers: ${{ matrix.enable_application_containers }}
+      deploy: true
+      cleanup: true
     secrets: inherit

@@ -177,3 +177,12 @@ module dplEndpoints 'modules/endpoints.bicep' = {
 
 @description('resource groups created')
 output resourceGroupNames array = uniqueGroups
+
+@description('batch account endpoint')
+output batchAccountEndpoint string = dplBatch.outputs.batchAccountEndpoint
+
+@description('batch account resource group')
+output batchAccountResourceGroup string = dplBatch.outputs.batchAccountResourceGroup
+
+@description('batch account name')
+output batchAccountName string = dplBatch.outputs.batchAccountName

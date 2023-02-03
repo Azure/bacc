@@ -1,0 +1,16 @@
+# login to batch account
+$ az batch account login -g AZ_BATCH_ACCOUNT_GROUP -n AZ_BATCH_ACCOUNT_NAME
+>=0
+
+# verify account has 2 pools
+$ az batch pool list | jq ".[].id" | wc -l
+>
+2
+>=0
+
+# verify both windows and linux pools have been created
+$ az batch pool list | jq ".[].id" | sort
+>
+"linux"
+"windows"
+>=0

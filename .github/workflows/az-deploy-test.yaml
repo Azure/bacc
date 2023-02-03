@@ -1,0 +1,54 @@
+name: az-deploy-test
+on:
+  workflow_dispatch:
+    inputs:
+      batch_account_endpoint:
+        type: string
+        description: 'Batch account endpoint'
+        required: true
+      batch_account_group:
+        type: string
+        description: 'Batch account group'
+        required: true
+      batch_account_name:
+        type: string
+        description: 'Batch account name'
+        required: true
+  workflow_call:
+    inputs:
+      batch_account_endpoint:
+        type: string
+        description: 'Batch account endpoint'
+        required: true
+      batch_account_group:
+        type: string
+        description: 'Batch account group'
+        required: true
+      batch_account_name:
+        type: string
+        description: 'Batch account name'
+        required: true
+permissions:
+  # these are needed for azure login with OIDC
+  contents: read
+  id-token: write
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    environment: azure
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shelltestrunner
+          shelltest --version
+      - uses: azure/login@v1
+        id: az_login
+        with:
+          client-id: ${{ secrets.AZ_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZ_TENANT_ID }}
+          subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      - name: Run tests
+        run: |
+          shelltest $GITHUB_WORKSPACE/tests --color -DAZ_BATCH_ACCOUNT_GROUP=${{ inputs.batch_account_group }} -DAZ_BATCH_ACCOUNT_NAME=${{ inputs.batch_account_name }} -DAZ_BATCH_ACCOUNT_ENDPOINT=${{ inputs.batch_account_endpoint }}

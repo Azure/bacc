@@ -25,6 +25,11 @@ on:
         description: 'Enable application containers'
         required: false
         default: false
+      deploy:
+        type: boolean
+        description: 'Deploy resources'
+        required: false
+        default: true
       cleanup:
         type: boolean
         description: 'Cleanup resources'
@@ -56,6 +61,11 @@ on:
         description: 'Enable application containers'
         required: false
         default: false
+      deploy:
+        type: boolean
+        description: 'Deploy resources'
+        required: false
+        default: true
       cleanup:
         type: boolean
         description: 'Cleanup resources'
@@ -69,6 +79,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: azure
+    outputs:
+      AZ_BATCH_ACCOUNT_ENDPOINT: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
+      AZ_BATCH_ACCOUNT_GROUP: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_GROUP }}
+      AZ_BATCH_ACCOUNT_NAME: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_NAME }}
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
@@ -78,6 +92,7 @@ jobs:
           tenant-id: ${{ secrets.AZ_TENANT_ID }}
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - uses: azure/arm-deploy@v1
+        if: inputs.deploy
         with:
           scope: subscription
           subscriptionId: ${{ secrets.AZ_SUBSCRIPTION_ID }}
@@ -85,9 +100,36 @@ jobs:
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
           parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" useSingleResourceGroup=${{ inputs.use_single_resource_group }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }}
-      - name: cleanup
-        if: always() && inputs.cleanup && steps.az_login.conclusion == 'success'
+      - name: show / save outputs
+        id: az_outputs
         run: |
-          az deployment sub show -n dpl-${{ inputs.prefix }}-${{ github.run_id }} --query properties.outputs
+          az deployment sub show -n dpl-${{ inputs.prefix }}-${{ github.run_id }} --query properties.outputs > $GITHUB_WORKSPACE/outputs.json
+          cat $GITHUB_WORKSPACE/outputs.json
+          echo "AZ_BATCH_ACCOUNT_ENDPOINT=$(jq -r .batchAccountEndpoint.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
+          echo "AZ_BATCH_ACCOUNT_GROUP=$(jq -r .batchAccountResourceGroup.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
+          echo "AZ_BATCH_ACCOUNT_NAME=$(jq -r .batchAccountName.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
+  test:
+    uses: ./.github/workflows/az-deploy-test.yaml
+    needs: deploy
+    with:
+      batch_account_endpoint: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
+      batch_account_group: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
+      batch_account_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_NAME }}
+    secrets: inherit
+  cleanup:
+    runs-on: ubuntu-latest
+    environment: azure
+    if: always() && inputs.cleanup
+    needs: [deploy, test]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        id: az_login
+        with:
+          client-id: ${{ secrets.AZ_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZ_TENANT_ID }}
+          subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      - name: cleanup
+        run: |
           az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv
           az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --no-wait --name
