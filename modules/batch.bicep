@@ -36,9 +36,22 @@ param logConfig object = {}
 @description('app insights config')
 param appInsightsConfig object = {}
 
+@description('pool NFS mount configurations')
+param nfsMountConfigurations array = []
+
+@description('pool Azure File Shares mount configurations')
+param afsMountConfigurations array = []
+
 var config = loadJsonContent('../config/batch.jsonc')
-var builtinRoles = loadJsonContent('builtinRoles.json')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
+
+var linuxMounts = union(nfsMountConfigurations, afsMountConfigurations)
+var windowsMounts = union(afsMountConfigurations, [])
+var poolPropertiesMounts = {
+  linux: !empty(linuxMounts) ? linuxMounts : null
+  windows: !empty(windowsMounts) ? windowsMounts : null
+}
+
 
 //------------------------------------------------------------------------------
 // Resources
@@ -167,16 +180,13 @@ resource saContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@
   }
 }
 
-// give the managedIdentity access to the storage account
-resource roleSA 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableApplicationPackages) {
-  name: guid(managedIdentity.id, sa.id, 'StorageBlobDataContributor')
-  scope: sa
-  properties: {
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles.StorageBlobDataContributor)
-  }
-}
+var saRoleAssignments = enableApplicationPackages ? [{
+  kind: 'storage'
+  name: sa.name
+  group: resourceGroup().name
+  roles: [ 'Storage Blob Data Contributor' ]
+}] : []
+
 
 @description('storage account diagnostics setting')
 resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationPackages && !empty(logConfig)) {
@@ -188,7 +198,7 @@ resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if
 /**
  Deploy container registry if containers are renabled.
 */
-resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = if (enableApplicationContainers) {
+resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApplicationContainers) {
   name: take('acr${join(split(guid('acr', rsPrefix, resourceGroup().id), '-'), '')}', 50)
   location: location
   sku: {
@@ -202,15 +212,12 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = if (e
   }
 }
 
-resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in ['AcrPull', 'AcrPush', 'AcrDelete', 'AcrImageSigner']: if (enableApplicationContainers) {
-  name: guid(managedIdentity.id, acr.id, role)
-  scope: acr
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[role])
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}]
+var acrRoleAssignments = enableApplicationContainers ? [{
+  kind: 'acr'
+  name: acr.name
+  group: resourceGroup().name
+  roles: [ 'AcrPull', 'AcrPush', 'AcrDelete', 'AcrImageSigner' ]
+}] : []
 
 resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (enableApplicationContainers && !empty(logConfig)) {
   name: '${acr.name}-diag'
@@ -268,10 +275,6 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
       url: keyVault.properties.vaultUri
     } : null
   }
-
-  dependsOn: [
-    roleSA
-  ]
 }
 
 resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
@@ -394,6 +397,8 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
           scope: 'pool'
         }
       }}) : {}
+
+    mountConfiguration: config.images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
   }
 }]
 
@@ -450,3 +455,11 @@ output batchAccountName string = batchAccount.name
 
 @description('batch account resource group')
 output batchAccountResourceGroup string = resourceGroup().name
+
+@description('resources needing role assignments')
+output roleAssignments array = union(acrRoleAssignments, saRoleAssignments)
+
+output miConfig object = {
+  name: managedIdentity.name
+  group: resourceGroup().name
+}

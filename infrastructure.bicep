@@ -76,6 +76,7 @@ var resourceGroupNames = {
     name: useSingleResourceGroup? 'rg-${rsPrefix}' : 'rg-${rsPrefix}-batch'
     enabled: true
   }
+
 }
 
 //------------------------------------------------------------------------------
@@ -136,6 +137,24 @@ module dplSpoke 'modules/spoke.bicep' = {
   ]
 }
 
+@description('deployment for storage accounts')
+module dplStorage 'modules/storage.bicep' = {
+  name: '${dplPrefix}-storage'
+  scope: resourceGroup(resourceGroupNames.batchRG.name)
+  params: {
+    rsPrefix: rsPrefix
+    dplPrefix: dplPrefix
+    location: location
+    tags: allTags
+  }
+
+  dependsOn: [
+    // this is necessary to ensure all resource groups have been deployed
+    // before we attempt to deploy resources under those resource groups.
+    resourceGroups
+  ]
+}
+
 @description('deployment for batch resources')
 module dplBatch 'modules/batch.bicep' = {
   name: '${dplPrefix}-batch'
@@ -150,6 +169,8 @@ module dplBatch 'modules/batch.bicep' = {
     vnet: dplSpoke.outputs.vnet
     logConfig: dplDiagnostics.outputs.logConfig
     appInsightsConfig: dplDiagnostics.outputs.appInsightsConfig
+    nfsMountConfigurations: flatten(dplStorage.outputs.nfsMountConfigurations)
+    afsMountConfigurations: flatten(dplStorage.outputs.afsMountConfigurations)
   }
 
   dependsOn: [
@@ -158,8 +179,6 @@ module dplBatch 'modules/batch.bicep' = {
     resourceGroups
   ]
 }
-
-var endpoints = dplBatch.outputs.endpoints
 
 @description('deploy private endpoints and all related resources')
 module dplEndpoints 'modules/endpoints.bicep' = {
@@ -170,8 +189,21 @@ module dplEndpoints 'modules/endpoints.bicep' = {
     rsPrefix: rsPrefix
     location: location
     tags: allTags
-    endpoints: endpoints
+    endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
     snetInfo: dplSpoke.outputs.snetPrivateEndpoints
+  }
+}
+
+/// TODO: in case of non-owner subscription access, we need to skip this and instead
+/// allow it to be done as a separate step after deployment completes
+@description('deploy role assignments')
+module dplRoleAssignments 'modules/roleAssignments.bicep' = {
+  name: '${dplPrefix}-roleAssignments'
+  params: {
+    dplPrefix: dplPrefix
+    rsPrefix: rsPrefix
+    miConfig: dplBatch.outputs.miConfig
+    roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
   }
 }
 

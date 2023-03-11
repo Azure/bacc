@@ -41,7 +41,7 @@
 
             /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
             /// configuration files.
-            "subnet": "pool-linux"
+            "subnet": "pool-linux",
         },
 
         {
