@@ -142,4 +142,4 @@ jobs:
       - name: cleanup
         run: |
           az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv
-          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --no-wait --name
+          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --name
