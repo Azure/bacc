@@ -13,8 +13,13 @@ jobs:
       max-parallel: 1
       fail-fast: true
       matrix:
-        use_single_resource_group: [false, true]
+        use_single_resource_group: [true]
         enable_application_containers: [false, true]
+        enable_application_packages: [false, true]
+        include:
+          - use_single_resource_group: false
+            enable_application_containers: true
+            enable_application_packages: true
     uses: ./.github/workflows/az-deploy.yaml
     with:
       location: ${{ github.event.inputs.location }}
@@ -22,6 +27,7 @@ jobs:
       suffix_salt: ${{ github.run_id }} ${{ matrix.use_single_resource_group }} ${{ matrix.enable_application_containers }}
       use_single_resource_group: ${{ matrix.use_single_resource_group }}
       enable_application_containers: ${{ matrix.enable_application_containers }}
+      enable_application_packages: ${{ matrix.enable_application_packages }}
       deploy: true
       cleanup: true
     secrets: inherit

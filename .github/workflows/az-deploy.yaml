@@ -25,6 +25,11 @@ on:
         description: 'Enable application containers'
         required: false
         default: false
+      enable_application_packages:
+        type: boolean
+        description: 'Enable application packages'
+        required: false
+        default: false
       deploy:
         type: boolean
         description: 'Deploy resources'
@@ -59,6 +64,11 @@ on:
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
+        required: false
+        default: false
+      enable_application_packages:
+        type: boolean
+        description: 'Enable application packages'
         required: false
         default: false
       deploy:
@@ -99,7 +109,7 @@ jobs:
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" useSingleResourceGroup=${{ inputs.use_single_resource_group }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" useSingleResourceGroup=${{ inputs.use_single_resource_group }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
       - name: show / save outputs
         id: az_outputs
         run: |
