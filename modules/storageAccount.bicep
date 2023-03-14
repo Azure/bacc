@@ -85,16 +85,13 @@ var afsMounts = [for share in sanitizedAccount.shares: {
 }]
 
 module mdlPopulateKeys 'populateKeys.bicep' = {
-  name: '${dplPrefix}-populateKeys'
+  name: take('${dplPrefix}-populateKeys-${uniqueString(storageAccount.id)}', 64)
   params: {
     key: storageAccount.listKeys().keys[0].value
     objectList: afsMounts
     objectKey: 'azureFileShareConfiguration'
   }
 }
-
-output nfsMountConfigurations array = nfsMounts
-output afsMountConfigurations array = mdlPopulateKeys.outputs.result
 
 var blobEndpoints = [for container in sanitizedAccount.containers: {
   name: storageAccount.name
@@ -112,4 +109,6 @@ var fileEndpoints = [for share in sanitizedAccount.shares: {
   privateDnsZoneName: 'privatelink.file.${az.environment().suffixes.storage}'
 }]
 
+output nfsMountConfigurations array = nfsMounts
+output afsMountConfigurations array = mdlPopulateKeys.outputs.result
 output endpoints array = union(blobEndpoints, fileEndpoints)
