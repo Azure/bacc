@@ -84,6 +84,7 @@ var afsMounts = [for share in sanitizedAccount.shares: {
   }
 }]
 
+// FIXME: use key-vault to store keys instead
 module mdlPopulateKeys 'populateKeys.bicep' = {
   name: take('${dplPrefix}-populateKeys-${uniqueString(storageAccount.id)}', 64)
   params: {
