@@ -101,7 +101,7 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2021-04-01' = [for n
 // it to add diagnostics settings to all resources that support it.
 @description('diagnostics configuration')
 module dplDiagnostics 'modules/diagnostics.bicep' = {
-  name: '${dplPrefix}-diagnostics'
+  name: take('${dplPrefix}-diagnostics', 64)
   params: {
     diagnosticsConfig: contains(hubConfig, 'diagnostics') ? hubConfig.diagnostics : {}
   }
@@ -110,7 +110,7 @@ module dplDiagnostics 'modules/diagnostics.bicep' = {
 // process network configuration
 @description('network configuration')
 module dplHubNetwork 'modules/hub_network.bicep' = {
-  name: '${dplPrefix}-hub-network'
+  name: take('${dplPrefix}-hub-network', 64)
   params: {
     networkConfig: contains(hubConfig, 'network') ? hubConfig.network : {}
   }
@@ -120,8 +120,8 @@ module dplHubNetwork 'modules/hub_network.bicep' = {
 
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
+  name: take('${dplPrefix}-spoke', 64)
   scope: resourceGroup(resourceGroupNames.networkRG.name)
-  name: '${dplPrefix}-spoke'
   params: {
     location: location
     rsPrefix: rsPrefix
@@ -139,7 +139,7 @@ module dplSpoke 'modules/spoke.bicep' = {
 
 @description('deployment for storage accounts')
 module dplStorage 'modules/storage.bicep' = {
-  name: '${dplPrefix}-storage'
+  name: take('${dplPrefix}-storage', 64)
   scope: resourceGroup(resourceGroupNames.batchRG.name)
   params: {
     rsPrefix: rsPrefix
@@ -157,7 +157,7 @@ module dplStorage 'modules/storage.bicep' = {
 
 @description('deployment for batch resources')
 module dplBatch 'modules/batch.bicep' = {
-  name: '${dplPrefix}-batch'
+  name: take('${dplPrefix}-batch', 64)
   scope: resourceGroup(resourceGroupNames.batchRG.name)
   params: {
     location: location
@@ -182,7 +182,7 @@ module dplBatch 'modules/batch.bicep' = {
 
 @description('deploy private endpoints and all related resources')
 module dplEndpoints 'modules/endpoints.bicep' = {
-  name: '${dplPrefix}-endpoints'
+  name: take('${dplPrefix}-endpoints', 64)
   scope: resourceGroup(resourceGroupNames.networkRG.name)
   params: {
     dplPrefix: dplPrefix
@@ -198,7 +198,7 @@ module dplEndpoints 'modules/endpoints.bicep' = {
 /// allow it to be done as a separate step after deployment completes
 @description('deploy role assignments')
 module dplRoleAssignments 'modules/roleAssignments.bicep' = {
-  name: '${dplPrefix}-roleAssignments'
+  name: take('${dplPrefix}-roleAssignments', 64)
   params: {
     dplPrefix: dplPrefix
     rsPrefix: rsPrefix

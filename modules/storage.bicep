@@ -28,7 +28,7 @@ var accounts = map(items(config), entity => union(entity.value, {
 
 @description('deploy storage accounts')
 module mdlStorageAccounts 'storageAccount.bicep' = [for account in accounts: {
-  name: '${dplPrefix}-${account.key}'
+  name: take('${dplPrefix}-${account.key}', 64)
   params: {
     dplPrefix: dplPrefix
     location: location

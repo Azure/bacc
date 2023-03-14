@@ -14,7 +14,7 @@ param roleAssignments array
 // var acrRoles = filter(roleAssignments, (roleAssignment) => roleAssignment.kind == 'acr')
 
 module roles 'roles.bicep' = [for config in roleAssignments: {
-  name: '${dplPrefix}-roles-${config.name}'
+  name: take('${dplPrefix}-roles-${config.name}', 64)
   scope: resourceGroup(config.group)
   params: {
     rsPrefix: rsPrefix
