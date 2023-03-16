@@ -31,32 +31,16 @@
             "description": "security rules for network security groups",
             "type": "object",
             "properties": {
-                "batch-legacy": {
-                    "description": "security rules for batch pools with legacy communication model",
-                    "type": "array",
-                    "items": {
-                        "description": "security rules",
-                        "type": "object"
-                    }
-                },
-                "batch-simplified": {
-                    "description": "security rules for batch pools with simplified communication model",
-                    "type": "array",
-                    "items": {
-                        "description": "security rules",
-                        "type": "object"
-                    }
-                },
                 "private-endpoints": {
-                    "description": "security rules for non-pool subnets",
+                    "description": "names of security rules for private endpoints subnets",
                     "type": "array",
                     "items": {
                         "description": "security rules",
-                        "type": "object"
+                        "type": "string"
                     }
                 }
             },
-            "required": ["batch-classic", "batch-simplified", "private-endpoints"]
+            "required": ["private-endpoints"]
         }
     },
 

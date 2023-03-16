@@ -7,7 +7,7 @@
     /// "addressPrefixes" is the address space of the vnet. This is a list of CIDR
     /// blocks. When peering with a hub, the address space of the hub must not overlap.
     "addressPrefixes": [
-        "10.120.0.0/16"
+        "10.121.0.0/16"
     ],
 
     /// "subnets" is a list of subnets to create in the vnet. Each subnet is a CIDR
@@ -27,40 +27,45 @@
     /// network security groups etc. setup for that subnet may not be particularly suitable for
     /// ensuring correct communication between the batch nodes and the batch service.
     "subnets": {
-        "private-endpoints": "10.120.0.0/24", // <-- required
+        "private-endpoints": "10.121.0.0/24", // <-- required
 
         // the following subnets are custom and optional
-        "pool-linux": "10.120.1.0/24",
-        "pool-windows": "10.120.2.0/24"
+        "pool-linux": "10.121.1.0/24",
+        "pool-windows": "10.121.2.0/24"
     },
 
     /// "networkSecurityGroups" is a list of network security groups to create in the vnet.
-    /// Each network security group is a list of rules. The rules are applied in the order
-    /// they are defined.
+    /// Each network security group is a list of rule names. The rules are applied in the order
+    /// they are defined. The rules are defined in the "nsgRules.jsonc" file.
     ///
-    /// - "private-endpoints" are rules applied to the private endpoints subnet. This is a required.
-    /// - "batch-classic" are rules applied to the pool vnets when using batch account with classic communication
-    ///    model.
-    /// - "batch-simplified" are rules applied to the pool vnets when using batch account with simplified communication
-    ///    model.
+    /// "<keys>" must batch subnet names defined in "subnets". The rules defined here will
+    /// be applied to the subnet with the same name.
     "networkSecurityGroups": {
-        "batch-classic": [
-            {
-                "name": "AllowBatchNodeManagement",
-                "properties": {
-                    "priority": 100,
-                    "description": "allow batch service to communicate with nodes",
-                    "direction": "Inbound",
-                    "protocol": "tcp",
-                    "sourcePortRange": "*",
-                    "sourceAddressPrefix": "BatchNodeManagement",
-                    "destinationPortRange": "29876-29877",
-                    "destinationAddressPrefix": "*",
-                    "access": "Allow"
-                }
-            }
+        "pool-linux": [
+            "AllowVnetSSHInBound",
+            "AllowVnetNFSv3OutBound",
+            "AllowVnetAzureFilesOutBound",
+            "AllowAllHTTPSOutBound",
+            "AllowAllHTTPOutBound",
+            "DenyAllInBound",
+            "DenyAllOutBound"
         ],
-        "batch-simplified": [],
-        "private-endpoints": []
+
+        "pool-windows": [
+            "AllowVnetRDPInBound",
+            "AllowVnetAzureFilesOutBound",
+            "AllowAllHTTPSOutBound",
+            "DenyAllInBound",
+            "DenyAllOutBound"
+        ],
+
+        "private-endpoints": [
+            "AllowAllHTTPSInBound",
+            "AllowAllHTTPSOutBound",
+            "AllowVnetNFSv3InBound",
+            "AllowVnetAzureFilesInBound",
+            "DenyAllInBound",
+            "DenyAllOutBound"
+        ]
     }
 }

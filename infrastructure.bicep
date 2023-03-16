@@ -41,6 +41,10 @@ param hubConfig object = loadJsonContent('config/hub.jsonc')
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
+@description('admin password for pool nodes')
+@secure()
+param password string
+
 //------------------------------------------------------------------------------
 // Features: additive components
 //------------------------------------------------------------------------------
@@ -167,6 +171,7 @@ module dplBatch 'modules/batch.bicep' = {
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages
     enableApplicationContainers: enableApplicationContainers
+    password: password
     vnet: dplSpoke.outputs.vnet
     logConfig: dplDiagnostics.outputs.logConfig
     appInsightsConfig: dplDiagnostics.outputs.appInsightsConfig

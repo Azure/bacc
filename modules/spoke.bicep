@@ -25,25 +25,25 @@ param peerings array = []
 var config = loadJsonContent('../config/spoke.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 
-@description('default nsg')
-resource defaultNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
-  name: 'default-nsg'
-  location: location
-  tags: tags
-  properties: {
-    securityRules: config.networkSecurityGroups['private-endpoints']
+//----------------------------------------------------------------------------------------------------------------------
+// build nsg security rules.
+module dplNSGRules 'nsgRules.bicep' = {
+  name: '${dplPrefix}-nsgRules'
+  params: {
+    config: config.networkSecurityGroups
   }
 }
 
-@description('batch pool nsg')
-resource poolNSG 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
-  name: 'pool-nsg'
+//----------------------------------------------------------------------------------------------------------------------
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item in items(config.networkSecurityGroups): {
+  name: '${item.key}-nsg'
   location: location
   tags: tags
   properties: {
-    securityRules: config.networkSecurityGroups['batch-simplified']
+    securityRules: dplNSGRules.outputs.rules[item.key]
   }
-}
+}]
+
 
 @description('next-hop route table, if any')
 resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(routes)) {
@@ -60,15 +60,14 @@ var commonSubnetConfig = union({
   privateLinkServiceNetworkPolicies: 'Disabled'
 }, empty(routes) ? {} : { routeTable: { id: routeTable.id } })
 
-
 var osnets = filter(items(config.subnets), item => item.key != 'private-endpoints')
 var snets = map(osnets, item => {
   name: item.key
   properties: union(commonSubnetConfig, {
       addressPrefix: item.value
       networkSecurityGroup: {
-      id: poolNSG.id
-    }
+        id: resourceId('Microsoft.Network/networkSecurityGroups', '${item.key}-nsg')
+      }
   })
 })
 
@@ -86,7 +85,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
         properties: union(commonSubnetConfig, {
           addressPrefix: config.subnets['private-endpoints']
           networkSecurityGroup: {
-            id: defaultNSG.id
+            id: resourceId('Microsoft.Network/networkSecurityGroups', 'private-endpoints-nsg')
           }
         })
       }])
@@ -96,21 +95,18 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
     name: 'private-endpoints'
   }
 
+  dependsOn: [
+    nsgs
+  ]
 }
 
 //------------------------------------------------------------------------------
 // diagnostic settings
-resource defaultNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
-  scope: defaultNSG
-  name: '${defaultNSG.name}-diag'
+resource nsgs_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (item, index) in items(config.networkSecurityGroups): if (!empty(logConfig)) {
+  scope: nsgs[index]
+  name: 'diag'
   properties: union(logConfig, {logs: diagConfig.logs})
-}
-
-resource poolNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
-  scope: poolNSG
-  name: '${poolNSG.name}-diag'
-  properties: union(logConfig, {logs: diagConfig.logs})
-}
+}]
 
 resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(logConfig)) {
   scope: vnet

@@ -1,0 +1,140 @@
+{
+    /// This file simply holds the definitions of the network security group rules
+    /// that are used by the project. The rules are defined here so that they can
+    /// be reused across multiple network security groups.
+
+    /// allow inbound SSH access to the compute nodes from vnet
+    /// this is useful for debugging but also may be necessary when
+    /// using MPI to run distributed jobs
+    "AllowVnetSSHInBound": {
+        "description": "Allow SSH/RDP access within vnet for development",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "22",
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
+    /// allow inbound RDP access to the compute nodes from vnet
+    /// this is useful for debugging.
+    "AllowVnetRDPInBound": {
+        "description": "Allow RDP access within vnet for development",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "3389",
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
+    /// allow access to NFS server ports for accessing private endpoints
+    /// on vnet.
+    "AllowVnetNFSv3OutBound": {
+        "description": "Allow NFSv3 outbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRanges": [ "111", "2048-2049" ],
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Outbound"
+    },
+
+    "AllowVnetNFSv3InBound": {
+        "description": "Allow NFSv3 inbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRanges": [ "111", "2048-2049" ],
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
+    /// allow access to Azure Files server ports for accessing private endpoints
+    /// on vnet.
+    "AllowVnetAzureFilesOutBound": {
+        "description": "Allow Azure Files outbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "445",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Outbound"
+    },
+
+    "AllowVnetAzureFilesInBound": {
+        "description": "Allow Azure Files inbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "445",
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
+    /// allow HTTPs access to the internet
+    "AllowAllHTTPSOutBound": {
+        "description": "Allow HTTPs outbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "443",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "access": "Allow",
+        "direction": "Outbound"
+    },
+
+    /// allow HTTP access to the internet
+    /// this is needed to install packages needed for NFS on Ubuntu
+    "AllowAllHTTPOutBound": {
+        "description": "Allow HTTP outbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "80",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "access": "Allow",
+        "direction": "Outbound"
+    },
+
+    /// allow https vnet inbound
+    "AllowAllHTTPSInBound": {
+        "description": "Allow HTTPs inbound traffic",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "443",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
+    /// deny all inbound
+    "DenyAllInBound": {
+        "description": "Deny all inbound traffic",
+        "direction": "Inbound",
+        "protocol": "*",
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "destinationPortRange": "*",
+        "access": "Deny"
+    },
+
+    "DenyAllOutbound": {
+        "description": "Deny all outbound traffic",
+        "direction": "Outbound",
+        "protocol": "*",
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "destinationAddressPrefix": "*",
+        "destinationPortRange": "*",
+        "access": "Deny"
+    }
+}

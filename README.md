@@ -42,3 +42,13 @@ Licensed under the [MIT License](./LICENSE)
 * The account creating the deployment needs to have **Owner** role on the subscription. This is essential to assign the
   correct roles to the resources being deployed. **Contributor** role is not adequate since that does not allow us to assign
   roles to the managed identity created by the deployment.
+
+## NSG Rules
+
+1. NFS 3.0:
+  - uses port 111 and 2048
+  - enable outgoing traffic on port 111 and 2048 for pool vnets and incoming on
+    private endpoints vnet
+2. Azure Files
+  - docs says 443 in/out from Storage. With private endpoints, we need to use VirtualNetwork
+    tag instead

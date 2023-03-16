@@ -20,6 +20,10 @@ param enableApplicationContainers bool
 @description('enable application pakacges support')
 param enableApplicationPackages bool
 
+@description('admin password for pool nodes')
+@secure()
+param password string
+
 @description('vnet under which pool subsets are defined')
 @metadata({
   group: 'vnet group name'
@@ -399,6 +403,14 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
       }}) : {}
 
     mountConfiguration: config.images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
+
+    userAccounts: [
+       {
+        name: 'batchadmin'
+        password: password
+        elevationLevel: 'Admin'
+       }
+    ]
   }
 }]
 
