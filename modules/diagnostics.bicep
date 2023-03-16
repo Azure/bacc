@@ -10,11 +10,24 @@ targetScope = 'subscription'
 @description('diagnotics config')
 param diagnosticsConfig object
 
-var workspaceId = contains(diagnosticsConfig, 'logAnalyticsWorkspace') && !contains(diagnosticsConfig.logAnalyticsWorkspace, 'id') ? diagnosticsConfig.logAnalyticsWorkspace.id : ''
+var sanitizedConfig = union({
+  logAnalyticsWorkspace: {}
+  appInsights: {}
+}, diagnosticsConfig)
 
-var appInsights = contains(diagnosticsConfig, 'appInsights') && !empty(diagnosticsConfig.appInsights) ? diagnosticsConfig.appInsights : {}
-var appId = contains(appInsights, 'appId') && !empty(appInsights.appId) ? appInsights.appId : ''
-var intrumentationKey = contains(appInsights, 'instrumentationKey') && !empty(appInsights.instrumentationKey) ? appInsights.instrumentationKey : ''
+var sanitizedLA = union({
+  id: ''
+}, sanitizedConfig.logAnalyticsWorkspace)
+
+var workspaceId = sanitizedLA.id
+
+var sanitizedAI = union({
+  appId: ''
+  instrumentationKey: ''
+}, sanitizedConfig.appInsights)
+
+var appId = sanitizedAI.appId
+var intrumentationKey =  sanitizedAI.instrumentationKey
 
 output loggingEnabled bool = !empty(workspaceId)
 output logConfig object = !empty(workspaceId) ? {

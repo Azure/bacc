@@ -7,7 +7,7 @@
     /// "addressPrefixes" is the address space of the vnet. This is a list of CIDR
     /// blocks. When peering with a hub, the address space of the hub must not overlap.
     "addressPrefixes": [
-        "10.10.0.0/16"
+        "10.120.0.0/16"
     ],
 
     /// "subnets" is a list of subnets to create in the vnet. Each subnet is a CIDR
@@ -27,11 +27,11 @@
     /// network security groups etc. setup for that subnet may not be particularly suitable for
     /// ensuring correct communication between the batch nodes and the batch service.
     "subnets": {
-        "private-endpoints": "10.10.0.0/24", // <-- required
+        "private-endpoints": "10.120.0.0/24", // <-- required
 
         // the following subnets are custom and optional
-        "pool-linux": "10.10.1.0/24",
-        "pool-windows": "10.10.2.0/24"
+        "pool-linux": "10.120.1.0/24",
+        "pool-windows": "10.120.2.0/24"
     },
 
     /// "networkSecurityGroups" is a list of network security groups to create in the vnet.

@@ -117,17 +117,18 @@ module dplHubNetwork 'modules/hub_network.bicep' = {
 }
 
 //------------------------------------------------------------------------------
-
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
   name: take('${dplPrefix}-spoke', 64)
   scope: resourceGroup(resourceGroupNames.networkRG.name)
   params: {
     location: location
+    dplPrefix: dplPrefix
     rsPrefix: rsPrefix
     tags: allTags
     logConfig: dplDiagnostics.outputs.logConfig
     routes: dplHubNetwork.outputs.routes
+    peerings: dplHubNetwork.outputs.peerings
   }
 
   dependsOn: [

@@ -1,6 +1,8 @@
 /**
   Deploy a vnet for our use.
 */
+@description('deployment prefix')
+param dplPrefix string
 
 @description('prefix to use for resources created')
 param rsPrefix string
@@ -16,6 +18,9 @@ param logConfig object = {}
 
 @description('udrs')
 param routes array = []
+
+@description('vnet peerings')
+param peerings array = []
 
 var config = loadJsonContent('../config/spoke.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
@@ -112,6 +117,32 @@ resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'
   name: '${vnet.name}-diag'
   properties: union(logConfig, diagConfig)
 }
+
+//------------------------------------------------------------------------------
+// peerings
+module mdlPeerFwd 'peering.bicep' = [for ovnetConfig in peerings: {
+  name: take('${dplPrefix}-fwd-${ovnetConfig.name}', 64)
+  params: {
+    vnetName: vnet.name
+    targetConfig: ovnetConfig
+    enableGateway: false
+    useRemoteGateway: ovnetConfig.useGateway
+  }
+}]
+
+module mdlPeerRev 'peering.bicep' = [for ovnetConfig in peerings: {
+  name: take('${dplPrefix}-rev-${ovnetConfig.name}', 64)
+  scope: resourceGroup(ovnetConfig.group)
+  params: {
+    vnetName: ovnetConfig.name
+    enableGateway: ovnetConfig.useGateway
+    useRemoteGateway: false
+    targetConfig: {
+      name: vnet.name
+      group: resourceGroup().name
+    }
+  }
+}]
 
 //------------------------------------------------------------------------------
 @description('virtual network')

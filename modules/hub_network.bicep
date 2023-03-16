@@ -28,3 +28,6 @@ output routes array = !hasUDR ? [] : map(range(0, length(networkConfig.routes)),
      nextHopIpAddress: networkConfig.routes[i].nextHopIpAddress
    }
 })
+
+@description('peerings')
+output peerings array = contains(networkConfig, 'peerings') ? networkConfig.peerings : []

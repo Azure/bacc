@@ -11,7 +11,7 @@
         "logAnalyticsWorkspace": {
 
             /// log analytics workspace id
-            "id": null
+            "id": ""
         },
 
         /// Application Insights is used to collect metrics and logs from the application.
@@ -35,6 +35,18 @@
         ///         nextHopIpAddress: fwHub.properties.ipConfigurations[0].properties.privateIPAddress
         ///     }
         /// }]
-        "routes": [ ]
+        "routes": [ ],
+
+        /// "peerings" specifies vnet configurations to peer with.
+        /// multiple peering can be specified.
+        /// e.g.
+        /// "peerings": [
+        ///     {
+        ///         "group": "azhop_vpn_eastus",
+        ///         "name": "azhop-hub-us",
+        ///         "useGateway": true
+        ///     }
+        /// ]
+        "peerings": []
     }
 }
