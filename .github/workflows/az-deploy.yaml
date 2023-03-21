@@ -15,11 +15,6 @@ on:
         description: 'Randomizer string for suffix'
         required: false
         default: ''
-      use_single_resource_group:
-        type: boolean
-        description: 'Use single resource group for all resources'
-        required: false
-        default: false
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -56,11 +51,6 @@ on:
         description: 'Randomizer string for suffix'
         required: false
         default: ''
-      use_single_resource_group:
-        type: boolean
-        description: 'Use single resource group for all resources'
-        required: false
-        default: false
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -109,7 +99,7 @@ jobs:
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" useSingleResourceGroup=${{ inputs.use_single_resource_group }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
       - name: show / save outputs
         id: az_outputs
         run: |
