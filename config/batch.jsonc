@@ -43,6 +43,9 @@
             /// configuration files.
             "subnet": "pool-linux",
 
+            /// Choose which storage containers/file-shares are to be mounted on this poool
+            /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
+            /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
             "mounts": {
                 "data": "blob0/data",
                 "logs": "afs0/logs"
@@ -59,7 +62,11 @@
             "interNodeCommunication": false,
             "subnet": "pool-windows",
 
+            /// Choose which storage containers/file-shares are to be mounted on this poool
+            /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
+            /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
             "mounts": {
+                // for file-shares on Windows, this must be a single letter since it is used as a drive letter.
                 "l": "afs0/logs"
             }
         }

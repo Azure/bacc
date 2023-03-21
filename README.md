@@ -24,6 +24,10 @@ files.
 
   The [`spoke.jsonc`](./config/spoke.jsonc) configuration file enables one to fine tune the vnet.
 
+* [**storage.jsonc](./config/storage.jsonc): This file specifies the storage accounts to create in this deployment.
+  Multiple storage accounts can be defined here. Containers/file shares from these storage accounts can be automatically
+  mounted on batch pools using the batch pool configuration file.
+
 * [**batch.jsonc**](./config/batch.jsonc): This file specifies the configuration for the batch account and related
   resources. It is used to create the batch account and the pools and other necessary resources based on the
   parameters passed to the deployment.

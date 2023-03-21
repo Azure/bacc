@@ -1,15 +1,16 @@
 {
     /// Lists storage accounts to be created.
-    /// The name of the storage account is used to reference the storage account
+    /// The key of the storage account is used to reference the storage account
     /// in the "mounts" section of the pool configuration.
     "blob0": {
+        /// "container" is list of containers to create under this storage account.
         "containers": [
             "data"
         ]
-
     },
 
     "afs0": {
+        /// "shares" is list file shares to create under this storage account.
         "shares": [
             "logs"
         ]
