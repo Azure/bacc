@@ -47,6 +47,26 @@ Licensed under the [MIT License](./LICENSE)
   correct roles to the resources being deployed. **Contributor** role is not adequate since that does not allow us to assign
   roles to the managed identity created by the deployment.
 
+## Quickstart
+
+(not full instructions yet)
+
+Steps to make a deployment:
+
+```bash
+# assuming bash (on Linux or using WSL2 on Windows)
+# change commands appropriately on PowerShell or other Windows terminal 
+> AZ_BATCH_SERVICE_OBJECT_ID=$(az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id')
+> AZ_LOCATION="westus2"
+> AZ_PREFIX="uda20230321a"  # e.g "<initials><date><suffix>"
+> az deployment sub create --location $AZ_LOCATION  \
+      --name "azbatch-starter-$AZ_LOCATION"         \
+      --template-file infrastructure.bicep          \
+      --parameters                                  \
+        prefix=$AZ_PREFIX                           \
+        batchServiceObjectId=$AZ_BATCH_SERVICE_OBJECT_ID
+```
+
 ## Developer Guidelines
 
 1. When naming resources, use '${suffix}' passed into each module deployed by the `infrastructure.bicep`. The suffix is generated
