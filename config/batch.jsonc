@@ -42,6 +42,11 @@
             /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
             /// configuration files.
             "subnet": "pool-linux",
+
+            "mounts": {
+                "data": "blob0/data",
+                "logs": "afs0/logs"
+            }
         },
 
         {
@@ -52,7 +57,11 @@
                 "image": "windows-server"
             },
             "interNodeCommunication": false,
-            "subnet": "pool-windows"
+            "subnet": "pool-windows",
+
+            "mounts": {
+                "l": "afs0/logs"
+            }
         }
     ],
 

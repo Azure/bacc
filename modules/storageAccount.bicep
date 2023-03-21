@@ -1,8 +1,5 @@
 /// deploys a single storage account
 
-@description('prefix for deployments')
-param dplPrefix string
-
 @description('location of all resources')
 param location string
 
@@ -67,32 +64,29 @@ resource shares 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-0
   }
 }]
 
-var nfsMounts = [for container in sanitizedAccount.containers: {
-  nfsMountConfiguration: {
-    mountOptions: '-o sec=sys,vers=3,nolock,proto=tcp,rw'
-    relativeMountPath: container
-    source: '${storageAccount.name}.blob.${az.environment().suffixes.storage}:/${storageAccount.name}/${container}'
+var containerConfigs = map(sanitizedAccount.containers, (container) => {
+  key: '${sanitizedAccount.key}/${container}'
+  value: {
+    name: storageAccount.name
+    group: resourceGroup().name
+    kind: 'blob'
+    container: container
   }
-}]
+})
 
-var afsMounts = [for share in sanitizedAccount.shares: {
-  azureFileShareConfiguration : {
-    relativeMountPath: share
-    accountName: storageAccount.name
-    azureFileUrl: 'https://${storageAccount.name}.file.${az.environment().suffixes.storage}/${share}'
-    mountOptions: '-o vers=3.0,dir_mode=0777,file_mode=0777,sec=ntlmssp'
+var shareConfigs = map(sanitizedAccount.shares, (share) => {
+  key: '${sanitizedAccount.key}/${share}'
+  value: {
+    name: storageAccount.name
+    group: resourceGroup().name
+    kind: 'file'
+    share: share
+    // FIXME: can't see to avoid doing this for now :/
+    accountKey: storageAccount.listKeys().keys[0].value
   }
-}]
+})
 
-// FIXME: use key-vault to store keys instead
-module mdlPopulateKeys 'populateKeys.bicep' = {
-  name: take('${dplPrefix}-populateKeys-${uniqueString(storageAccount.id)}', 64)
-  params: {
-    key: storageAccount.listKeys().keys[0].value
-    objectList: afsMounts
-    objectKey: 'azureFileShareConfiguration'
-  }
-}
+output configs object = toObject(union(containerConfigs, shareConfigs), arg => arg.key, arg => arg.value)
 
 var blobEndpoints = [for container in sanitizedAccount.containers: {
   name: storageAccount.name
@@ -110,6 +104,4 @@ var fileEndpoints = [for share in sanitizedAccount.shares: {
   privateDnsZoneName: 'privatelink.file.${az.environment().suffixes.storage}'
 }]
 
-output nfsMountConfigurations array = nfsMounts
-output afsMountConfigurations array = mdlPopulateKeys.outputs.result
 output endpoints array = union(blobEndpoints, fileEndpoints)

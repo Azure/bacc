@@ -20,9 +20,9 @@ param enableApplicationContainers bool
 @description('enable application pakacges support')
 param enableApplicationPackages bool
 
-@description('admin password for pool nodes')
-@secure()
-param password string
+// @description('admin password for pool nodes')
+// @secure()
+// param password string
 
 @description('vnet under which pool subsets are defined')
 @metadata({
@@ -40,22 +40,16 @@ param logConfig object = {}
 @description('app insights config')
 param appInsightsConfig object = {}
 
-@description('pool NFS mount configurations')
-param nfsMountConfigurations array = []
-
-@description('pool Azure File Shares mount configurations')
-param afsMountConfigurations array = []
+///
+/// Format:
+/// {
+///     "storage-key/container": { "name": .., "group": ..., "kind": "blob" }
+///     "storage-key/fileshare": { "name": .., "group": ..., "kind": "file" }
+/// }
+param storageConfigurations object = {}
 
 var config = loadJsonContent('../config/batch.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
-
-var linuxMounts = union(nfsMountConfigurations, afsMountConfigurations)
-var windowsMounts = union(afsMountConfigurations, [])
-var poolPropertiesMounts = {
-  linux: !empty(linuxMounts) ? linuxMounts : null
-  windows: !empty(windowsMounts) ? windowsMounts : null
-}
-
 
 //------------------------------------------------------------------------------
 // Resources
@@ -327,11 +321,19 @@ var batchInsightsStartTask = {
   }
 }
 
-
 resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   name: vnet.name
   scope: resourceGroup(vnet.group)
 }
+
+module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in config.pools: {
+  name: '${item.name}-mountConfigurations'
+  params: {
+    mounts: item.mounts
+    storageConfigurations: storageConfigurations
+    isWindows: config.images[item.virtualMachine.image].isWindows
+  }
+}]
 
 resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in config.pools: {
   name: item.name
@@ -402,15 +404,20 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         }
       }}) : {}
 
-    mountConfiguration: config.images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
+    // mountConfiguration: config.images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
+    // mountConfiguration: map(mdlPoolMounts[index].outputs.mountConfigurations, mconfig => {
+    //   '${items(mconfig)[0].key}' : union(items(mconfig)[0].value,
+    //     contains(items(mconfig)[0].value, 'accountKey') ? {accountKey: listKeys(items(mconfig)[0].value.accountKey, '2022-09-01'). } : {})
+    // })
+    mountConfiguration: mdlPoolMounts[index].outputs.mountConfigurations
 
-    userAccounts: [
-       {
-        name: 'batchadmin'
-        password: password
-        elevationLevel: 'Admin'
-       }
-    ]
+    // userAccounts: [
+    //    {
+    //     name: 'batchadmin'
+    //     password: password
+    //     elevationLevel: 'Admin'
+    //    }
+    // ]
   }
 }]
 

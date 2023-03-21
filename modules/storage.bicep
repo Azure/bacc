@@ -30,7 +30,6 @@ var accounts = map(items(config), entity => union(entity.value, {
 module mdlStorageAccounts 'storageAccount.bicep' = [for account in accounts: {
   name: take('${dplPrefix}-${account.key}', 64)
   params: {
-    dplPrefix: dplPrefix
     location: location
     tags: tags
     account: account
@@ -47,11 +46,7 @@ output roleAssignments array = [for account in accounts: {
 }]
 
 /// FIXME: due to a potential bug in Bicep, the following outputs cannot be `flatten`ed here.
-@description('unflatted NFS mount configurations')
-output nfsMountConfigurations array = [for idx in range(0, length(accounts)): mdlStorageAccounts[idx].outputs.nfsMountConfigurations]
-
-@description('unflatted Azure File Shares mount configurations')
-output afsMountConfigurations array = [for idx in range(0, length(accounts)): mdlStorageAccounts[idx].outputs.afsMountConfigurations]
-
 @description('unflatted endpoints')
 output unflattedEndpoints array = [for idx in range(0, length(accounts)): mdlStorageAccounts[idx].outputs.endpoints]
+
+output unlattedConfigs array = [for idx in range(0, length(accounts)): mdlStorageAccounts[idx].outputs.configs]
