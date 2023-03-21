@@ -51,14 +51,13 @@ param timestamp string = utcNow('g')
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
-
 var suffix = empty(suffixSalt) ? '' : '-${uniqueString(suffixSalt)}'
 
-@description('resources prefix')
-var rsPrefix = '${environment}-${prefix}${suffix}'
+@description('suffix used for all nested deployments')
+var dplSuffix = uniqueString(deployment().name, location, prefix, suffixSalt)
 
-@description('deployments prefix')
-var dplPrefix = 'dpl-${environment}-${prefix}${suffix}'
+@description('suffix used for all nested resources')
+var rsSuffix = '-${uniqueString(deployment().name, location, prefix, suffixSalt)}'
 
 @description('tags for all resources')
 var allTags = union(tags, {
@@ -72,7 +71,7 @@ var allTags = union(tags, {
 
 @description('all resources group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-${rsPrefix}'
+  name: 'rg-${environment}-${prefix}${suffix}'
   location: location
   tags: allTags
 }
@@ -85,7 +84,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 // it to add diagnostics settings to all resources that support it.
 @description('diagnostics configuration')
 module dplDiagnostics 'modules/diagnostics.bicep' = {
-  name: take('${dplPrefix}-diagnostics', 64)
+  name: 'diagnostics-${dplSuffix}'
   params: {
     diagnosticsConfig: contains(hubConfig, 'diagnostics') ? hubConfig.diagnostics : {}
   }
@@ -94,7 +93,7 @@ module dplDiagnostics 'modules/diagnostics.bicep' = {
 // process network configuration
 @description('network configuration')
 module dplHubNetwork 'modules/hub_network.bicep' = {
-  name: take('${dplPrefix}-hub-network', 64)
+  name: 'hubnetwork-${dplSuffix}'
   params: {
     networkConfig: contains(hubConfig, 'network') ? hubConfig.network : {}
   }
@@ -103,12 +102,11 @@ module dplHubNetwork 'modules/hub_network.bicep' = {
 //------------------------------------------------------------------------------
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
-  name: take('${dplPrefix}-spoke', 64)
+  name: 'spoke-${dplSuffix}'
   scope: rg
   params: {
+    suffix: rsSuffix
     location: location
-    dplPrefix: dplPrefix
-    rsPrefix: rsPrefix
     tags: allTags
     logConfig: dplDiagnostics.outputs.logConfig
     routes: dplHubNetwork.outputs.routes
@@ -118,11 +116,9 @@ module dplSpoke 'modules/spoke.bicep' = {
 
 @description('deployment for storage accounts')
 module dplStorage 'modules/storage.bicep' = {
-  name: take('${dplPrefix}-storage', 64)
+  name: 'storage-${dplSuffix}'
   scope: rg
   params: {
-    rsPrefix: rsPrefix
-    dplPrefix: dplPrefix
     location: location
     tags: allTags
   }
@@ -130,11 +126,11 @@ module dplStorage 'modules/storage.bicep' = {
 
 @description('deployment for batch resources')
 module dplBatch 'modules/batch.bicep' = {
-  name: take('${dplPrefix}-batch', 64)
+  name: 'batch-${dplSuffix}'
   scope: rg
   params: {
+    suffix: rsSuffix
     location: location
-    rsPrefix: rsPrefix
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages
@@ -149,11 +145,10 @@ module dplBatch 'modules/batch.bicep' = {
 
 @description('deploy private endpoints and all related resources')
 module dplEndpoints 'modules/endpoints.bicep' = {
-  name: take('${dplPrefix}-endpoints', 64)
+  name: 'endpoints-${dplSuffix}'
   scope: rg
   params: {
-    dplPrefix: dplPrefix
-    rsPrefix: rsPrefix
+    suffix: rsSuffix
     location: location
     tags: allTags
     endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
@@ -165,10 +160,9 @@ module dplEndpoints 'modules/endpoints.bicep' = {
 /// allow it to be done as a separate step after deployment completes
 @description('deploy role assignments')
 module dplRoleAssignments 'modules/roleAssignments.bicep' = {
-  name: take('${dplPrefix}-roleAssignments', 64)
+  name: 'roleAssignments-${dplSuffix}'
   params: {
-    dplPrefix: dplPrefix
-    rsPrefix: rsPrefix
+    suffix: rsSuffix
     miConfig: dplBatch.outputs.miConfig
     roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
   }

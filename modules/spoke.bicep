@@ -1,11 +1,8 @@
 /**
   Deploy a vnet for our use.
 */
-@description('deployment prefix')
-param dplPrefix string
-
-@description('prefix to use for resources created')
-param rsPrefix string
+@description('suffix used for resources created')
+param suffix string = ''
 
 @description('location of all resources')
 param location string
@@ -25,10 +22,13 @@ param peerings array = []
 var config = loadJsonContent('../config/spoke.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 
+@description('suffix to use for all nested deployments')
+var dplSuffix = uniqueString(deployment().name, location)
+
 //----------------------------------------------------------------------------------------------------------------------
 // build nsg security rules.
 module dplNSGRules 'nsgRules.bicep' = {
-  name: '${dplPrefix}-nsgRules'
+  name: 'nsgRules-${dplSuffix}'
   params: {
     config: config.networkSecurityGroups
   }
@@ -36,7 +36,7 @@ module dplNSGRules 'nsgRules.bicep' = {
 
 //----------------------------------------------------------------------------------------------------------------------
 resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item in items(config.networkSecurityGroups): {
-  name: '${item.key}-nsg'
+  name: 'nsg-${item.key}${suffix}'
   location: location
   tags: tags
   properties: {
@@ -44,10 +44,9 @@ resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item i
   }
 }]
 
-
 @description('next-hop route table, if any')
 resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(routes)) {
-  name: 'route-table'
+  name: 'route-table${suffix}'
   location: location
   tags: tags
   properties: {
@@ -66,14 +65,14 @@ var snets = map(osnets, item => {
   properties: union(commonSubnetConfig, {
       addressPrefix: item.value
       networkSecurityGroup: {
-        id: resourceId('Microsoft.Network/networkSecurityGroups', '${item.key}-nsg')
+        id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-${item.key}${suffix}')
       }
   })
 })
 
 @description('the virtual network')
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
-  name: '${rsPrefix}-spoke'
+  name: 'spoke${suffix}'
   location: location
   tags: tags
   properties: {
@@ -85,7 +84,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
         properties: union(commonSubnetConfig, {
           addressPrefix: config.subnets['private-endpoints']
           networkSecurityGroup: {
-            id: resourceId('Microsoft.Network/networkSecurityGroups', 'private-endpoints-nsg')
+            id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private-endpoints${suffix}')
           }
         })
       }])
@@ -117,7 +116,7 @@ resource vnetNSG_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'
 //------------------------------------------------------------------------------
 // peerings
 module mdlPeerFwd 'peering.bicep' = [for ovnetConfig in peerings: {
-  name: take('${dplPrefix}-fwd-${ovnetConfig.name}', 64)
+  name: take('peering-fwd-${ovnetConfig.name}-${dplSuffix}',64)
   params: {
     vnetName: vnet.name
     targetConfig: ovnetConfig
@@ -127,7 +126,7 @@ module mdlPeerFwd 'peering.bicep' = [for ovnetConfig in peerings: {
 }]
 
 module mdlPeerRev 'peering.bicep' = [for ovnetConfig in peerings: {
-  name: take('${dplPrefix}-rev-${ovnetConfig.name}', 64)
+  name: take('peering-rev-${ovnetConfig.name}-${dplSuffix}', 64)
   scope: resourceGroup(ovnetConfig.group)
   params: {
     vnetName: ovnetConfig.name

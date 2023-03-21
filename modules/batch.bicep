@@ -3,7 +3,7 @@
 */
 
 @description('prefix to use for resources created')
-param rsPrefix string
+param suffix string = ''
 
 @description('location of all resources')
 param location string
@@ -50,7 +50,7 @@ param storageConfigurations object = {}
 
 var config = loadJsonContent('../config/batch.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
-
+var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
 //------------------------------------------------------------------------------
 // Resources
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ var diagConfig = loadJsonContent('../config/diagnostics.json')
   to access.
 */
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
-  name: '${rsPrefix}-mi'
+  name: 'mi${suffix}'
   location: location
   tags: tags
 }
@@ -78,7 +78,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-
 var needsKeyVault = config.batchAccount.poolAllocationMode == 'UserSubscription'
 @description('key vault required to use fo')
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
-  name: take('kv-${guid('kv', rsPrefix, resourceGroup().id)}', 24)
+  name: take('kv-${guid('kv', suffix, resourceGroup().id)}', 24)
   location: location
   tags: tags
   properties: {
@@ -143,7 +143,7 @@ resource keyVault_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
   we need a storage account.
 */
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = if (enableApplicationPackages) {
-  name: take('sa0${join(split(guid('sa', rsPrefix, resourceGroup().id), '-'), '')}', 24)
+  name: take('sa0${join(split(guid('sa', suffix, resourceGroup().id), '-'), '')}', 24)
   location: location
   tags: tags
   sku: {
@@ -197,7 +197,7 @@ resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if
  Deploy container registry if containers are renabled.
 */
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApplicationContainers) {
-  name: take('acr${join(split(guid('acr', rsPrefix, resourceGroup().id), '-'), '')}', 50)
+  name: take('acr${join(split(guid('acr', suffix, resourceGroup().id), '-'), '')}', 50)
   location: location
   sku: {
     name: 'Premium' // needed for private endpoints
@@ -227,7 +227,7 @@ resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
   The batch account.
 */
 resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
-  name: take('ba${join(split(guid('ba', rsPrefix, resourceGroup().id), '-'), '')}', 24)
+  name: take('ba${join(split(guid('ba', suffix, resourceGroup().id), '-'), '')}', 24)
   location: location
   tags: tags
   identity: {
@@ -327,7 +327,7 @@ resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
 }
 
 module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in config.pools: {
-  name: '${item.name}-mountConfigurations'
+  name: take('mountConfigurations-${item.name}-${dplSuffix}', 64)
   params: {
     mounts: item.mounts
     storageConfigurations: storageConfigurations

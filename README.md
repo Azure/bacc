@@ -24,7 +24,7 @@ files.
 
   The [`spoke.jsonc`](./config/spoke.jsonc) configuration file enables one to fine tune the vnet.
 
-* [**storage.jsonc](./config/storage.jsonc): This file specifies the storage accounts to create in this deployment.
+* [**storage.jsonc**](./config/storage.jsonc): This file specifies the storage accounts to create in this deployment.
   Multiple storage accounts can be defined here. Containers/file shares from these storage accounts can be automatically
   mounted on batch pools using the batch pool configuration file.
 
@@ -47,12 +47,11 @@ Licensed under the [MIT License](./LICENSE)
   correct roles to the resources being deployed. **Contributor** role is not adequate since that does not allow us to assign
   roles to the managed identity created by the deployment.
 
-## NSG Rules
+## Developer Guidelines
 
-1. NFS 3.0:
-  - uses port 111 and 2048
-  - enable outgoing traffic on port 111 and 2048 for pool vnets and incoming on
-    private endpoints vnet
-2. Azure Files
-  - docs says 443 in/out from Storage. With private endpoints, we need to use VirtualNetwork
-    tag instead
+1. When naming resources, use '${suffix}' passed into each module deployed by the `infrastructure.bicep`. The suffix is generated
+   using `-${uniqueString(deployment().name, location, prefix, suffixSalt)}`. We use a suffix instead of prefix to name resources
+   so that when viewing resources in the resource group, it's easier to read and identify resources in the resource names column.
+2. For globally unique resource names, use `resourceGroup().id` and `suffix` to generate a `GUID`. Never use deployment name.
+3. For nested deployments, use a deployment name suffix generated using `uniqueString(resourceGroup().id, deployment().name, location)`.
+   i.e. always include deployment name in it.

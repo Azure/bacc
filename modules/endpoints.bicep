@@ -12,11 +12,8 @@
 @description('array of endpoints to deploy')
 param endpoints array
 
-@description('prefix use for deployments')
-param dplPrefix string
-
-@description('prefix used for resources')
-param rsPrefix string
+@description('suffix used for resources')
+param suffix string
 
 @description('tags')
 param tags object
@@ -34,6 +31,7 @@ param snetInfo object
 param location string = resourceGroup().location
 
 var dnsZoneNames = union(map(endpoints, item => item.privateDnsZoneName), [])
+var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
 
 @description('deploy dns zones')
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = [for zone in dnsZoneNames: {
@@ -50,7 +48,7 @@ resource vnet  'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
 
 resource links 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [for (item, index) in dnsZoneNames: {
   parent: privateDnsZones[index]
-  name: '${rsPrefix}-${vnet.name}-link'
+  name: 'link-${vnet.name}${suffix}'
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -62,7 +60,7 @@ resource links 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01
 }]
 
 module dplPrivateEndpoints 'privateEndpoint.bicep' = [for (item, idx) in endpoints: {
-  name: '${dplPrefix}-${uniqueString(item.name, '${idx}')}-eps'
+  name: take('privateEndpoint-${uniqueString(item.name, '${idx}')}-${dplSuffix}', 64)
   scope: resourceGroup(item.group)
   params: {
     name: '${item.name}-${idx}-pl'
