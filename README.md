@@ -4,10 +4,45 @@
 [![az-deploy-matrix](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml)
 ![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 
-## Preamble
+> __Warning__
+> This repository is under development, as is this document. Expect everything to change until the first version is ready.
 
-This repository is under development, as is this document. Expect everything to change
-until the first version is ready.
+## Overview
+
+This project deploys all resources necessary to use Azure Batch in a configuration that follows best-practices to minimize
+exposing access to the compute resources. It is designed with financial applications in mind, where compute environments
+are often restricted or locked down. That being said, the configuration of resources deployed is applicable a broad set of
+applications and domains beyond FinTech.
+
+## Design
+
+The repository contains Bicep code that can be used to deploy resources to Azure. The deployment can be customized in two ways:
+First, you can pass parameters to the main deployment script ([`infrastructure.bicep`](./infrastructure.bicep)) when triggering the
+deployment using Azure CLI. These parameters are intentionally minimal and provide coarse customization e.g. specifying
+prefix for all resource groups. Second, you can edit JSON configuration files under [`./config`](./config/) that let you
+customize the deployed resources even more e.g. define how many pools to add to the batch account and their types, SKUs,
+virtual machine images to use etc.
+
+### Parameters
+
+Let's start by looking at the available parameters and their usage.
+
+* __batchServiceObjectId__ (REQUIRED): batch service object id; this cab be obtained by executing the following command in
+  Azure Cloud Shell with Bash (or similar terminal):
+   `az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id'`.
+* __environment__: a short string used to identify the deployment environment; for example, one can use this parameter to
+  distinguish between production and development deployments; initialized to 'dev', by default.
+* __prefix__: a short string as a prefix for resources groups and other subscription level resources created
+* __location__: a string identifying the location for all the resources; initialized to the deployment location, by default.
+* __enableApplicationPackages__: when set to `true` additional resources will be deployed to support
+  [Batch application packages](https://learn.microsoft.com/en-us/azure/batch/batch-application-packages); initialized to
+  `false`, by default.
+* __enableApplicationContainers__: when set to `true` additional resources will be deployed to support running jobs
+  that use [containerized applications](https://learn.microsoft.com/en-us/azure/batch/batch-docker-container-workloads);
+  initialized to `false`, by default.
+* __tags__: an object to add as tags to all resources created; initialized to `{}` by default.
+* __suffixSalt__: a random string used to generate a resource group suffix; primarily intended for automated testing
+  to separate resources deployed by different workflows.
 
 ## Configuration files
 
