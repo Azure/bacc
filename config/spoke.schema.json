@@ -20,11 +20,20 @@
             "properties": {
                 "private-endpoints": {
                     "description": "address prefix for private-endpoints subnet",
-                    "type": "string"
+                    "type": "string",
+                    "format": "ipv4"
+                }
+            },
+            "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                    "description": "address prefix for named subnet",
+                    "type": "string",
+                    "format": "ipv4"
                 }
             },
 
-            "required": ["private-endpoints"]
+            "required": ["private-endpoints"],
+            "additionalProperties": false
         },
 
         "networkSecurityGroups": {
@@ -35,14 +44,26 @@
                     "description": "names of security rules for private endpoints subnets",
                     "type": "array",
                     "items": {
-                        "description": "security rules",
+                        "description": "security rule names as defined in nsgRules.jsonc",
                         "type": "string"
                     }
                 }
             },
-            "required": ["private-endpoints"]
+            "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                    "description": "names of security rules for named subnet",
+                    "type": "array",
+                    "items": {
+                        "description": "security rule names as defined in nsgRules.jsonc",
+                        "type": "string"
+                    }
+                }
+            },
+            "required": ["private-endpoints"],
+            "additionalProperties": false
         }
     },
 
-    "required": ["addressPrefixes", "subnets", "networkSecurityGroups"]
+    "required": ["addressPrefixes", "subnets", "networkSecurityGroups"],
+    "additionalProperties": false
 }
