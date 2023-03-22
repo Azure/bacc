@@ -49,6 +49,7 @@ param appInsightsConfig object = {}
 param storageConfigurations object = {}
 
 var config = loadJsonContent('../config/batch.jsonc')
+var images = loadJsonContent('../config/images.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
 //------------------------------------------------------------------------------
@@ -331,7 +332,7 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in config.
   params: {
     mounts: item.mounts
     storageConfigurations: storageConfigurations
-    isWindows: config.images[item.virtualMachine.image].isWindows
+    isWindows: images[item.virtualMachine.image].isWindows
   }
 }]
 
@@ -355,11 +356,11 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
 
     deploymentConfiguration: {
       virtualMachineConfiguration: {
-        imageReference: config.images[item.virtualMachine.image].imageReference
-        nodeAgentSkuId: config.images[item.virtualMachine.image].nodeAgentSkuId
+        imageReference: images[item.virtualMachine.image].imageReference
+        nodeAgentSkuId: images[item.virtualMachine.image].nodeAgentSkuId
 
         // provide ACR information if containers are enabled (and supported)
-        containerConfiguration: (!enableApplicationContainers || config.images[item.virtualMachine.image].isWindows) ? null : {
+        containerConfiguration: (!enableApplicationContainers || images[item.virtualMachine.image].isWindows) ? null : {
           type: 'DockerCompatible'
           containerRegistries: [
             {
@@ -395,7 +396,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
       }
     }
 
-    startTask: !empty(appInsightsConfig) ? union(batchInsightsStartTask[config.images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
+    startTask: !empty(appInsightsConfig) ? union(batchInsightsStartTask[images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
       maxTaskRetryCount: 1
       userIdentity: {
         autoUser: {
@@ -404,7 +405,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         }
       }}) : {}
 
-    // mountConfiguration: config.images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
+    // mountConfiguration: images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
     // mountConfiguration: map(mdlPoolMounts[index].outputs.mountConfigurations, mconfig => {
     //   '${items(mconfig)[0].key}' : union(items(mconfig)[0].value,
     //     contains(items(mconfig)[0].value, 'accountKey') ? {accountKey: listKeys(items(mconfig)[0].value.accountKey, '2022-09-01'). } : {})

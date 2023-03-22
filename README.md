@@ -44,31 +44,51 @@ Let's start by looking at the available parameters and their usage.
 * __suffixSalt__: a random string used to generate a resource group suffix; primarily intended for automated testing
   to separate resources deployed by different workflows.
 
-## Configuration files
+### Configuration files
 
-This project uses a collection of configuration files that control the resources being deployed and their configurations.
-The config files are JSON files stored under `./config` directory. To customize a deployment, users can modify these configuration
-files.
+The configuration files offer a more fine-grained control over the deployment. At first, they can appear daunting, however,
+the things that one may needs to modify, in practice, should be quite limited.
+The config files are JSON files stored under [`./config`](./config/) directory. To customize a deployment,
+you can modify these configuration files.
 
-* [**spoke.jsonc**](./config/spoke.jsonc): This file specifies the configuration for the spoke network. All non-network
-  resources deployed by this project are connected to each other over a virtual network (vnet). This vnet is designed
-  such that it can easily act as a spoke in a hub-and-spoke network configuration which is typical for
-  enterprise / secured deployments. This integration in a hub is not required, and it is possible to create a
-  functional standalone deployment as well. The spoke, in that case, simply refers to the vnet used in the deployment
-  even though it is not a part of a hub-spoke network topology.
+Let's look at each of these files and what's their purpose. The order in which they are described here is perhaps a good
+order to follow when modifying them for a new deployment.
 
-  The [`spoke.jsonc`](./config/spoke.jsonc) configuration file enables one to fine tune the vnet.
+* [__spoke.jsonc__](./config/spoke.jsonc):  This file specifies the configuration for the virtual network. It's good to
+  start here since this defines the communication network over which all deployed resources can be accessed and
+  will communicate with each other. There are two main things to think about here. First, the subsets and their address
+  prefixes and second, the network security rules for the subnets. `private-endpoints` subnet is required and is the subnet
+  that is used to deploy all private endpoints for various resources in the deployment. In addition, you can define arbitrarily
+  many subnets. These subnets can be associated with specific pools later on. Once you have named the subnets, you need specify
+  network security rules for each of them. These rules define what traffic is allowed to and from the subnet. The default
+  configuration defines two pools, one intended for Linux node pools and another for Windows and then sets up rules appropriate
+  for the two types of pools. The default rules explicitly restrict communication between subnets to only allow the required
+  channels.
 
-* [**storage.jsonc**](./config/storage.jsonc): This file specifies the storage accounts to create in this deployment.
-  Multiple storage accounts can be defined here. Containers/file shares from these storage accounts can be automatically
-  mounted on batch pools using the batch pool configuration file.
+* [__storage.jsonc__](./config/storage.jsonc): The next thing to define are the storage accounts that we need the
+  compute nodes to have access to. Pools can be setup to auto-mount the storage accounts defined here so that jobs can
+  access them to read data or write results. Storage accounts are not required, of course. Your jobs could, for example,
+  connect to a database or redis cache to read/write data. In which case this file can simply be an empty JSON object i.e. `{}`.
+  You can define multiple blob/containers or file shares in this file. When defining pools, we reference
+  the names assigned to storage accounts and containers/shares here.
 
-* [**batch.jsonc**](./config/batch.jsonc): This file specifies the configuration for the batch account and related
-  resources. It is used to create the batch account and the pools and other necessary resources based on the
-  parameters passed to the deployment.
+* [__batch.jsonc__](./config/batch.jsonc): This is perhaps the most important configuration file that describes
+  the configuration of the Batch account itself. This is where you choose the pool allocation mode to use for the
+  Batch account and then setup the pools. You can define arbitrarily many pools. For each pool, you specify the virtual
+  machine SKUs and images ([`images.json`](./config/images.jsonc)) to use for the nodes in pool,
+  the subnet to use ([`spoke.jsonc`](./config/spoke.jsonc))
+  and storage accounts to mount ([`storage.jsonc`](./config/storage.jsonc)).
+  If your jobs need MPI for distributed processing, then you can also enable internode communication for individual pools.
 
-* [**hub.jsonc**](./config/hub.jsonc): This file specifies the configuration for the hub network. This file is
-  used to provide the information about the hub network.
+* [__hub.jsonc__](./config/hub.jsonc): This file is intended to provide information about resources typically deployed
+  in a hub in what is referred to as a hub-and-spoke network configuration. These are often shared resources like
+  VPN Gateway, Firewall, Azure Log Analytics Workspace etc. This configuration file is used to pass information about
+  these resources. This is also used to pass information about virtual networks to peer with the spoke virtual network.
+
+* [__images.jsonc__](./config/images.jsonc): This file defines virtual images that may be used in pools referenced
+  when defining pools in `batch.jsonc`.
+
+* [__nsgRules.jsonc__](config/nsgRules.jsonc): This file defines the NSG rules referenced in `spoke.json`.
 
 ## License
 

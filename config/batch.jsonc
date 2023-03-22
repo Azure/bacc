@@ -12,12 +12,6 @@
         "publicNetworkAccess": true
     },
 
-    /// "batchAccountStorage" is the configuration for the storage account used by the batch service. This is required
-    /// when `enableApplicationPackages` is set to true for the deployment. Application packages and other resources
-    /// are stored on this storage account.
-    "batchAccountStorage": {
-    },
-    
     /// "pools" is a list of pools to create in the batch account. You can define arbitrary number of pools here, limited
     /// by batch account limits and quotas. Each pool is a set of nodes that are homogeneous in terms of the operating
     /// system, virtual machine size, and other attributes. The nodes in a pool are created in a subnet under the
@@ -28,7 +22,7 @@
             /// across all pools on this batch account.
             "name": "linux",
 
-            /// Virtual machine configuration. "image" refers to an image definition in the "images" section.
+            /// Virtual machine configuration. "image" refers to an image definition in the `images.jsonc`.
             "virtualMachine": {
                 "size": "Standard_DS5_V2",
                 "taskSlotsPerNode": 8,
@@ -71,41 +65,6 @@
             }
         }
     ],
-
-    /// "images" is a list of images that can be used to create virtual machines in the batch account. The images
-    /// are referenced by name in the "virtualMachine" section of the pool configuration. The image name must match
-    /// one of the keys in this section.
-    "images": {
-        "ubuntu-20": {
-
-            /// Specify whether this is a Windows image. This ensures that any tools installed
-            /// on the image for things like monitoring etc. are appropriate for the target OS.
-            "isWindows": false,
-
-            /// Specify the image reference. This is used to create the virtual machine image.
-            /// TODO: where does one get the details about supported types etc.?
-            "imageReference": {
-                "publisher": "microsoft-azure-batch",
-                "offer": "ubuntu-server-container",
-                "sku": "20-04-lts",
-                "version": "latest"
-            },
-
-            /// TODO:
-            "nodeAgentSkuId": "batch.node.ubuntu 20.04"
-        },
-
-        "windows-server": {
-            "isWindows": true,
-            "imageReference": {
-                "publisher": "microsoftwindowsserver",
-                "offer": "windowsserver",
-                "sku": "2022-datacenter-smalldisk",
-                "version": "latest"
-            },
-            "nodeAgentSkuId": "batch.node.windows amd64"
-        }
-    },
 
     /// This is the configuration for the key vault. Key vault is necessary to pass secrets and certificates
     /// to the batch nodes.
