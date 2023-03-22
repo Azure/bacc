@@ -20,6 +20,8 @@ jobs:
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
           jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/config/spoke.schema.json
+          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/storage.jsonc > $GITHUB_WORKSPACE/config/storage.json
+          jsonschema -i $GITHUB_WORKSPACE/config/storage.json $GITHUB_WORKSPACE/config/storage.schema.json
       - name: validate azure credentials
         uses: azure/login@v1
         with:
