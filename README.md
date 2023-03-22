@@ -90,6 +90,18 @@ order to follow when modifying them for a new deployment.
 
 * [__nsgRules.jsonc__](config/nsgRules.jsonc): This file defines the NSG rules referenced in `spoke.json`.
 
+JSON schemas that can be used to validate these configuration files are provided under [`./schemas`](./schemas/). Note since
+the configuration files include comments and most JSON validation tools (e.g. `jsonschema`) do not support validating JSON
+with comments, you will have to strip the comments before running the validation tool. For example,
+
+```bash
+# remove comments
+> sed 's/\/\/.*$//' ./config/batch.jsonc > /tmp/batch.json
+
+# validate
+> jsonschema -i /tmp/batch.json ./schemas/batch.schema.json
+```
+
 ## License
 
 Copyright (c) Microsoft Corporation. All rights reserved.

@@ -34,10 +34,10 @@ param vnet object = {
   name: ''
 }
 
-@description('log workspace config')
+@description('log workspace batchConfig')
 param logConfig object = {}
 
-@description('app insights config')
+@description('app insights batchConfig')
 param appInsightsConfig object = {}
 
 ///
@@ -48,7 +48,12 @@ param appInsightsConfig object = {}
 /// }
 param storageConfigurations object = {}
 
-var config = loadJsonContent('../config/batch.jsonc')
+var batchConfig = union({
+  publicNetworkAccess: true
+  poolAllocationMode: 'UserSubscription'
+  pools: []
+}, loadJsonContent('../config/batch.jsonc'))
+
 var images = loadJsonContent('../config/images.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
@@ -76,7 +81,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-
  Currently, it doesn't seem like we can use RBAC to grant Batch Service access to the
  key-vault.
 */
-var needsKeyVault = config.batchAccount.poolAllocationMode == 'UserSubscription'
+var needsKeyVault = batchConfig.poolAllocationMode == 'UserSubscription'
 @description('key vault required to use fo')
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
   name: take('kv-${guid('kv', suffix, resourceGroup().id)}', 24)
@@ -87,7 +92,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = if (needsKeyVault) {
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
     enableRbacAuthorization: false /* see note above */
-    enableSoftDelete: config.keyVault.enableSoftDelete
+    enableSoftDelete: false
     publicNetworkAccess: 'disabled'
     tenantId: tenant().tenantId
     sku: {
@@ -204,8 +209,11 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApp
     name: 'Premium' // needed for private endpoints
   }
   properties: {
-    adminUserEnabled: config.containerRegistry.publicNetworkAccess ? true : false // RBAC only
-    publicNetworkAccess: config.containerRegistry.publicNetworkAccess ? 'Enabled' : 'Disabled'
+    // FIXME:
+    // adminUserEnabled: batchConfig.containerRegistry.publicNetworkAccess ? true : false // RBAC only
+    // publicNetworkAccess: batchConfig.containerRegistry.publicNetworkAccess ? 'Enabled' : 'Disabled'
+    adminUserEnabled: false // RBAC only
+    publicNetworkAccess: 'Disabled'
     zoneRedundancy: 'Disabled'
     networkRuleBypassOptions: 'AzureServices'
   }
@@ -251,12 +259,12 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
       }
     } : null
 
-    poolAllocationMode: config.batchAccount.poolAllocationMode
-    publicNetworkAccess: config.batchAccount.publicNetworkAccess? 'Enabled' : 'Disabled'
+    poolAllocationMode: batchConfig.poolAllocationMode
+    publicNetworkAccess: batchConfig.publicNetworkAccess? 'Enabled' : 'Disabled'
     networkProfile: {
       accountAccess: {
         defaultAction: 'Deny'
-        ipRules: config.batchAccount.publicNetworkAccess ? [
+        ipRules: batchConfig.publicNetworkAccess ? [
           {
             action: 'Allow'
             value: '0.0.0.0/0'
@@ -327,7 +335,7 @@ resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   scope: resourceGroup(vnet.group)
 }
 
-module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in config.pools: {
+module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in batchConfig.pools: {
   name: take('mountConfigurations-${item.name}-${dplSuffix}', 64)
   params: {
     mounts: item.mounts
@@ -336,7 +344,7 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in config.
   }
 }]
 
-resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in config.pools: {
+resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in batchConfig.pools: {
   name: item.name
   parent: batchAccount
   identity: {
@@ -475,6 +483,9 @@ output batchAccountName string = batchAccount.name
 
 @description('batch account resource group')
 output batchAccountResourceGroup string = resourceGroup().name
+
+@description('batch account public network access')
+output batchAccountPublicNetworkAccess bool = (batchAccount.properties.publicNetworkAccess == 'Enabled')
 
 @description('resources needing role assignments')
 output roleAssignments array = union(acrRoleAssignments, saRoleAssignments)

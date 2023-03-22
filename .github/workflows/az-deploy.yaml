@@ -108,6 +108,7 @@ jobs:
           echo "AZ_BATCH_ACCOUNT_ENDPOINT=$(jq -r .batchAccountEndpoint.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
           echo "AZ_BATCH_ACCOUNT_GROUP=$(jq -r .batchAccountResourceGroup.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
           echo "AZ_BATCH_ACCOUNT_NAME=$(jq -r .batchAccountName.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
+          echo "AZ_BATCH_ACCOUNT_PUBLIC_NETWORK_ACCESS=$(jq -r .batchAccountPublicNetworkAccess.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
   test:
     uses: ./.github/workflows/az-deploy-test.yaml
     needs: deploy
@@ -115,6 +116,7 @@ jobs:
       batch_account_endpoint: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
       batch_account_group: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
       batch_account_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_NAME }}
+      batch_account_public_network_access: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_PUBLIC_NETWORK_ACCESS == 'true' }}
     secrets: inherit
   cleanup:
     runs-on: ubuntu-latest

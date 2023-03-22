@@ -179,3 +179,6 @@ output batchAccountResourceGroup string = dplBatch.outputs.batchAccountResourceG
 
 @description('batch account name')
 output batchAccountName string = dplBatch.outputs.batchAccountName
+
+@description('batch account public network access')
+output batchAccountPublicNetworkAccess bool = dplBatch.outputs.batchAccountPublicNetworkAccess

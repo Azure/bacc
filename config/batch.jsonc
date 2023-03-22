@@ -1,16 +1,12 @@
 {
     /// This configuration file controls the creation of the batch account and other required resources.
 
-    /// "batchAccount" is the configuration for the batch account.
-    "batchAccount": {
+    /// Specify the pool allocation mode. Accepted values are "UserSubscription" or "BatchService".
+    "poolAllocationMode": "UserSubscription",
 
-        /// Specify the pool allocation mode. Accepted values are "UserSubscription" or "BatchService".
-        "poolAllocationMode": "UserSubscription",
-
-        /// Specify whether the batch service supports public network access. This is useful for debugging and testing
-        /// as it allows clients to connect to the batch service to perform tasks like resize pool, submit jobs etc.
-        "publicNetworkAccess": true
-    },
+    /// Specify whether you want to users access to the Batch account for job / pool management from
+    /// a public network.
+    "publicNetworkAccess": true,
 
     /// "pools" is a list of pools to create in the batch account. You can define arbitrary number of pools here, limited
     /// by batch account limits and quotas. Each pool is a set of nodes that are homogeneous in terms of the operating
@@ -56,7 +52,7 @@
             "interNodeCommunication": false,
             "subnet": "pool-windows",
 
-            /// Choose which storage containers/file-shares are to be mounted on this poool
+            /// Choose which storage containers/file-shares are to be mounted on this pool
             /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
             /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
             "mounts": {
@@ -64,21 +60,5 @@
                 "l": "afs0/logs"
             }
         }
-    ],
-
-    /// This is the configuration for the key vault. Key vault is necessary to pass secrets and certificates
-    /// to the batch nodes.
-    "keyVault": {
-        /// Set to true to enable soft delete for the key vault.
-        "enableSoftDelete": false
-    },
-
-    /// This is the container registry configuration. Container registry is used to store application container images
-    /// when `enableApplicationContainers` parameter is set to true for the deployment.
-    "containerRegistry": {
-        
-        // Specify whether to enable public network access on the container registry. For production, this is best set to false.
-        // enabling public network access can make it easier to push / pull container images externally.
-        "publicNetworkAccess": true
-    }
+    ]
 }

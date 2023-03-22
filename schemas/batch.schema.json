@@ -4,27 +4,80 @@
     "title": "batch",
     "description": "batch account configuration",
     "type": "object",
-    "patternProperties": {
-        "^[a-zA-Z0-9_-]+$": {
-            "description": "a storage account",
-            "type": "object",
-            "properties": {
-                "shares": {
-                    "description": "azure file share",
-                    "type": "array",
-                    "items": {
-                        "description": "name for each file share under this storage account",
+    "properties": {
+        "poolAllocationMode": {
+            "description": "pool allocation mode to use for the batch account",
+            "type": "string",
+            "enum": ["UserSubscription", "BatchService"],
+            "default": "UserSubscription"
+        },
+        "publicNetworkAccess": {
+            "description": "batch account should be accessible from public network",
+            "type": "boolean",
+            "default": true
+        },
+        "pools": {
+            "description": "pools defined on the batch account",
+            "type": "array",
+            "default": [],
+            "items": {
+                "description": "pool definition",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "unique name for the pool",
                         "type": "string"
+                    },
+
+                    "virtualMachine": {
+                        "description": "virtual machine configuration",
+                        "type": "object",
+                        "properties": {
+                            "size": {
+                                "description": "Virtual Machine SKU e.g. Standard_DS5_v2",
+                                "type": "string"
+                            },
+                            "taskSlotsPerNode": {
+                                "description": "max number of tasks to run concurrently on a node",
+                                "type": "integer"
+                            },
+                            "image": {
+                                "description": "virtual machine image name, as defined in `images.jsonc`",
+                                "type": "string"
+                            }
+                        },
+                        "required": [ "size", "taskSlotsPerNode", "image" ],
+                        "additionalProperties": false
+                    },
+
+                    "interNodeCommunication": {
+                        "description": "enable internode communication (for MPI)",
+                        "type": "boolean",
+                        "default": false
+                    },
+
+                    "subnet": {
+                        "description": "name of the subnet to use for the pool",
+                        "type": "string"
+                    },
+
+                    "mounts": {
+                        "description": "containers/fileshares to mount",
+                        "type": "object",
+                        "default": {},
+                        "patternProperties": {
+                            "^[a-zA-Z0-9_-]+$": {
+                                "description": "container/fileshare to mount; property name is used as mount location on pool",
+                                "type": "string",
+                                "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+                            }
+                        },
+                        "additionalProperties": false
                     }
+
                 },
-                "containers": {
-                    "description": "azure blob containers",
-                    "type": "array",
-                    "items": {
-                        "description": "name for each container under this storage account",
-                        "type": "string"
-                    }
-                }
+                "required": [ "name", "virtualMachine", "subnet" ],
+                "additionalProperties": false
             },
             "additionalProperties": false
         }
