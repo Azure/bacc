@@ -116,7 +116,6 @@ jobs:
       batch_account_endpoint: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
       batch_account_group: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
       batch_account_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_NAME }}
-      batch_account_public_network_access: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_PUBLIC_NETWORK_ACCESS == 'true' }}
     secrets: inherit
   cleanup:
     runs-on: ubuntu-latest

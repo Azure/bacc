@@ -14,11 +14,6 @@ on:
         type: string
         description: 'Batch account name'
         required: true
-      batch_account_public_network_access:
-        type: boolean
-        description: 'Batch account is accessible from public network'
-        required: false
-        default: true
   workflow_call:
     inputs:
       batch_account_endpoint:
@@ -33,10 +28,6 @@ on:
         type: string
         description: 'Batch account name'
         required: true
-      batch_account_public_network_access:
-        type: boolean
-        description: 'Batch account is accessible from public network'
-        required: true
 permissions:
   # these are needed for azure login with OIDC
   contents: read
@@ -45,7 +36,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     environment: azure
-    if: inputs.batch_account_public_network_access
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
