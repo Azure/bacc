@@ -1,0 +1,113 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "schema for hub configuration file",
+    "title": "hub",
+    "description": "hub configuration",
+    "type": "object",
+    "properties": {
+        "diagnostics": {
+            "description": "diagnostics specific configuration",
+            "type": "object",
+            "default": {},
+            "properties": {
+                "logAnalyticsWorkspace": {
+                    "description": "log analytics workspace configuration",
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "description": "log analytics workspace id",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["id"],
+                    "additionalProperties": false
+                },
+                "appInsights": {
+                    "description": "application insights resource details",
+                    "type": "object",
+                    "properties": {
+                        "appId": {
+                            "description": "application insights app id",
+                            "type": "string"
+                        },
+                        "instrumentationKey": {
+                            "description": "application insights instrumentation key",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["appId", "instrumentationKey"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+
+        "network": {
+            "description": "hub network specific configuration",
+            "type": "object",
+            "properties": {
+                "routes": {
+                    "description": "user defined routes (UDRs) to use as first hop for spoke vnet",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "route configuration",
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "name for the route (auto-generated if not specified)",
+                                "type": "string"
+                            },
+                            "properties": {
+                                "description": "route properties in `RoutePropertiesFormat`",
+                                "type": "object",
+                                "properties": {
+                                    "addressPrefix": { "type": "string" },
+                                    "hasBgbOverride": { "type": "boolean" },
+                                    "nextHopIpAddress": { "type": "string" },
+                                    "nextHopType": {
+                                        "type": "string",
+                                        "enum": ["Internet", "None", "VirtualAppliance", "VirtualNetworkGateway", "VNetLocal"]
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": ["name", "properties"]
+                    }
+                },
+
+                "peerings": {
+                    "description": "vnet's to peer the spoke with",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "vnet information",
+                        "type": "object",
+                        "properties": {
+                            "group": {
+                                "description": "vnet's resource group",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "vnet's resource name",
+                                "type": "string"
+                            },
+                            "useGateway": {
+                                "description": "whether to use Gateway on the Vnet",
+                                "type": "boolean",
+                                "default": false
+
+                            }
+                        },
+                        "required": ["group", "name"],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

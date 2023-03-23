@@ -16,8 +16,8 @@
 
         /// Application Insights is used to collect metrics and logs from the application.
         "appInsights": {
-            "appId": null,
-            "instrumentationKey": null
+            "appId": "",
+            "instrumentationKey": ""
         }
     },
 
@@ -33,8 +33,7 @@
         ///         nextHopType: 'VirtualAppliance'
         ///         addressPrefix: '0.0.0.0/0'
         ///         nextHopIpAddress: fwHub.properties.ipConfigurations[0].properties.privateIPAddress
-        ///     }
-        /// }]
+        ///     }}]
         "routes": [ ],
 
         /// "peerings" specifies vnet configurations to peer with.

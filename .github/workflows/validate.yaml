@@ -28,6 +28,10 @@ jobs:
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/batch.jsonc > $GITHUB_WORKSPACE/config/batch.json
           jsonschema -i $GITHUB_WORKSPACE/config/batch.json $GITHUB_WORKSPACE/schemas/batch.schema.json
+      - name: validate hub.jsonc
+        run: |
+          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/hub.jsonc > $GITHUB_WORKSPACE/config/hub.json
+          jsonschema -i $GITHUB_WORKSPACE/config/hub.json $GITHUB_WORKSPACE/schemas/hub.schema.json
       - name: validate azure credentials
         uses: azure/login@v1
         with:

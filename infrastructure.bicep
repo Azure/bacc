@@ -32,9 +32,6 @@ param enableApplicationPackages bool = false
 @description('enable container support for applications')
 param enableApplicationContainers bool = false
 
-@description('hub configuration')
-param hubConfig object = loadJsonContent('config/hub.jsonc')
-
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
@@ -65,6 +62,29 @@ var allTags = union(tags, {
   source: 'azbatch-starter:v0.1'
 })
 
+
+@description('hub configuration')
+var hubConfig = union({
+  diagnostics: {}
+  network: {
+    routes: []
+    peerings: []
+  }
+}, loadJsonContent('config/hub.jsonc'))
+
+@description('log analytics configuration to use for adding diagnostics settings to resources')
+var logConfig = contains(hubConfig.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfig.diagnostics.logAnalyticsWorkspace.id)? {
+  workspaceId: hubConfig.diagnostics.logAnalyticsWorkspace.id
+} : {}
+
+var hasAppInsights = contains(hubConfig.diagnostics, 'appInsights') && !empty(hubConfig.diagnostics.appInsights.appId) && !empty(hubConfig.diagnostics.appInsights.instrumentationKey)
+
+@description('app insights configuration')
+var appInsightsConfig = hasAppInsights? {
+  appId: hubConfig.diagnostics.appInsights.appId
+  instrumentationKey: hubConfig.diagnostics.appInsights.instrumentationKey
+} : {}
+
 //------------------------------------------------------------------------------
 // Resources
 //------------------------------------------------------------------------------
@@ -77,29 +97,6 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 }
 
 //------------------------------------------------------------------------------
-// Process hub config
-
-// diagnostics configuration is set to empty object if logAnalyticsWorkspaceId is not provided
-// otherwise, it is set to the workspace id provided in the hub configuration. We then use
-// it to add diagnostics settings to all resources that support it.
-@description('diagnostics configuration')
-module dplDiagnostics 'modules/diagnostics.bicep' = {
-  name: 'diagnostics-${dplSuffix}'
-  params: {
-    diagnosticsConfig: contains(hubConfig, 'diagnostics') ? hubConfig.diagnostics : {}
-  }
-}
-
-// process network configuration
-@description('network configuration')
-module dplHubNetwork 'modules/hub_network.bicep' = {
-  name: 'hubnetwork-${dplSuffix}'
-  params: {
-    networkConfig: contains(hubConfig, 'network') ? hubConfig.network : {}
-  }
-}
-
-//------------------------------------------------------------------------------
 @description('deploy networking resources')
 module dplSpoke 'modules/spoke.bicep' = {
   name: 'spoke-${dplSuffix}'
@@ -108,9 +105,9 @@ module dplSpoke 'modules/spoke.bicep' = {
     suffix: rsSuffix
     location: location
     tags: allTags
-    logConfig: dplDiagnostics.outputs.logConfig
-    routes: dplHubNetwork.outputs.routes
-    peerings: dplHubNetwork.outputs.peerings
+    logConfig: logConfig
+    routes: contains(hubConfig.network, 'routes') ? hubConfig.network.routes : []
+    peerings: contains(hubConfig.network, 'peerings') ? hubConfig.network.peerings : []
   }
 }
 
@@ -137,8 +134,8 @@ module dplBatch 'modules/batch.bicep' = {
     enableApplicationContainers: enableApplicationContainers
     // password: password
     vnet: dplSpoke.outputs.vnet
-    logConfig: dplDiagnostics.outputs.logConfig
-    appInsightsConfig: dplDiagnostics.outputs.appInsightsConfig
+    logConfig: logConfig
+    appInsightsConfig: appInsightsConfig
     storageConfigurations: reduce(dplStorage.outputs.unlattedConfigs, {}, (acc, x) => union(acc, x))
   }
 }
