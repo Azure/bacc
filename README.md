@@ -102,23 +102,76 @@ with comments, you will have to strip the comments before running the validation
 > jsonschema -i /tmp/batch.json ./schemas/batch.schema.json
 ```
 
-## License
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Licensed under the [MIT License](./LICENSE)
-
 ## Prerequisites
 
-* The account creating the deployment needs to have **Owner** role on the subscription. This is essential to assign the
-  correct roles to the resources being deployed. **Contributor** role is not adequate since that does not allow us to assign
-  roles to the managed identity created by the deployment.
+Before you can try any of the demos, you first need to deploy the infrastructure on Azure.
+This section takes you through the steps involved in making a deployment.
 
-## Quickstart
+1. __Ensure valid subscription__: Ensure that you a chargeable Azure subscription that you
+   can use and you have __Owner__ access to the subscription.
 
-(not full instructions yet)
+2. __Accept legal terms__: The demos use container images that require you to accept
+   legal terms. This only needs to be done once for the subscription. To accept these legal terms,
+   you need to execute the following Azure CLI command once. You can do this using the
+   [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/) in the [Azure portal](https://ms.portal.azure.com)
+   or your local computer. To run these commands on your local computer, you must have Azure CLI installed.
 
-Steps to make a deployment:
+   ```sh
+   # For Azure Cloud Shell, pick Bash (and not powershell)
+   # If not using Azure Cloud Shell, use `az login` to login if needed.
+
+   # accept image terms
+   az vm image terms accept --urn microsoft-azure-batch:ubuntu-server-container:20-04-lts:latest
+   ```
+
+3. __Get Batch Service Id__: Based on your tenant, which may be different, hence it's
+   best to confirm. In [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/),
+   run the following:
+
+   ```sh
+    az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id'
+
+    # output some alpha numeric string e.g.
+    f520d84c-3fd3-4cc8-88d4-2ed25b00d27a
+   ```
+
+   Save the value shown then you will need to enter that value,
+   instead of the default, for `batchServiceObjectId` (shown as __Batch Service Object Id__,
+   if deploying using the portal) when deploying the infrastructure.
+
+   If the above returns an empty string, you may have to register "Microsoft.Batch" as a registered
+   resource provider for your subscription. You can do that using the portal, browse to your `Subscription >
+   Resource Providers` and then search for `Microsoft.Batch`. Or use the following command and then try
+   the `az ad sp list ...` command again
+
+   ```sh
+   az provider register -n Microsoft.Batch --subscription <your subscription name> --wait
+   ```
+
+4. __Ensure Batch service has authorization to access your subscription__. Using the portal,
+   access your Subscription and select the __Access Control (IAM)__ page. Under there, we need to assign
+  __Contributor__ or __Owner__ role to the Batch API. You can find this account by searching for
+  __Microsoft Azure Batch__ (application ID should be __ddbf3205-c6bd-46ae-8127-60eb93363864__). For additional
+  details, see [this](https://learn.microsoft.com/en-us/azure/batch/batch-account-create-portal#allow-azure-batch-to-access-the-subscription-one-time-operation).
+
+5. __Validate Batch account quotas__: Ensure that the region you will deploy under has
+   not reached its batch service quota limit. Your subscription may have limits on
+   how many batch accounts can be created in a region. If you hit this limit, you
+   may have to delete old batch account, or deploy to a different region, or have the
+   limit increased by contacting your administrator.
+
+6. __Validate compute quotas__: Ensure that the region you will deploy under has not
+   sufficient quota left for the SKUs picked for batch compute nodes. The AzFinSim
+   and LULESH-Catalyst demos use `Standard_D2S_V3` while the trame demo uses
+   `Standard_DS5_V2` by default. You can change these by modifying the configuration
+   file [`batch.jsonc`](config/batch.jsonc).
+
+## Deployment
+
+Following shows the command to make a deployment. Modify the configuration files to your liking first and then
+use the following command. You can specify parameters for the deployment (described earlier) to customize the deployment.
+This requires Azure CLI with Bicep support. As before, you can simply use the Azure Cloud Shell if you're not sure about the
+packages installed on your workstation.
 
 ```bash
 # assuming bash (on Linux or using WSL2 on Windows)
@@ -126,12 +179,46 @@ Steps to make a deployment:
 > AZ_BATCH_SERVICE_OBJECT_ID=$(az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id')
 > AZ_LOCATION="westus2"
 > AZ_PREFIX="uda20230321a"  # e.g "<initials><date><suffix>"
+> AZ_DEPLOYMENT_NAME="azbatch-starter-$AZ_LOCATION"
 > az deployment sub create --location $AZ_LOCATION  \
-      --name "azbatch-starter-$AZ_LOCATION"         \
+      --name $AZ_DEPLOYMENT_NAME                    \
       --template-file infrastructure.bicep          \
       --parameters                                  \
         prefix=$AZ_PREFIX                           \
-        batchServiceObjectId=$AZ_BATCH_SERVICE_OBJECT_ID
+        batchServiceObjectId=$AZ_BATCH_SERVICE_OBJECT_ID # <... add any other parameters are key=value here....>
+```
+
+## Testing / Validating the Deployment
+
+On successful deployment, use the following command to get information from the deployment
+
+```bash
+# Get the batch account endpoint
+> AZ_BATCH_ACCOUNT_ENDPOINT=$(az deployment sub show --name $AZ_DEPLOYMENT_NAME -o tsv --query properties.outputs.batchAccountEndpoint.value)
+
+# Get the batch account resource group name
+> AZ_BATCH_ACCOUNT_RESOURCE_GROUP=$( az deployment sub show --name $AZ_DEPLOYMENT_NAME -o tsv --query properties.outputs.batchAccountResourceGroup.value)
+
+# Get the batch account resource name
+> AZ_BATCH_ACCOUNT_NAME=$(az deployment sub show --name $AZ_DEPLOYMENT_NAME -o tsv --query properties.outputs.batchAccountName.value)
+```
+
+To make it easier to execute batch commands using CLI, let's login to the batch account first.
+
+```bash
+# Login to batch account
+az batch account login --name $AZ_BATCH_ACCOUNT_NAME --resource-group $AZ_BATCH_ACCOUNT_RESOURCE_GROUP
+```
+
+Let's confirm that pools were created as expected. The default configuration creates two pools named `windows` and `linux`. Let's confirm that.
+
+```bash
+# list pools and show their names
+az batch pool list | jq -r ".[].id"
+
+# expected output:
+linux
+windows
 ```
 
 ## Developer Guidelines
@@ -142,3 +229,9 @@ Steps to make a deployment:
 2. For globally unique resource names, use `resourceGroup().id` and `suffix` to generate a `GUID`. Never use deployment name.
 3. For nested deployments, use a deployment name suffix generated using `uniqueString(resourceGroup().id, deployment().name, location)`.
    i.e. always include deployment name in it.
+
+## License
+
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [MIT License](./LICENSE)
