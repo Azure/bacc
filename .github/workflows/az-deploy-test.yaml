@@ -51,4 +51,4 @@ jobs:
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - name: Run tests
         run: |
-          shelltest $GITHUB_WORKSPACE/tests --color -DAZ_BATCH_ACCOUNT_GROUP=${{ inputs.batch_account_group }} -DAZ_BATCH_ACCOUNT_NAME=${{ inputs.batch_account_name }} -DAZ_BATCH_ACCOUNT_ENDPOINT=${{ inputs.batch_account_endpoint }}
+          shelltest $GITHUB_WORKSPACE/tests --color -DAZ_WORKSPACE=$GITHUB_WORKSPACE -DAZ_BATCH_ACCOUNT_GROUP=${{ inputs.batch_account_group }} -DAZ_BATCH_ACCOUNT_NAME=${{ inputs.batch_account_name }} -DAZ_BATCH_ACCOUNT_ENDPOINT=${{ inputs.batch_account_endpoint }}
