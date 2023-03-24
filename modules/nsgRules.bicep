@@ -21,7 +21,7 @@ Format:
   ....
 }
 */
-param nsgRules object = loadJsonContent('../config/nsgRules.jsonc')
+param nsgRules object = loadJsonContent('./nsgRules.jsonc')
 
 /**
 Format:
