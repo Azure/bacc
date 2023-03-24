@@ -32,6 +32,10 @@ jobs:
         run: |
           sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/hub.jsonc > $GITHUB_WORKSPACE/config/hub.json
           jsonschema -i $GITHUB_WORKSPACE/config/hub.json $GITHUB_WORKSPACE/schemas/hub.schema.json
+      - name: validate images.jsonc
+        run: |
+          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/images.jsonc > $GITHUB_WORKSPACE/config/images.json
+          jsonschema -i $GITHUB_WORKSPACE/config/images.json $GITHUB_WORKSPACE/schemas/images.schema.json
       - name: validate azure credentials
         uses: azure/login@v1
         with:

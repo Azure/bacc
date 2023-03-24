@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "schema for images configuration file",
+    "title": "images",
+    "description": "Virtual Machine Image configuration",
+    "type": "object",
+    "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+            "description": "configuration for the named image",
+            "type": "object",
+            "properties": {
+                "isWindows": {
+                    "description": "is this a Windows image",
+                    "type": "boolean"
+                },
+
+                "imageReference": {
+                    "description": "image details",
+                    "type": "object",
+                    "properties": {
+                        "publisher": {
+                            "description": "publisher of the image",
+                            "type": "string"
+                        },
+                        "offer": {
+                            "description": "offer of the image",
+                            "type": "string"
+                        },
+                        "sku": {
+                            "description": "sku of the image",
+                            "type": "string"
+                        },
+                        "version": {
+                            "description": "version of the image",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["publisher", "offer", "sku", "version"],
+                    "additionalProperties": false
+                },
+
+                "nodeAgentSkuId": {
+                    "description": "node agent SKU ID",
+                    "type": "string"
+                }
+            },
+            "required": ["isWindows", "imageReference", "nodeAgentSkuId"],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
+
+ 
