@@ -4,9 +4,12 @@
     /// Specify the pool allocation mode. Accepted values are "UserSubscription" or "BatchService".
     "poolAllocationMode": "UserSubscription",
 
-    /// Specify whether you want to users access to the Batch account for job / pool management from
-    /// a public network.
-    "publicNetworkAccess": true,
+    /// Specify whether you want to users access certain resources like the Batch account for job / pool management,
+    /// the Azure Container Registry for container image management, from
+    /// a public network. Accepted values are true, false, or "auto". If "auto" is specified, the
+    /// the resources will be accessible from the public network only if there is not gateway peering
+    /// specified in the hub configuration (see `hub.jsonc`)
+    "publicNetworkAccess": "auto",
 
     /// "pools" is a list of pools to create in the batch account. You can define arbitrary number of pools here, limited
     /// by batch account limits and quotas. Each pool is a set of nodes that are homogeneous in terms of the operating

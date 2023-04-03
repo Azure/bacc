@@ -13,8 +13,9 @@
         },
         "publicNetworkAccess": {
             "description": "batch account should be accessible from public network",
-            "type": "boolean",
-            "default": true
+            "type": ["boolean", "string"],
+            "default": "auto",
+            "enum": [true, false, "auto"]
         },
         "pools": {
             "description": "pools defined on the batch account",

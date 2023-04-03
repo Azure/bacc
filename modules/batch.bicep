@@ -48,8 +48,11 @@ param appInsightsConfig object = {}
 /// }
 param storageConfigurations object = {}
 
+@description('spoke deployed with gateway peerings')
+param gatewayPeeringEnabled bool = false
+
 var batchConfig = union({
-  publicNetworkAccess: true
+  publicNetworkAccess: 'auto'
   poolAllocationMode: 'UserSubscription'
   pools: []
 }, loadJsonContent('../config/batch.jsonc'))
@@ -57,6 +60,12 @@ var batchConfig = union({
 var images = loadJsonContent('../config/images.jsonc')
 var diagConfig = loadJsonContent('../config/diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
+
+/// public network access is enabled in "auto" mode, unless gateway peering is enabled.
+/// if gateway peering is enabled, we assume users will peering to the spoke vnet to access
+/// resources via private endpoints and hence disable public network access.
+var publicNetworkAccess = batchConfig.publicNetworkAccess == 'auto' ? !gatewayPeeringEnabled : batchConfig.publicNetworkAccess
+
 //------------------------------------------------------------------------------
 // Resources
 //------------------------------------------------------------------------------
@@ -210,10 +219,8 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApp
   }
   properties: {
     // FIXME:
-    // adminUserEnabled: batchConfig.containerRegistry.publicNetworkAccess ? true : false // RBAC only
-    // publicNetworkAccess: batchConfig.containerRegistry.publicNetworkAccess ? 'Enabled' : 'Disabled'
-    adminUserEnabled: false // RBAC only
-    publicNetworkAccess: 'Disabled'
+    adminUserEnabled: publicNetworkAccess // RBAC only, if false
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
     zoneRedundancy: 'Disabled'
     networkRuleBypassOptions: 'AzureServices'
   }
@@ -260,11 +267,11 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
     } : null
 
     poolAllocationMode: batchConfig.poolAllocationMode
-    publicNetworkAccess: batchConfig.publicNetworkAccess? 'Enabled' : 'Disabled'
+    publicNetworkAccess: publicNetworkAccess? 'Enabled' : 'Disabled'
     networkProfile: {
       accountAccess: {
         defaultAction: 'Deny'
-        ipRules: batchConfig.publicNetworkAccess ? [
+        ipRules: publicNetworkAccess ? [
           {
             action: 'Allow'
             value: '0.0.0.0/0'
@@ -485,7 +492,7 @@ output batchAccountName string = batchAccount.name
 output batchAccountResourceGroup string = resourceGroup().name
 
 @description('batch account public network access')
-output batchAccountPublicNetworkAccess bool = (batchAccount.properties.publicNetworkAccess == 'Enabled')
+output batchAccountPublicNetworkAccess bool = publicNetworkAccess
 
 @description('resources needing role assignments')
 output roleAssignments array = union(acrRoleAssignments, saRoleAssignments)

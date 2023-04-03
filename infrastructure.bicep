@@ -106,8 +106,8 @@ module dplSpoke 'modules/spoke.bicep' = {
     location: location
     tags: allTags
     logConfig: logConfig
-    routes: contains(hubConfig.network, 'routes') ? hubConfig.network.routes : []
-    peerings: contains(hubConfig.network, 'peerings') ? hubConfig.network.peerings : []
+    routes: hubConfig.network.routes
+    peerings: hubConfig.network.peerings
   }
 }
 

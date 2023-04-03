@@ -139,6 +139,7 @@ module mdlPeerRev 'peering.bicep' = [for ovnetConfig in peerings: {
   }
 }]
 
+
 //------------------------------------------------------------------------------
 @description('virtual network')
 output vnet object = {
@@ -154,3 +155,6 @@ output snetPrivateEndpoints object = {
   snet: vnet::snetPrivateEndpoints.name
   snetId: vnet::snetPrivateEndpoints.id
 }
+
+@description('gateway peering deployed')
+output gatewayPeeringEnabled bool = !empty(filter(peerings, item => item.enableGateway))
