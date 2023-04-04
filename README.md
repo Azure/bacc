@@ -14,6 +14,11 @@ exposing access to the compute resources. It is designed with financial applicat
 are often restricted or locked down. That being said, the configuration of resources deployed is applicable a broad set of
 applications and domains beyond FinTech.
 
+The goal of this project is to provide a starting point for deploying Azure Batch in a manner that follows best practices
+and security guidelines. The project is designed to be easily customizable to fit the needs of the user or applications
+they want to run on Azure Batch. The project is designed to be used as a starting point for a more complex deployment
+that may require additional resources or customization.
+
 ## Design
 
 The repository contains Bicep code that can be used to deploy resources to Azure. The deployment can be customized in two ways:
@@ -87,8 +92,6 @@ order to follow when modifying them for a new deployment.
 
 * [__images.jsonc__](./config/images.jsonc): This file defines virtual images that may be used in pools referenced
   when defining pools in `batch.jsonc`.
-
-* [__nsgRules.jsonc__](config/nsgRules.jsonc): This file defines the NSG rules referenced in `spoke.json`.
 
 JSON schemas that can be used to validate these configuration files are provided under [`./schemas`](./schemas/). Note since
 the configuration files include comments and most JSON validation tools (e.g. `jsonschema`) do not support validating JSON
@@ -221,9 +224,61 @@ linux
 windows
 ```
 
+## Understanding the default configuration
+
+The default configuration is setup to deploy an environment that can be used to run various workloads described under Demos / Applications section below. To better understand how to customize the deployment, let's look at the default configuration
+in more detail.
+
+* [`spoke.jsonc`](config/spoke.jsonc) contains the configuration for the spoke VNet. We define a vnet with address space
+  `10.121.0.0/16` and three subnets. The `private-endpoints` subnet is required and used to deploy private endpoints for all
+  resources that support it in our deployment. Private endpoints are used to access resources from within the VNet without
+  exposing them to the public internet. In this deployment, we decided to define two additional subnets, `pool-linux` and
+  `pool-windows` to be used for the batch pools that use Linux and Windows nodes respectively. When customizing the deployment,
+  you can changes these or add additional subnets as needed.
+
+  Once we have defined the subnets, we need to define the NSG rules for each subnet. The default configuration defines
+  rules to lock down all communication except the ones explicitly needed to support core functionality. You can customize
+  these rules as needed.
+
+* [`storage.jsonc`](./config/storage.jsonc) defines the storage accounts we want to mount on all pools. These are totally
+  optional. Your applications, for example, may be using a network database instead e.g. a redis cache, or Cosmos DB. In
+  that case, you can skip this configuration and leave it empty. For other cases where you want to read data from shared storage
+  or produce results on a shared storage, you can define the storage accounts here. The default configuration defines
+  two storage accounts, one for blob storage and one for file storage. Blob storage can only be mounted on Linux nodes
+  while file storage can be mounted on both Linux and Windows nodes.
+
+* [`batch.jsonc`](./config/batch.jsonc) defines the batch account and pools. We start by defining the batch account configuration.
+  `poolAllocationMode` is set to `UserSubscription` to ensure that the pools are created in the same subscription as the
+  batch account. This is preferred for deployment where you don't want to share compute resources with other users. `publicNetworkAccess` determines from which networks users can access the resource like batch account, container registry
+  for management. `auto` indicates that the resources will be made accessible from public network unless peering with a hub
+  VNet is configured (in hub.jsonc).
+
+  Next, we define the pools. The default configuration defines two pools, one for Linux nodes and one for Windows nodes.
+  The pools are configured to use the subnets defined in the spoke configuration. The pools are also configured to mount
+  the storage accounts defined in the storage configuration. The pools are also configured to use the default image
+  for the respective OS. You can customize these as needed in [`images.jsonc`](./config/images.jsonc).
+
+* [`hub.jsonc`](./config/hub.jsonc) is intended to pass information about resources deployed externally to this deployment.
+  For example, if you have an existing hub VNet that you want to peer with the spoke VNet deployed by this deployment, you
+  can specify the hub VNet information here. The default configuration is empty with placeholder for locations where you can
+  specify the details about diagnostics resources, vnet peerings, user-defined-routes for firewalls, etc.
+
+* [`images.jsonc`](./config/images.jsonc) defines the default OS images to use for the pools. The default configuration
+  defines the default images for the a version of Windows Server and Ubuntu Server. You can customize these as needed.
+
+## Demos / Applications
+
+Once the deployment is complete, you can try various demos and applications. These demonstrate how the batch account together with
+various resources deployed in our deployment can be used to run various workloads. The following demos are available:
+
+* [AzFinSim](./demos/azfinsim/README.md): This is a financial simulation application that uses Azure Batch to run option risk analysis
+  workloads.
+* [LULESH](./demos/lulesh-catalyst/README.md): This is a scientific simulation mini-app that uses Azure Batch to run MPI-based
+  workloads. (placeholder: not yet availble)
+
 ## Developer Guidelines
 
-1. When naming resources, use '${suffix}' passed into each module deployed by the `infrastructure.bicep`. The suffix is generated
+1. When naming resources, use `${suffix}` passed into each module deployed by the `infrastructure.bicep`. The suffix is generated
    using `-${uniqueString(deployment().name, location, prefix, suffixSalt)}`. We use a suffix instead of prefix to name resources
    so that when viewing resources in the resource group, it's easier to read and identify resources in the resource names column.
 2. For globally unique resource names, use `resourceGroup().id` and `suffix` to generate a `GUID`. Never use deployment name.
