@@ -217,6 +217,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApp
   sku: {
     name: 'Premium' // needed for private endpoints
   }
+  tags: union({ sbatch: 'acr' }, tags)
   properties: {
     // FIXME:
     adminUserEnabled: publicNetworkAccess // RBAC only, if false
@@ -245,7 +246,7 @@ resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
 resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
   name: take('ba${join(split(guid('ba', suffix, resourceGroup().id), '-'), '')}', 24)
   location: location
-  tags: tags
+  tags: union({ sbatch: 'batch-account' }, tags)
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

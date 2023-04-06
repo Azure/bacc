@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "az-sbatch"
+version = "0.1.0"
+description = ""
+authors = ["Utkarsh Ayachit <uayachit@microsoft.com>"]
+readme = "README.md"
+packages = [{include = "az_sbatch", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+azure-common = "^1.1.28"
+azure-batch = "^13.0.0"
+azure-identity = "^1.12.0"
+knack = "^0.10.1"
+azure-mgmt-resource = "^23.0.0"
+
+[tool.poetry.scripts]
+sb = {reference = "bin/sb", type = "file"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
