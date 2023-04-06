@@ -266,6 +266,17 @@ in more detail.
 * [`images.jsonc`](./config/images.jsonc) defines the default OS images to use for the pools. The default configuration
   defines the default images for the a version of Windows Server and Ubuntu Server. You can customize these as needed.
 
+## CLI
+
+One the deployment is complete, one can use the Azure Portal or Azure CLI to interact with the resources
+to do various tasks like resizing batch pools, submitting jobs etc.
+
+You can also use CLI tool developed specifically for this project to make it easier to work with the deployment
+and included demos. The tool also demonstrate how one can develop such tools to make it easy for non-expert users to
+interact with your specific deployments to perform common tasks with ease.
+
+Installation instructions and usage is documented [here](./cli/README.md).
+
 ## Demos / Applications
 
 Once the deployment is complete, you can try various demos and applications. These demonstrate how the batch account together with

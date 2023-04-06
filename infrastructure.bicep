@@ -59,7 +59,8 @@ var rsSuffix = '-${uniqueString(deployment().name, location, prefix, suffixSalt)
 @description('tags for all resources')
 var allTags = union(tags, {
   'last deployed': timestamp
-  source: 'azbatch-starter:v0.1'
+  codebase: 'azbatch-starter'
+  version: '0.1.0'
 })
 
 
