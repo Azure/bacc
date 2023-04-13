@@ -9,6 +9,11 @@
             "description": "a storage account",
             "type": "object",
             "properties": {
+                "enableNFSv3": {
+                    "description": "enable NFSv3 for this storage account (only used when mounting containers)",
+                    "type": "boolean",
+                    "default": true
+                },
                 "shares": {
                     "description": "azure file share",
                     "type": "array",

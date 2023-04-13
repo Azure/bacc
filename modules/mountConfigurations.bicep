@@ -1,22 +1,39 @@
 param mounts object
 param storageConfigurations object
 param isWindows bool
+param mi string
 
 var sconfigs = map(items(mounts), item => union(storageConfigurations[item.value], {key: item.key}))
 // Format:
 //    configs == [{"name":...,"group":...,"kind":"file", "key": ....}, ...]
 
-// remove unsupported configs e.g. blob storage is not supported on Windows
-var chosen = isWindows ? filter(sconfigs,  c => c.kind != 'blob') : sconfigs
+var blobNFSConfigs = isWindows ? [] : filter(sconfigs, c => c.kind == 'blob' && c.nfsv3 == true)
+var blobBFSConfigs = isWindows ? [] : filter(sconfigs, c => c.kind == 'blob' && c.nfsv3 == false)
+var fsConfigs = filter(sconfigs, c => c.kind == 'file')
 
-var configs = [for (c,index) in chosen: c.kind == 'blob' ? {
+var configsNFS = map(blobNFSConfigs, c => {
   // pre: isWindows == false
   nfsMountConfiguration: {
     mountOptions: '-o sec=sys,vers=3,nolock,proto=tcp,rw'
     relativeMountPath: c.key
     source: '${c.name}.blob.${az.environment().suffixes.storage}:/${c.name}/${c.container}'
   }
-} : {
+})
+
+var configsBFS = map(blobBFSConfigs, c => {
+  // pre: isWindows == false
+  azureBlobFileSystemConfiguration : {
+    accountName: c.name
+    containerName: c.container
+    blobfuseOptions: '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120'
+    relativeMountPath: c.key
+    identityReference: {
+      resourceId: mi
+    }
+  }
+})
+
+var configsFS = map(fsConfigs, c => {
   azureFileShareConfiguration: {
     relativeMountPath: c.key
     mountOptions: isWindows? '' : '-o vers=3.0,dir_mode=0777,file_mode=0777,sec=ntlmssp'
@@ -24,9 +41,9 @@ var configs = [for (c,index) in chosen: c.kind == 'blob' ? {
     accountKey: c.accountKey // FIXME: this should use a 'secret'
     azureFileUrl: 'https://${c.name}.file.${az.environment().suffixes.storage}/${c.share}'
   }
+})
 
-}]
-
+var configs = concat(configsNFS, configsBFS, configsFS)
 /**
   Format:
   [

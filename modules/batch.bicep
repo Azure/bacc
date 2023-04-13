@@ -349,6 +349,7 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in batchCo
     mounts: item.mounts
     storageConfigurations: storageConfigurations
     isWindows: images[item.virtualMachine.image].isWindows
+    mi: managedIdentity.id
   }
 }]
 

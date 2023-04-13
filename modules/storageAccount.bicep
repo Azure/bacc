@@ -71,6 +71,7 @@ var containerConfigs = map(sanitizedAccount.containers, (container) => {
     group: resourceGroup().name
     kind: 'blob'
     container: container
+    nfsv3: sanitizedAccount.enableNFSv3
   }
 })
 
