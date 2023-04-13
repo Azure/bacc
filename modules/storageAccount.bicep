@@ -29,7 +29,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     minimumTlsVersion: 'TLS1_2'
     isHnsEnabled: sanitizedAccount.enableNFSv3 ? true : false
     isNfsV3Enabled: sanitizedAccount.enableNFSv3 ? true : false
-
+    allowBlobPublicAccess: false
     publicNetworkAccess: 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
