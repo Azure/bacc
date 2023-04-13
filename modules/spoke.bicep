@@ -157,4 +157,4 @@ output snetPrivateEndpoints object = {
 }
 
 @description('gateway peering deployed')
-output gatewayPeeringEnabled bool = !empty(filter(peerings, item => item.enableGateway))
+output gatewayPeeringEnabled bool = !empty(filter(peerings, item => item.useGateway))
