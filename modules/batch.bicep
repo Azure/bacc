@@ -376,16 +376,16 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         nodeAgentSkuId: images[item.virtualMachine.image].nodeAgentSkuId
 
         // provide ACR information if containers are enabled (and supported)
-        containerConfiguration: (!enableApplicationContainers || images[item.virtualMachine.image].isWindows) ? null : {
+        containerConfiguration: images[item.virtualMachine.image].isWindows ? null : {
           type: 'DockerCompatible'
-          containerRegistries: [
+          containerRegistries: enableApplicationContainers ? [
             {
-              registryServer: enableApplicationContainers ? acr.properties.loginServer : null
+              registryServer: acr.properties.loginServer
               identityReference: {
                 resourceId: managedIdentity.id
               }
             }
-          ]
+          ] : []
 
           // we don't prefetch any images when pool nodes are allocated.
           // for production setups, one may want to prefetch image to avoid
