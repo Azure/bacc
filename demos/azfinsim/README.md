@@ -43,6 +43,14 @@ az acr repository list -n $ACR_NAME -o tsv
 azfinsim/azfinsim
 ```
 
+## Using Docker Hub
+
+If you did not deploy with `enableApplicationContainers=true`, then you two options. You can either build the container
+image yourself and push it to a container registry of your choice, or you can use the container image we have built and
+pushed to Docker Hub. The container image is available at
+[`utkarshayachit/azfinsim:[tagname]`](https://hub.docker.com/repository/docker/utkarshayachit/azfinsim/general).
+You can use this image directly in the CLI commands below.
+
 ## CLI
 
 The `sb azfinsim ...` command provides a simple interface to interact with the azfinsim application.
@@ -102,6 +110,7 @@ use 10 concurrent tasks to process the trades. The results will be stored in a C
 mounted on the pool. The path to the CSV file is returned as the output from this command.
 
 ```sh
+# using ACR deployed as part of the sbatch deployment
 sb azfinsim -g <resource group> -s <subscription id>    \
     --num-trades 1000                                   \
     --num-tasks 10                                      \
@@ -111,6 +120,19 @@ sb azfinsim -g <resource group> -s <subscription id>    \
     "job_id": "...",
     "results_file": ".../trades.results.csv"
 }
+```
+
+The above command assumes that the ACR already has the container image pushed to it. If you did not deploy with
+`enableApplicationContainers=true`, then you can use the container image we have built and pushed to Docker Hub as follows:
+
+```sh
+# using Docker Hub
+sb azfinsim -g <resource group> -s <subscription id>    \
+    --num-trades 1000                                   \
+    --num-tasks 10                                      \
+    --algorithm pvonly                                  \
+    --container-registry "docker.io"                    \
+    --image-name "utkarshayachit/azfinsim:main"
 ```
 
 ### Process Existing Trades
