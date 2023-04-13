@@ -92,7 +92,7 @@ var appInsightsConfig = hasAppInsights? {
 
 @description('all resources group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-${environment}-${prefix}${suffix}'
+  name: '${prefix}${suffix}-${environment}'
   location: location
   tags: allTags
 }
