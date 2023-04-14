@@ -1,0 +1,28 @@
+{
+    "addressPrefixes": [
+        "10.121.0.0/16"
+    ],
+
+    "subnets": {
+        "private-endpoints": "10.121.0.0/24", // <-- required
+
+        // the following subnets are custom and optional
+        "pool": "10.121.1.0/24"
+    },
+
+    "networkSecurityGroups": {
+        "pool": [
+            "AllowVnetSSHInBound",
+            "AllowAllHTTPSOutBound",
+            "AllowAllHTTPOutBound",
+            "DenyAllInBound",
+            "DenyAllOutBound"
+        ],
+        "private-endpoints": [
+            "AllowAllHTTPSInBound",
+            "AllowAllHTTPSOutBound",
+            "DenyAllInBound",
+            "DenyAllOutBound"
+        ]
+    }
+}

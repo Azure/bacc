@@ -57,6 +57,11 @@ var batchConfig = union({
   pools: []
 }, loadJsonContent('../config/batch.jsonc'))
 
+var poolsConfig = map(batchConfig.pools, item => union({
+  interNodeCommunication: false
+  mounts: {}
+}, item))
+
 var images = loadJsonContent('../config/images.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
@@ -343,7 +348,7 @@ resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   scope: resourceGroup(vnet.group)
 }
 
-module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in batchConfig.pools: {
+module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in poolsConfig: {
   name: take('mountConfigurations-${item.name}-${dplSuffix}', 64)
   params: {
     mounts: item.mounts
@@ -353,7 +358,7 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in batchCo
   }
 }]
 
-resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in batchConfig.pools: {
+resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, index) in poolsConfig: {
   name: item.name
   parent: batchAccount
   identity: {
