@@ -24,4 +24,5 @@ jobs:
       enable_application_packages: ${{ matrix.enable_application_packages }}
       deploy: true
       cleanup: true
+      config: 'default'
     secrets: inherit

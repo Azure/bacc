@@ -66,7 +66,15 @@ var allTags = union(tags, {
 
 @description('hub configuration')
 var hubConfig = union({
-  diagnostics: {}
+  diagnostics: {
+    logAnalyticsWorkspace: {
+      id: ''
+    }
+    appInsights: {
+      appId: ''
+      instrumentationKey: ''
+    }
+  }
   network: {
     routes: []
     peerings: []

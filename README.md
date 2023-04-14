@@ -266,6 +266,13 @@ in more detail.
 * [`images.jsonc`](./config/images.jsonc) defines the default OS images to use for the pools. The default configuration
   defines the default images for the a version of Windows Server and Ubuntu Server. You can customize these as needed.
 
+## Example Configurations
+
+In addition to the default configuration, we also provide a few example configurations that demonstrate how to customize
+the deployment to meet specific needs. These are documented [here](./examples/README.md). To use any of these
+example configurations, you
+can copy the configuration files to the `config` directory and modify them as needed.
+
 ## CLI
 
 One the deployment is complete, one can use the Azure Portal or Azure CLI to interact with the resources

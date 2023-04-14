@@ -1,0 +1,20 @@
+{
+    // intentionally keep this minimal
+    "poolAllocationMode": "BatchService",
+    "pools": [
+        {
+            "name": "windows",
+            "virtualMachine": {
+                "size": "Standard_DS5_V2",
+                "taskSlotsPerNode": 8,
+                "image": "windows-server"
+            },
+            "subnet": "pool",
+
+            "mounts": {
+                // for file-shares on Windows, this must be a single letter since it is used as a drive letter.
+                "l": "afs0/data"
+            }
+        }
+    ]
+}
