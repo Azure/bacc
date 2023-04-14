@@ -58,7 +58,7 @@ var batchConfig = union({
 }, loadJsonContent('../config/batch.jsonc'))
 
 var images = loadJsonContent('../config/images.jsonc')
-var diagConfig = loadJsonContent('../config/diagnostics.json')
+var diagConfig = loadJsonContent('./diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
 
 /// public network access is enabled in "auto" mode, unless gateway peering is enabled.

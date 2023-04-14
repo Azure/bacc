@@ -20,7 +20,7 @@ param routes array = []
 param peerings array = []
 
 var config = loadJsonContent('../config/spoke.jsonc')
-var diagConfig = loadJsonContent('../config/diagnostics.json')
+var diagConfig = loadJsonContent('./diagnostics.json')
 
 @description('suffix to use for all nested deployments')
 var dplSuffix = uniqueString(deployment().name, location)
