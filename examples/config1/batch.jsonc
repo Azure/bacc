@@ -14,6 +14,13 @@
             "mounts": {
                 // for file-shares on Windows, this must be a single letter since it is used as a drive letter.
                 "l": "afs0/data"
+            },
+
+            "startTask": {
+                "commands": [
+                    "curl https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/examples/examples/config1/start_task.ps1 -o start_task.ps1",
+                    "powershell.exe -ExecutionPolicy Bypass -File start_task.ps1"
+                ]
             }
         }
     ]
