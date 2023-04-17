@@ -34,13 +34,15 @@ var configsBFS = map(blobBFSConfigs, c => {
 })
 
 var configsFS = map(fsConfigs, c => {
-  azureFileShareConfiguration: {
+  azureFileShareConfiguration: union(isWindows? {} : {
+    // only added for linux
+    mountOptions: '-o vers=3.0,dir_mode=0777,file_mode=0777,sec=ntlmssp'
+  } , {
     relativeMountPath: c.key
-    mountOptions: isWindows? '' : '-o vers=3.0,dir_mode=0777,file_mode=0777,sec=ntlmssp'
     accountName: c.name
     accountKey: c.accountKey // FIXME: this should use a 'secret'
     azureFileUrl: 'https://${c.name}.file.${az.environment().suffixes.storage}/${c.share}'
-  }
+  })
 })
 
 var configs = concat(configsNFS, configsBFS, configsFS)
