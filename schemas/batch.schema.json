@@ -74,8 +74,25 @@
                             }
                         },
                         "additionalProperties": false
-                    }
+                    },
 
+                    "startTask": {
+                        "description": "start task for pool",
+                        "type": "object",
+                        "default": {},
+                        "properties": {
+                            "commands": {
+                                "description": "commands to run as start task",
+                                "type": "array",
+                                "items": {
+                                    "description": "command to run as start task",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": ["commands"]
+                    }
                 },
                 "required": [ "name", "virtualMachine", "subnet" ],
                 "additionalProperties": false

@@ -57,13 +57,18 @@ var batchConfig = union({
   pools: []
 }, loadJsonContent('../config/batch.jsonc'))
 
+var images = loadJsonContent('../config/images.jsonc')
+var diagConfig = loadJsonContent('./diagnostics.json')
+
 var poolsConfig = map(batchConfig.pools, item => union({
   interNodeCommunication: false
   mounts: {}
+  startTask: {
+    commands: []
+  }
+  isWindows: images[item.virtualMachine.image].isWindows // for convenience
 }, item))
 
-var images = loadJsonContent('../config/images.jsonc')
-var diagConfig = loadJsonContent('./diagnostics.json')
 var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
 
 /// public network access is enabled in "auto" mode, unless gateway peering is enabled.
@@ -305,9 +310,11 @@ resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
 
 
 @description('start tasks for each os')
-var batchInsightsStartTask = {
+var batchInsightsStartTask = !empty(appInsightsConfig) ? {
   windows: {
-    commandLine: 'cmd /c @"%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1\'))"'
+    commands: [
+      '"%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1\'))"'
+    ]
     environmentSettings: [
       {
         name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
@@ -325,7 +332,9 @@ var batchInsightsStartTask = {
   }
 
   linux: {
-    commandLine: '/bin/bash -c \'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash\''
+    commands: [
+      'wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'
+    ]
     environmentSettings: [
       {
         name: 'APP_INSIGHTS_INSTRUMENTATION_KEY'
@@ -341,6 +350,15 @@ var batchInsightsStartTask = {
       }
     ]
   }
+}: {
+  windows: {
+    commands: []
+    environmentSettings: []
+  }
+  linux: {
+    commands: []
+    environmentSettings: []
+  }
 }
 
 resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
@@ -353,8 +371,17 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in poolsCo
   params: {
     mounts: item.mounts
     storageConfigurations: storageConfigurations
-    isWindows: images[item.virtualMachine.image].isWindows
+    isWindows: item.isWindows
     mi: managedIdentity.id
+  }
+}]
+
+module mdlStartTasks 'startTasks.bicep' = [for item in poolsConfig: {
+  name: take('startTasks-${item.name}-${dplSuffix}', 64)
+  params: {
+    commands: union(batchInsightsStartTask[item.isWindows? 'windows': 'linux'].commands, item.startTask.commands)
+    isWindows: item.isWindows
+    environmentSettings: batchInsightsStartTask[item.isWindows? 'windows': 'linux'].environmentSettings
   }
 }]
 
@@ -418,14 +445,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
       }
     }
 
-    startTask: !empty(appInsightsConfig) ? union(batchInsightsStartTask[images[item.virtualMachine.image].isWindows? 'windows': 'linux'], {
-      maxTaskRetryCount: 1
-      userIdentity: {
-        autoUser: {
-          elevationLevel: 'admin'
-          scope: 'pool'
-        }
-      }}) : {}
+    startTask: mdlStartTasks[index].outputs.startTask
 
     // mountConfiguration: images[item.virtualMachine.image].isWindows ? poolPropertiesMounts.windows : poolPropertiesMounts.linux
     // mountConfiguration: map(mdlPoolMounts[index].outputs.mountConfigurations, mconfig => {
