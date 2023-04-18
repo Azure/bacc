@@ -154,3 +154,21 @@ sb azfinsim -g <resource group> -s <subscription id>    \
     "results_file": ".../trades.results.csv"
 }
 ```
+
+### Windows Pool / Non-Container Workloads
+
+The steps so far describe how you can use the azfinsim application to process trades if sbatch was deployed using
+the default config which includes a linux pool with support for containerized workloads. The demo application
+also supports running on a Windows pool assuming the application is installed on the compute nodes.
+The [example config1](../../examples/README.md) can be used to deploy sbatch with a Windows pool where azfinsim application
+is installed as part of a start task of the pool. The following command can be used to submit a job to the Windows pool
+
+```sh
+# command for submitting job for examples/config1 based deployment
+sb azfinsim -g <resource group> -s <subscription id>    \
+    --num-trades 1000                                   \
+    --num-tasks 10                                      \
+    --algorithm pvonly                                  \
+    --mode package                                      \
+    --pool-id windows
+```

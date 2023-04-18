@@ -10,7 +10,7 @@ example configuration you want to use.
 > cp -r examples/config0/* config/
 ```
 
-## config0: Batch account with BatchService pool allocation mode
+## config0: Batch account with BatchService pool allocation mode (Linux-only pool)
 
 [config0](./config0/) demonstrates Batch account with **BatchService**
 pool allocation mode. It is setup to have single pool with Linux VMs. The pool is
@@ -19,9 +19,12 @@ files are also intentionally minimal to demonstrate the minimal configuration ne
 default parameters for deployment, the resources created will also be minimal, avoiding things like Azure Container Registry,
 Key Vault, etc.
 
+## config1: Batch account with BatchService pool allocation mode (Windows-only pool)
+
 [config1](./config1/) is similar with intentions as config0, but it is setup to
 to use Windows VMs instead of Linux VMs. For storage, it uses Azure Files instead
 of Azure Blobs and mounts it using SMB. This configuration also demonstrates
-how to setup a start start for a pool. The start task is used to install the
-applications and dependencies that are needed for the AzFinSim application demo
-to run in this configuration.
+how to setup a start task for a pool.
+
+The config is setup to run the AzFinSim demo on Windows pool in 'package' mode. Instead of using a container image,
+the application is installed on the pool in the start task. The application is then run in the task command line.
