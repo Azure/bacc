@@ -9,10 +9,13 @@ param tags object
 param account object
 
 var sanitizedAccount = union({
-  enableNFSv3: true
   containers: []
   shares: []
 }, account)
+
+// for containers, enable nfs by default, unless disabled
+// for non containers, don't enable nfs, unless enabled
+var enableNFSv3 = contains(sanitizedAccount, 'enableNFSv3') ? sanitizedAccount['enableNFSv3'] : !empty(sanitizedAccount.containers)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: sanitizedAccount.name
@@ -27,8 +30,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
     minimumTlsVersion: 'TLS1_2'
-    isHnsEnabled: sanitizedAccount.enableNFSv3 ? true : false
-    isNfsV3Enabled: sanitizedAccount.enableNFSv3 ? true : false
+    isHnsEnabled: enableNFSv3
+    isNfsV3Enabled: enableNFSv3
     allowBlobPublicAccess: false
     publicNetworkAccess: 'Disabled'
     networkAcls: {
@@ -71,7 +74,7 @@ var containerConfigs = map(sanitizedAccount.containers, (container) => {
     group: resourceGroup().name
     kind: 'blob'
     container: container
-    nfsv3: sanitizedAccount.enableNFSv3
+    nfsv3: enableNFSv3
   }
 })
 
