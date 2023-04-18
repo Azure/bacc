@@ -6,11 +6,19 @@ permissions:
   id-token: write
 jobs:
   validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [default, examples/config0, examples/config1]
     runs-on: ubuntu-22.04
     environment: azure
     steps:
       - name: checkout source
         uses: actions/checkout@v3
+      - name: Merge default config with ${{ matrix.config }}
+        if: matrix.config != 'default'
+        run: |
+          cp -v $GITHUB_WORKSPACE/${{ matrix.config }}/* $GITHUB_WORKSPACE/config/
       - name: az bicep build
         run: |
           az --version
