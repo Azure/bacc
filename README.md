@@ -99,7 +99,7 @@ with comments, you will have to strip the comments before running the validation
 
 ```bash
 # remove comments
-> sed 's/\/\/.*$//' ./config/batch.jsonc > /tmp/batch.json
+> sed 's/\/\/\/.*$//' ./config/batch.jsonc > /tmp/batch.json
 
 # validate
 > jsonschema -i /tmp/batch.json ./schemas/batch.schema.json

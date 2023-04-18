@@ -4,9 +4,9 @@
     ],
 
     "subnets": {
-        "private-endpoints": "10.122.0.0/24", // <-- required
+        "private-endpoints": "10.122.0.0/24", /// <-- required
 
-        // the following subnets are custom and optional
+        /// the following subnets are custom and optional
         "pool": "10.122.1.0/24"
     },
 

@@ -27,9 +27,9 @@
     /// network security groups etc. setup for that subnet may not be particularly suitable for
     /// ensuring correct communication between the batch nodes and the batch service.
     "subnets": {
-        "private-endpoints": "10.121.0.0/24", // <-- required
+        "private-endpoints": "10.121.0.0/24", /// <-- required
 
-        // the following subnets are custom and optional
+        /// the following subnets are custom and optional
         "pool-linux": "10.121.1.0/24",
         "pool-windows": "10.121.2.0/24"
     },
