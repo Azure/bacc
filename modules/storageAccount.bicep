@@ -15,7 +15,7 @@ var sanitizedAccount = union({
 
 // for containers, enable nfs by default, unless disabled
 // for non containers, don't enable nfs, unless enabled
-var enableNFSv3 = contains(sanitizedAccount, 'enableNFSv3') ? sanitizedAccount['enableNFSv3'] : !empty(sanitizedAccount.containers)
+var enableNFSv3 = contains(sanitizedAccount, 'enableNFSv3') ? sanitizedAccount.enableNFSv3 : !empty(sanitizedAccount.containers)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: sanitizedAccount.name
