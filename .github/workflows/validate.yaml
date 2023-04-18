@@ -26,23 +26,23 @@ jobs:
           file $GITHUB_WORKSPACE/infrastructure.json
       - name: validate spoke.jsonc
         run: |
-          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
+          sed 's/\/\/\/.*$//' $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
           jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/schemas/spoke.schema.json
       - name: validate storage.jsonc
         run: |
-          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/storage.jsonc > $GITHUB_WORKSPACE/config/storage.json
+          sed 's/\/\/\/.*$//' $GITHUB_WORKSPACE/config/storage.jsonc > $GITHUB_WORKSPACE/config/storage.json
           jsonschema -i $GITHUB_WORKSPACE/config/storage.json $GITHUB_WORKSPACE/schemas/storage.schema.json
       - name: validate batch.jsonc
         run: |
-          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/batch.jsonc > $GITHUB_WORKSPACE/config/batch.json
+          sed 's/\/\/\/.*$//' $GITHUB_WORKSPACE/config/batch.jsonc > $GITHUB_WORKSPACE/config/batch.json
           jsonschema -i $GITHUB_WORKSPACE/config/batch.json $GITHUB_WORKSPACE/schemas/batch.schema.json
       - name: validate hub.jsonc
         run: |
-          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/hub.jsonc > $GITHUB_WORKSPACE/config/hub.json
+          sed 's/\/\/\/.*$//' $GITHUB_WORKSPACE/config/hub.jsonc > $GITHUB_WORKSPACE/config/hub.json
           jsonschema -i $GITHUB_WORKSPACE/config/hub.json $GITHUB_WORKSPACE/schemas/hub.schema.json
       - name: validate images.jsonc
         run: |
-          sed 's/\/\/.*$//' $GITHUB_WORKSPACE/config/images.jsonc > $GITHUB_WORKSPACE/config/images.json
+          sed 's/\/\/\/.*$//' $GITHUB_WORKSPACE/config/images.jsonc > $GITHUB_WORKSPACE/config/images.json
           jsonschema -i $GITHUB_WORKSPACE/config/images.json $GITHUB_WORKSPACE/schemas/images.schema.json
       - name: validate azure credentials
         uses: azure/login@v1

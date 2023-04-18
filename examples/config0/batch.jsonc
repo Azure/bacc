@@ -1,5 +1,5 @@
 {
-    // intentionally keep this minimal
+    /// intentionally keep this minimal
     "poolAllocationMode": "BatchService",
     "pools": [
         {
