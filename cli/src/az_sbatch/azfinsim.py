@@ -32,6 +32,18 @@ def populate_commands(loader):
 def populate_arguments(loader):
     with ArgumentsContext(loader, "azfinsim") as c:
         c.argument(
+            'mode',
+            options_list=['--mode', '-m'],
+            help='The mode to use for the job.',
+            choices=['container', 'package']
+        )
+        c.argument(
+            "pool_id",
+            options_list=["--pool-id", "-p"],
+            help="The ID of the pool to use for the job.",
+            choices=['linux', 'windows']
+        )
+        c.argument(
             "num_tasks",
             options_list=["--num-tasks", "-k"],
             help="The number of concurrent tasks to use for the job.",
@@ -70,7 +82,12 @@ def populate_arguments(loader):
             help="The name of the container registry to use for the job. If not specified, ACR deployed as part of the sbatch deployment is used",
             arg_group="Container",
         )
-
+        c.argument(
+            "python_executable",
+            options_list=["--python-executable", "-e"],
+            help="The path to the python executable to use for the job.",
+            arg_group="Package"
+        )
 
 def execute(
     resource_group_name: str,
@@ -81,49 +98,55 @@ def execute(
     algorithm: str = "deltavega",
     container_registry: str = None,
     image_name: str = "azfinsim/azfinsim:latest",
+    pool_id: str = "linux",
+    mode: str = "container",
+    python_executable: str = "c:/Python310/python.exe"
 ):
     if num_trades is None and trades_file is None:
         log.critical("Either --num-trades or --trades-file must be specified.")
         return
     subscription_id = utils.get_subscription_id(subscription_id)
     credentials = utils.get_credentials()
-    if not utils.validate_resource_group(
-        credentials, subscription_id, resource_group_name
-    ):
+    if not utils.validate_resource_group(credentials, subscription_id, resource_group_name):
         log.critical(
-            "Resource group '%s' is not a valid sbatch spoke resource group",
-            resource_group_name,
-        )
+            "Resource group '%s' is not a valid sbatch spoke resource group", resource_group_name)
         return
 
-    if container_registry is None:
-        acr_name = utils.locate_acr(credentials, subscription_id, resource_group_name)
-        if not acr_name:
-            log.critical("ACR not found. Did you create the deployment?")
-            return
-        cr = f"{acr_name}.azurecr.io"
-    else:
-        cr = container_registry
+    cr = None
+    if mode == 'container':
+        if container_registry is None:
+            acr_name = utils.locate_acr(credentials, subscription_id, resource_group_name)
+            if not acr_name:
+                log.critical("ACR not found. Did you create the deployment?")
+                return
+            cr = f"{acr_name}.azurecr.io"
+        else:
+            cr = container_registry
+
+    task_cmd_prefix = '' if mode == 'container' else f"{python_executable} "
+    path_prefix = '/mnt/batch/tasks/fsmounts' if pool_id == 'linux' else ''
+    shared_data_dir = f"{path_prefix}/data" if pool_id == 'linux' else 'l:'
 
     uid = utils.get_unique_id()
     job_id = f"azfinsim-{uid}"
-    job_dir = f"/mnt/batch/tasks/fsmounts/data/{job_id}"
+    job_dir = f"{shared_data_dir}/{job_id}"
     tasks = []
     dependencies = None
+
     if trades_file:
         log.info("Using existing trades file %s", trades_file)
         dependencies = None
-        in_file = f"/mnt/batch/tasks/fsmounts/{trades_file}"
+        in_file = f"{shared_data_dir}/{trades_file}"
     else:
-        log.info("Generating %s trades using 1 task", num_trades)
+        log.info("Gen task", num_trades)
         in_file = f"{job_dir}/trades.csv"
         task_cmd = (
-            f"-m azfinsim.generator --no-color --trade-window {num_trades} "
+            f"{task_cmd_prefix} -m azfinsim.generator --no-color --trade-window {num_trades} "
             + f"--cache-path {in_file}"
         )
         gen_tasks = utils.create_tasks(
             task_command_lines=[task_cmd],
-            task_container_image=f"{cr}/{image_name}",
+            task_container_image=f"{cr}/{image_name}" if cr else None,
             task_id_prefix="generator",
             elevatedUser=True,
         )
@@ -136,13 +159,13 @@ def execute(
     log.info("Splitting trades file into %s chunks", num_tasks)
     trades_per_file = math.ceil(num_trades / num_tasks)
     task_cmd = (
-        f"-m azfinsim.split --no-color --cache-path {in_file} "
+        f"{task_cmd_prefix} -m azfinsim.split --no-color --cache-path {in_file} "
         + f"--output-path {job_dir} "
         + f"--trade-window {trades_per_file}"
     )
     tasks += utils.create_tasks(
         task_command_lines=[task_cmd],
-        task_container_image=f"{cr}/{image_name}",
+        task_container_image=f"{cr}/{image_name}" if cr else None,
         task_id_prefix="splitter",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
@@ -156,11 +179,11 @@ def execute(
 
     def exec_generator():
         for i in range(num_tasks):
-            yield f"-m azfinsim.azfinsim --no-color --cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
+            yield f"{task_cmd_prefix} -m azfinsim.azfinsim --no-color --cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
 
     pricing_tasks = utils.create_tasks(
         task_command_lines=exec_generator(),
-        task_container_image=f"{cr}/{image_name}",
+        task_container_image=f"{cr}/{image_name}" if cr else None,
         task_id_prefix="pricing",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
@@ -172,13 +195,13 @@ def execute(
 
     # create merge task
     task_cmd = (
-        f"-m azfinsim.concat --no-color "
+        f"{task_cmd_prefix} -m azfinsim.concat --no-color "
         + f"--cache-path {job_dir}/{name}.[0-9]*.results{ext} "
         + f"--output-path {job_dir}/{name}.results{ext} "
     )
     merge_tasks = utils.create_tasks(
         task_command_lines=[task_cmd],
-        task_container_image=f"{cr}/{image_name}",
+        task_container_image=f"{cr}/{image_name}" if cr else None,
         task_id_prefix="merge",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
@@ -190,7 +213,7 @@ def execute(
         subscription_id=subscription_id,
         resource_group_name=resource_group_name,
         job_id=job_id,
-        pool_id="linux",
+        pool_id=pool_id,
         tasks=tasks,
     )
     return {"job_id": job_id, "results_file": f"{job_dir}/{name}.results{ext}"}
