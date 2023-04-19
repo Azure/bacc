@@ -49,7 +49,7 @@ param appInsightsConfig object = {}
 param storageConfigurations object = {}
 
 @description('spoke deployed with gateway peerings')
-param gatewayPeeringEnabled bool = false
+param gatewayPeeringEnabled bool
 
 var batchConfig = union({
   publicNetworkAccess: 'auto'

@@ -146,6 +146,7 @@ module dplBatch 'modules/batch.bicep' = {
     logConfig: logConfig
     appInsightsConfig: appInsightsConfig
     storageConfigurations: reduce(dplStorage.outputs.unlattedConfigs, {}, (acc, x) => union(acc, x))
+    gatewayPeeringEnabled: dplSpoke.outputs.gatewayPeeringEnabled
   }
 }
 
