@@ -24,7 +24,7 @@ param suffixSalt string = ''
 param tags object = {}
 
 @description('Batch Service Object Id (az ad sp show --id "ddbf3205-c6bd-46ae-8127-60eb93363864" --query id)')
-param batchServiceObjectId string
+param batchServiceObjectId string = ''
 
 @description('enable application packages for batch account')
 param enableApplicationPackages bool = false
