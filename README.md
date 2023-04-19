@@ -32,11 +32,11 @@ virtual machine images to use etc.
 
 Let's start by looking at the available parameters and their usage.
 
-* __batchServiceObjectId__ (REQUIRED): batch service object id; this cab be obtained by executing the following command in
+* __batchServiceObjectId__: batch service object id; this cab be obtained by executing the following command in
   Azure Cloud Shell with Bash (or similar terminal):
-   `az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id'`.
+   `az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id'`. This is __REQUIRED__ when the batch config specifies `poolAllocationMode` as `UserSubscription`. Can be omitted otherwise.
 * __environment__: a short string used to identify the deployment environment; for example, one can use this parameter to
-  distinguish between production and development deployments; initialized to 'dev', by default.
+  distinguish between production and development deployments; initialized to `dev`, by default.
 * __prefix__: a short string as a prefix for resources groups and other subscription level resources created
 * __location__: a string identifying the location for all the resources; initialized to the deployment location, by default.
 * __enableApplicationPackages__: when set to `true` additional resources will be deployed to support
