@@ -104,6 +104,28 @@
                         "required": ["group", "name"],
                         "additionalProperties": false
                     }
+                },
+
+                "dnsZones": {
+                    "description": "dns zones defined in the hub",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "dns zone information",
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "dns zone name",
+                                "type": "string"
+                            },
+                            "group": {
+                                "description": "dns zone's resource group",
+                                "type": "string"
+                            }
+                        },
+                        "required": ["name", "group"],
+                        "additionalProperties": false
+                    }
                 }
             },
             "additionalProperties": false

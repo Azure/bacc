@@ -46,6 +46,16 @@
         ///         "useGateway": true
         ///     }
         /// ]
-        "peerings": []
+        "peerings": [],
+
+        /// dns zones, if non-empty, is used to pass the information about the resource group
+        /// under which all necessary dns zones are created, e.g.
+        /// "dnsZones": [
+        ///     {
+        ///         "group": "azhop-dns",
+        ///         "name": "privatelink.batch.azure.com"
+        ///     }
+        /// ]
+        "dnsZones": []
     }
 }
