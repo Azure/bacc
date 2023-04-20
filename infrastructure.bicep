@@ -78,6 +78,7 @@ var hubConfig = union({
   network: {
     routes: []
     peerings: []
+    dnsZones: []
   }
 }, loadJsonContent('config/hub.jsonc'))
 
@@ -160,6 +161,7 @@ module dplEndpoints 'modules/endpoints.bicep' = {
     tags: allTags
     endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
     snetInfo: dplSpoke.outputs.snetPrivateEndpoints
+    existingDnsZones: hubConfig.network.dnsZones
   }
 }
 
