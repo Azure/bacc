@@ -418,7 +418,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
                 resourceId: managedIdentity.id
               }
             }
-          ] : []
+          ] : null
 
           // we don't prefetch any images when pool nodes are allocated.
           // for production setups, one may want to prefetch image to avoid
