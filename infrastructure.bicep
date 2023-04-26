@@ -40,21 +40,13 @@ param timestamp string = utcNow('g')
 // param password string
 
 //------------------------------------------------------------------------------
-// Features: additive components
-//------------------------------------------------------------------------------
-// none available currently
-
-
-//------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
-var suffix = empty(suffixSalt) ? '' : '-${uniqueString(suffixSalt)}'
+@description('resource group suffix')
+var rgSuffix = empty(suffixSalt) ? '' : '-${uniqueString(suffixSalt)}'
 
 @description('suffix used for all nested deployments')
-var dplSuffix = uniqueString(deployment().name, location, prefix, suffixSalt)
-
-@description('suffix used for all nested resources')
-var rsSuffix = '-${uniqueString(deployment().name, location, prefix, suffixSalt)}'
+var dplSuffix = uniqueString(deployment().name, location, prefix, environment, suffixSalt)
 
 @description('tags for all resources')
 var allTags = union(tags, {
@@ -101,7 +93,7 @@ var appInsightsConfig = hasAppInsights? {
 
 @description('all resources group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: '${prefix}${suffix}-${environment}'
+  name: '${prefix}${rgSuffix}-${environment}'
   location: location
   tags: allTags
 }
@@ -112,7 +104,6 @@ module dplSpoke 'modules/spoke.bicep' = {
   name: 'spoke-${dplSuffix}'
   scope: rg
   params: {
-    suffix: rsSuffix
     location: location
     tags: allTags
     logConfig: logConfig
@@ -136,7 +127,6 @@ module dplBatch 'modules/batch.bicep' = {
   name: 'batch-${dplSuffix}'
   scope: rg
   params: {
-    suffix: rsSuffix
     location: location
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
@@ -156,7 +146,6 @@ module dplEndpoints 'modules/endpoints.bicep' = {
   name: 'endpoints-${dplSuffix}'
   scope: rg
   params: {
-    suffix: rsSuffix
     location: location
     tags: allTags
     endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
@@ -171,7 +160,6 @@ module dplEndpoints 'modules/endpoints.bicep' = {
 module dplRoleAssignments 'modules/roleAssignments.bicep' = {
   name: 'roleAssignments-${dplSuffix}'
   params: {
-    suffix: rsSuffix
     miConfig: dplBatch.outputs.miConfig
     roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
   }

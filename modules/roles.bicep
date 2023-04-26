@@ -1,5 +1,3 @@
-param suffix string
-
 @allowed([
   'acr'
   'storage'
@@ -27,7 +25,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (kind =
 }
 
 resource roleAssignmentSA 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'storage') {
-  name: guid(suffix, mi.id, name, role)
+  name: guid(resourceGroup().id, mi.id, name, role)
   scope: sa
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])
@@ -42,7 +40,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = if (
 }
 
 resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'acr') {
-  name: guid(suffix, mi.id, name, role)
+  name: guid(resourceGroup().id, mi.id, name, role)
   scope: acr
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])

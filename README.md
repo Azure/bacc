@@ -292,7 +292,7 @@ various resources deployed in our deployment can be used to run various workload
 * [AzFinSim](./demos/azfinsim/README.md): This is a financial simulation application that uses Azure Batch to run option risk analysis
   workloads.
 * [LULESH](./demos/lulesh-catalyst/README.md): This is a scientific simulation mini-app that uses Azure Batch to run MPI-based
-  workloads. (placeholder: not yet availble)
+  workloads. (placeholder: not yet available)
 
 ## Developer Guidelines
 
@@ -302,6 +302,28 @@ various resources deployed in our deployment can be used to run various workload
 2. For globally unique resource names, use `resourceGroup().id` and `suffix` to generate a `GUID`. Never use deployment name.
 3. For nested deployments, use a deployment name suffix generated using `uniqueString(resourceGroup().id, deployment().name, location)`.
    i.e. always include deployment name in it.
+
+## Azure Resource Naming Conventions
+
+We follow the following naming conventions for resources deployed by this project:
+
+* When creating a deployment, user specifies three things: `prefix`, and optionally, `environment` and `suffixSalt`.
+  `prefix` is an alphanumeric string of length between 5 and 13. `environment` is an optional string of length between 3 and 10
+  initialized to `dev` if not specified. `suffixSalt` is an optional string of arbitrary length.
+  `suffixSalt` is primarily intended for regression testing, allow us differentiate different deployments.
+
+* All resources created are deployed in a resource group named `${prefix}-${environment}`. If `suffixSalt` is specified, the
+  resource group name is `${prefix}-${uniqueString(suffixSalt)}-${environment}`. Thus `suffixSalt` is used to generate a unique suffix for the resource group name.
+
+* When naming non-globally unique resources, we don't use prefix or suffix. The resource-group
+  name already acts as a namespace and hence there's no risk of conflict with existing resources and hence we opt
+  for simplicity and readability.
+
+* When naming resources that need to be globally unique, a GUID is generated that incorporate prefix, environment, and suffixSalt.
+
+* When naming nested deployments, the top level creates a unique deployment name suffix as
+  `uniqueString(deployment().name, location, prefix, environment, suffixSalt)`. All nested deployments can then simply use
+  a deployment name suffix generated using `uniqueString(deployment().name)`.
 
 ## License
 

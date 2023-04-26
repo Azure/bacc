@@ -1,9 +1,6 @@
 /**
   Deploy a vnet for our use.
 */
-@description('suffix used for resources created')
-param suffix string = ''
-
 @description('location of all resources')
 param location string
 
@@ -23,7 +20,7 @@ var config = loadJsonContent('../config/spoke.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 @description('suffix to use for all nested deployments')
-var dplSuffix = uniqueString(deployment().name, location)
+var dplSuffix = uniqueString(deployment().name)
 
 //----------------------------------------------------------------------------------------------------------------------
 // build nsg security rules.
@@ -36,7 +33,7 @@ module dplNSGRules 'nsgRules.bicep' = {
 
 //----------------------------------------------------------------------------------------------------------------------
 resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item in items(config.networkSecurityGroups): {
-  name: 'nsg-${item.key}${suffix}'
+  name: 'nsg-${item.key}'
   location: location
   tags: tags
   properties: {
@@ -46,7 +43,7 @@ resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item i
 
 @description('next-hop route table, if any')
 resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(routes)) {
-  name: 'route-table${suffix}'
+  name: 'route-table'
   location: location
   tags: tags
   properties: {
@@ -65,14 +62,14 @@ var snets = map(osnets, item => {
   properties: union(commonSubnetConfig, {
       addressPrefix: item.value
       networkSecurityGroup: {
-        id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-${item.key}${suffix}')
+        id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-${item.key}')
       }
   })
 })
 
 @description('the virtual network')
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
-  name: 'spoke${suffix}'
+  name: 'spoke-batch'
   location: location
   tags: tags
   properties: {
@@ -84,7 +81,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
         properties: union(commonSubnetConfig, {
           addressPrefix: config.subnets['private-endpoints']
           networkSecurityGroup: {
-            id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private-endpoints${suffix}')
+            id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private-endpoints')
           }
         })
       }])

@@ -11,7 +11,7 @@ param tags object
 param config object = loadJsonContent('../config/storage.jsonc')
 
 @description('suffix to use for unique deployment names')
-var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
+var dplSuffix = uniqueString(deployment().name)
 
 @description('storage accounts to deploy')
 var accounts = map(items(config), entity => union(entity.value, {

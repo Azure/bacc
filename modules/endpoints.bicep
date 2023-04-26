@@ -12,9 +12,6 @@
 @description('array of endpoints to deploy')
 param endpoints array
 
-@description('suffix used for resources')
-param suffix string
-
 @description('tags')
 param tags object
 
@@ -34,7 +31,7 @@ param snetInfo object
 param location string = resourceGroup().location
 
 var dnsZoneNames = union(map(endpoints, item => item.privateDnsZoneName), [])
-var dplSuffix = uniqueString(resourceGroup().id, deployment().name, location)
+var dplSuffix = uniqueString(deployment().name)
 
 // let's convert the existingDnsZones array into a map
 // key: dns zone name, value: resource-group name
@@ -59,7 +56,6 @@ module dplVNetLinks 'vnetLinks.bicep' = [for (item, idx) in items(dnsZonesObject
   params: {
     dnsZoneName: item.key
     vnetInfo: snetInfo
-    suffix: suffix
     tags: tags
   }
   dependsOn: [
