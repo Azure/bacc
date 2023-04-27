@@ -1,6 +1,8 @@
 {
     /// intentionally keep this minimal
     "poolAllocationMode": "BatchService",
+
+    /// adding a single linux pool
     "pools": [
         {
             /// Name for the pool. This is used to identify the pool in the batch account. It must be unique
@@ -16,9 +18,9 @@
 
             /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
             /// configuration files.
-            "subnet": "pool",
+            "subnet": "pool-linux",
 
-            /// Choose which storage containers/file-shares are to be mounted on this poool
+            /// Choose which storage containers/file-shares are to be mounted on this pool
             /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
             /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
             "mounts": {

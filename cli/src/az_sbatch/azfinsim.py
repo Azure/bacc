@@ -69,6 +69,14 @@ def populate_arguments(loader):
             choices=["deltavega", "pvonly"],
             arg_group="AzFinSim",
         )
+        c.argument(
+            "data_dir",
+            options_list=["--data-dir", "-d"],
+            help="The path to the shared data directory to use for the job. If not specified, "
+                "for Linux compute nodes, the default is `$AZ_BATCH_NODE_MOUNTS_DIR/data`; for Windows "
+                "compute nodes, the default is `l:`.",
+            arg_group="AzFinSim",
+        )
         # container image options
         c.argument(
             "image_name",
@@ -100,7 +108,8 @@ def execute(
     image_name: str = "azfinsim/azfinsim:latest",
     pool_id: str = "linux",
     mode: str = "container",
-    python_executable: str = "c:/Python310/python.exe"
+    python_executable: str = "c:/Python310/python.exe",
+    data_dir: str = None
 ):
     if num_trades is None and trades_file is None:
         log.critical("Either --num-trades or --trades-file must be specified.")
@@ -124,8 +133,13 @@ def execute(
             cr = container_registry
 
     task_cmd_prefix = '' if mode == 'container' else f"{python_executable} "
-    path_prefix = '/mnt/batch/tasks/fsmounts' if pool_id == 'linux' else ''
-    shared_data_dir = f"{path_prefix}/data" if pool_id == 'linux' else 'l:'
+    if data_dir is None:
+        if "linux" in pool_id:
+            shared_data_dir = '/mnt/batch/tasks/fsmounts/data'
+        else:
+            shared_data_dir = 'l:'
+    else:
+        shared_data_dir = data_dir
 
     uid = utils.get_unique_id()
     job_id = f"azfinsim-{uid}"
@@ -136,6 +150,7 @@ def execute(
     if trades_file:
         log.info("Using existing trades file %s", trades_file)
         dependencies = None
+        # TODO: maybe we want to support absolute paths?
         in_file = f"{shared_data_dir}/{trades_file}"
     else:
         log.info("Gen task", num_trades)
@@ -147,7 +162,7 @@ def execute(
         gen_tasks = utils.create_tasks(
             task_command_lines=[task_cmd],
             task_container_image=f"{cr}/{image_name}" if cr else None,
-            task_id_prefix="generator",
+            task_id_prefix="generate",
             elevatedUser=True,
         )
         tasks += gen_tasks
@@ -166,7 +181,7 @@ def execute(
     tasks += utils.create_tasks(
         task_command_lines=[task_cmd],
         task_container_image=f"{cr}/{image_name}" if cr else None,
-        task_id_prefix="splitter",
+        task_id_prefix="split",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
     )
@@ -184,7 +199,7 @@ def execute(
     pricing_tasks = utils.create_tasks(
         task_command_lines=exec_generator(),
         task_container_image=f"{cr}/{image_name}" if cr else None,
-        task_id_prefix="pricing",
+        task_id_prefix="process",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
     )
@@ -202,7 +217,7 @@ def execute(
     merge_tasks = utils.create_tasks(
         task_command_lines=[task_cmd],
         task_container_image=f"{cr}/{image_name}" if cr else None,
-        task_id_prefix="merge",
+        task_id_prefix="concat",
         get_dependencies=lambda _: dependencies if dependencies else None,
         elevatedUser=True,
     )
@@ -216,4 +231,8 @@ def execute(
         pool_id=pool_id,
         tasks=tasks,
     )
-    return {"job_id": job_id, "results_file": f"{job_dir}/{name}.results{ext}"}
+    return {
+        "job_id": job_id,
+        "trades_file": trades_file if trades_file else f"{job_id}/{name}{ext}",
+        "results_file": f"{job_id}/{name}.results{ext}"
+    }

@@ -3,7 +3,6 @@ name = "az-sbatch"
 version = "0.1.0"
 description = ""
 authors = ["Utkarsh Ayachit <uayachit@microsoft.com>"]
-readme = "README.md"
 packages = [{include = "az_sbatch", from = "src"}]
 
 [tool.poetry.dependencies]

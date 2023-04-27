@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [default, examples/config0, examples/config1]
+        config: [default, examples/azfinsim-linux, examples/azfinsim-windows]
     runs-on: ubuntu-22.04
     environment: azure
     steps:

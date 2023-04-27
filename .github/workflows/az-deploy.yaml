@@ -83,8 +83,8 @@ on:
         default: 'default'
         options:
           - default
-          - examples/config0
-          - examples/config1
+          - examples/azfinsim-linux
+          - examples/azfinsim-windows
 permissions:
   # these are needed for azure login with OIDC
   contents: read
