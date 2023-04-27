@@ -1,26 +1,52 @@
 # Command Line Interface (CLI)
 
-One the deployment is complete, one can use the Azure Portal or Azure CLI to interact with the resources
-to do various tasks like resizing batch pools, submitting jobs etc.
+Once the deployment is complete, one can use the Azure Portal or Azure CLI to interact with the resources
+including the Azure Batch service to do various tasks like resizing batch pools, submitting jobs etc.
 
 You can also use CLI tool developed specifically for this project to make it easier to work with the deployment
-and included demos. The tool also demonstrate how one can develop such tools to make it easy for non-expert users to
-interact with your specific deployments to perform common tasks with ease.
+and included demos. The tool also demonstrate how one can develop such custom CLI tools to make it easy for non-expert
+users to interact with your specific deployments to perform common tasks, just as submitting jobs, with ease.
 
 The CLI is developed using Python and is available as a Python package. The CLI is modelled after Azure CLI
 for consistency and familiarity.
 
 ## Installation
 
-To install the CLI extensions, use the following command once you have installed
-Azure CLI on your workstation.
+It's highly recommended to install the CLI in a virtual environment. You can use the following commands to
+create a virtual environment and install the CLI in it.
 
 ```sh
+#!/bin/bash
+
+# change directory to azbatch-starter (or where you cloned/downloaded the repository)
+cd azbatch-starter
+
+# create a virtual environment
+python3 -m venv env0
+
+# activate the virtual environment
+source env0/bin/activate
+
+# install the CLI tool
+pip install ./cli
+
+# verify the CLI tool is installed
+sb --help
+```
+
+If you don't want to use a virtual environment, you can install the CLI tool globally using the following command.
+
+```sh
+#!/bin/bash
+
+# change directory to azbatch-starter (or where you cloned/downloaded the repository)
+cd azbatch-starter
+
 # install the CLI tools
-> pip install -e ./cli
+pip install ./cli
 
 # verify that the CLI tools are installed
-> sb --help
+sb --help
 ```
 
 ## Usage

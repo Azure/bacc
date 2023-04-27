@@ -30,35 +30,16 @@ configuration can be a starting point for any deployment that requires a secure 
 
 * **TODO**: add other important design considerations.
 
-## Step 1: Prepare the environment
+## Step 1: Prerequisites and environment setup
 
-1. Install Azure CLI. Follow the instructions [here](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
-   This tutorial assumes you are on a Unix shell or a WSL2 under Windows. This is not a requirement and you should be
-   able to run the same commands on a Windows CMD terminal too.
+Follow the [environment setup instructions](./environment-setup.md) to set up your environment. Since
+this tutorial uses **User Subscription** pool allocation mode, make sure you follow the extra
+requirements and steps described in that document for the same.
 
-2. Install Python 3.10 or higher. Follow the instructions [here](https://www.python.org/downloads/).
+## Step 2: Select deployment configuration
 
-3. Download source code from [GitHub](https://github.com/utkarshayachit/azbatch-starter). You can either download the
-   source code as a [zip file](https://github.com/utkarshayachit/azbatch-starter/archive/refs/heads/main.zip)
-   or clone the repository using `git`.
-
-   ```bash
-   # clone the repository
-   git clone https://github.com/utkarshayachit/azbatch-starter
-   ```
-
-4. Download connectivity source code from [GitHub](https://github.com/mocelj/azbatch-starter-connectivity). You can either
-   download the source ode as a [zip file](https://github.com/mocelj/azbatch-starter-connectivity/archive/refs/heads/main.zip)
-   or clone the repository using `git`.
-
-   ```bash
-   # clone the repository
-   git clone https://github.com/mocelj/azbatch-starter-connectivity/
-   ```
-
-## Step 2: Prerequisites
-
-> **TODO**: link back to shared prerequisites for user-subscription mode.
+For this tutorial, we will use default configuration and hence we don't need to change any of the config files -- a step we have
+to do for other tutorials.
 
 ## Step 3: Deploy hub
 
@@ -68,16 +49,15 @@ Deploy the hub network and resources. For this demo, we will use Azure Bastion t
 #!/bin/bash
 cd azbatch-starter-connectivity
 
-# replace all [PLACEHOLDER] with appropriate values
-# for example, [LOCATION] can be westus2
-#              [DEPLOYMENT_NAME] can be azbatch-starter-conn
-#              [HUB_PREFIX] can be <your initials>-<random string>-hub
+AZ_LOCATION=eastsus2
+AZ_HUB_DEPLOYMENT_NAME=azfinsim-sb-hub
+AZ_HUB_PREFIX=azfinsim-sb-hub
 
 az deployment sub create                \
-    --location [LOCATION]               \ 
-    --name     [DEPLOYMENT_NAME]        \
+    --location $AZ_LOCATION             \
+    --name $AZ_HUB_DEPLOYMENT_NAME      \
     --template-file connectivity.bicep  \
-    --parameters prefix=[HUB_PREFIX]    \
+    --parameters prefix=$AZ_HUB_PREFIX  \
        useSingleResourceGroup=true      \
        deployVPNGateway=false
 
@@ -92,8 +72,8 @@ Once the deployment is complete, you can fetch the hub configuration using the f
 
 ```bash
 #!/bin/bash
-az deployment sub show      \
-  --name [DEPLOYMENT_NAME]  \
+az deployment sub show           \
+  --name $AZ_HUB_DEPLOYMENT_NAME \
   --query properties.outputs.azbatchStarter.value > /[location of your choice]/hub.jsonc
 ```
 
@@ -109,23 +89,20 @@ cd azbatch-starter
 # replace default hub.jsonc with the hub.jsonc you downloaded in the previous step
 cp [location of you chose earlier]/hub.jsonc config/hub.jsonc
 
-# replace all [PLACEHOLDER] with appropriate values
-# for example, [LOCATION] can be westus2
-#              [DEPLOYMENT_NAME] can be azbatch-starter
-#              [SPOKE_PREFIX] can be <your initials>-<random string>
-# [BATCH_SERVICE_OBJECT_ID] should be set to the id obtained in prerequisites step.
+AZ_DEPLOYMENT_NAME=azfinsim-sb
+AZ_PREFIX=azfinsim-sb
+BATCH_SERVICE_OBJECT_ID= .... #<--- should be set to the id obtained in prerequisites step.
 
-
-az deployment sub create                 \
-    --location [LOCATION]                \
-    --name [DEPLOYMENT_NAME]             \
-    --template-file infrastructure.bicep \
-    --parameters prefix=[SPOKE_PREFIX]   \
-      batchServiceObjectId=[BATCH_SERVICE_OBJECT_ID] \
+az deployment sub create                              \
+    --location $AZ_LOCATION                           \
+    --name $AZ_DEPLOYMENT_NAME                        \
+    --template-file infrastructure.bicep              \
+    --parameters prefix=$AZ_PREFIX                    \
+      batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID   \
       enableApplicationContainers=true
 ```
 
-On success, a new resource group named `[SPOKE_PREFIX]-dev` will be created. This resource group will contain all
+On success, a new resource group named `$AZ_PREFIX-dev` will be created. This resource group will contain all
 the resources deployed by this deployment.
 
 ## Step 6: Connect to Windows Jumpbox
@@ -142,41 +119,8 @@ jumpbox under the resource group created in the hub deployment. Click on the **C
 instructions to connect to the jumpbox using Bastion. The username, by default, is set to `localadmin` and the password
 is the password you provided during the hub deployment.
 
-## Step 8: Setup CLI on Linux Jumpbox
+## Step 8: Setup CLI and submit jobs
 
-For this demo, we will use the Linux jumpbox to submit jobs for execution on the Batch pools. Here are the steps
-
-```bash
-
-# login to Azure CLI
-az login
-
-# clone the repository
-git clone https://github.com/utkarshayachit/azbatch-starter
-
-# install pip
-sudo apt install python3-pip python3-venv
-
-# install CLI
-cd azbatch-starter
-
-# create virtual env
-python3 -m venv env0
-
-# activate virtual env
-source env0/bin/activate
-
-# install CLI
-python3 -m pip install ./cli
-
-# verify installation
-sb --help
-
-# resize linux pool
-sb pool resize -g [SPOKE_PREFIX]-dev -s [subscription id] \
-   -p linux --target-dedicated-nodes 1
-
-# submit azfinsim job
-sb azfinsim -g [SPOKE_PREFIX]-dev -s [subscription id] \
-   --algorithm pvonly --num-trades 100 --num-tasks 10
-```
+Once connected to the Linux Jumpbox, you can now run the demo from there. The steps are same as the [With Containers](./azfinsim.md) tutorial.
+Simply follow the steps after the deployment step i.e. [`Step 4: Install CLI`](./azfinsim.md#step-4-install-cli) onwards.
+The only difference being instead of executing those commands on your local machine, you will execute them on the Linux jumpbox.
