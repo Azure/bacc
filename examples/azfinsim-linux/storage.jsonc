@@ -1,6 +1,8 @@
 {
     "blob0": {
         "enableNFSv3": false,
-        "containers": [ "data" ]
+        "containers": [
+            "data"
+        ]
     }
 }
