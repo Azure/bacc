@@ -47,7 +47,7 @@ Deploy the hub network and resources. For this demo, we will use Azure Bastion t
 
 ```bash
 #!/bin/bash
-cd azbatch-starter-connectivity
+cd .../azbatch-starter-connectivity
 
 AZ_LOCATION=eastsus2
 AZ_HUB_DEPLOYMENT_NAME=azfinsim-sb-hub
@@ -84,25 +84,26 @@ Deploy the spoke network and resources.
 ```bash
 #!/bin/bash
 
-cd azbatch-starter
+cd .../azbatch-starter
 
 # replace default hub.jsonc with the hub.jsonc you downloaded in the previous step
 cp [location of you chose earlier]/hub.jsonc config/hub.jsonc
 
-AZ_DEPLOYMENT_NAME=azfinsim-sb
-AZ_PREFIX=azfinsim-sb
-BATCH_SERVICE_OBJECT_ID= .... #<--- should be set to the id obtained in prerequisites step.
+AZ_DEPLOYMENT_NAME=azfinsim-sb # name for the deployment
+AZ_RESOURCE_GROUP=azfinsim-sb  # name for the resource group
+BATCH_SERVICE_OBJECT_ID= ....  # should be set to the id obtained in prerequisites step
 
 az deployment sub create                              \
     --location $AZ_LOCATION                           \
     --name $AZ_DEPLOYMENT_NAME                        \
     --template-file infrastructure.bicep              \
-    --parameters prefix=$AZ_PREFIX                    \
+    --parameters                                      \
+      resourceGroupName=$AZ_RESOURCE_GROUP            \
       batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID   \
       enableApplicationContainers=true
 ```
 
-On success, a new resource group named `$AZ_PREFIX-dev` will be created. This resource group will contain all
+On success, a new resource group with the specified name will be created. This resource group will contain all
 the resources deployed by this deployment.
 
 ## Step 6: Connect to Windows Jumpbox

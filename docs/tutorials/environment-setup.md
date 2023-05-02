@@ -26,7 +26,9 @@ Before you can deploy the Azure resources and try out the demos, you need to ens
    run the following:
 
    ```sh
-    az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id'
+    az ad sp list --display-name "Microsoft Azure Batch" \
+      --filter "displayName eq 'Microsoft Azure Batch'"  \
+      --query "[].id" -o tsv
 
     # output some alpha numeric string e.g.
     f520d84c-3fd3-4cc8-88d4-2ed25b00d27a

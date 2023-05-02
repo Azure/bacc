@@ -4,21 +4,13 @@ targetScope = 'subscription'
 // Options: parameters having broad impact on the deployement.
 //------------------------------------------------------------------------------
 
+@description('resource group name')
+@minLength(1)
+@maxLength(90)
+param resourceGroupName string
+
 @description('location where all the resources are to be deployed')
 param location string = deployment().location
-
-@description('short string used to identify deployment environment')
-@minLength(3)
-@maxLength(10)
-param environment string = 'dev'
-
-@description('short string used to generate all resources')
-@minLength(5)
-@maxLength(13)
-param prefix string = uniqueString(environment, subscription().id, location)
-
-@description('string used as salt for generating unique suffix for all resources')
-param suffixSalt string = ''
 
 @description('additonal tags to attach to resources created')
 param tags object = {}
@@ -35,6 +27,10 @@ param enableApplicationContainers bool = false
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
+@description('string used as salt to generate a random string to use suffix (internal/testing use only)')
+param suffixSalt string = ''
+
+
 // @description('admin password for pool nodes')
 // @secure()
 // param password string
@@ -43,10 +39,10 @@ param timestamp string = utcNow('g')
 // Variables
 //------------------------------------------------------------------------------
 @description('resource group suffix')
-var rgSuffix = empty(suffixSalt) ? '' : '-${uniqueString(suffixSalt)}'
+var rgName = empty(suffixSalt) ? resourceGroupName : take('${resourceGroupName}-${uniqueString(suffixSalt)}', 90)
 
 @description('suffix used for all nested deployments')
-var dplSuffix = uniqueString(deployment().name, location, prefix, environment, suffixSalt)
+var dplSuffix = uniqueString(deployment().name, location, rgName)
 
 @description('tags for all resources')
 var allTags = union(tags, {
@@ -93,7 +89,7 @@ var appInsightsConfig = hasAppInsights? {
 
 @description('all resources group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: '${prefix}${rgSuffix}-${environment}'
+  name: rgName
   location: location
   tags: allTags
 }

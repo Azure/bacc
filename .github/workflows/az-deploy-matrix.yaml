@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/az-deploy.yaml
     with:
       location: ${{ github.event.inputs.location }}
-      prefix: batch-starter
+      resource_group_name: sbatch-github-ci
       suffix_salt: ${{ github.run_id }} ${{ matrix.enable_application_containers }}
       enable_application_containers: ${{ matrix.enable_application_containers }}
       enable_application_packages: ${{ matrix.enable_application_packages }}

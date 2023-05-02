@@ -39,17 +39,17 @@ Create deployment using Azure CLI.
 # set variables for deployment
 AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim-win
-AZ_PREFIX=azfinsim-win
+AZ_RESOURCE_GROUP=azfinsim-win
 
-az deployment sub create                \
-  --name $AZ_DEPLOYMENT_NAME            \
-  --location $AZ_LOCATION               \
-  --template-file infrastructure.bicep  \
-  --parameters                          \
-      prefix=$AZ_PREFIX
+az deployment sub create                    \
+  --name $AZ_DEPLOYMENT_NAME                \
+  --location $AZ_LOCATION                   \
+  --template-file infrastructure.bicep      \
+  --parameters                              \
+      resourceGroupName=$AZ_RESOURCE_GROUP
 ```
 
-On success, a new resource group will be created with the name `[AZ_PREFIX]-rg`. This resource group will contain all the resources
+On success, a new resource group will be created with the name specified. This resource group will contain all the resources
 deployed by this deployment.
 
 ## Step 4: Install CLI
@@ -66,7 +66,6 @@ We can the CLI tool deployed in previous step to verify the deployment.
 ```bash
 #!/bin/bash
 > AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-> AZ_RESOURCE_GROUP=$AZ_PREFIX-dev
 
 # use the `sb show` command
 > sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP

@@ -43,29 +43,31 @@ Create deployment using Azure CLI.
 # create deployment
 AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim0
-AZ_PREFIX=azfinsim0
+AZ_RESOURCE_GROUP=azfinsim0
 
-az deployment sub create                \
-  --name $AZ_DEPLOYMENT_NAME            \
-  --location $AZ_LOCATION               \
-  --template-file infrastructure.bicep  \
-  --parameters                          \
-      prefix=$AZ_PREFIX
+az deployment sub create                  \
+  --name $AZ_DEPLOYMENT_NAME              \
+  --location $AZ_LOCATION                 \
+  --template-file infrastructure.bicep    \
+  --parameters                            \
+      resourceGroupName=$AZ_RESOURCE_GROUP
 ```
 
-On success, a new resource group will be created with the name `[AZ_PREFIX]-rg`. This resource group will contain all the resources
+On success, a new resource group will be created with the name specified. This resource group will contain all the resources
 deployed by this deployment.
 
-If you want to also test with ACR instead or in addition to Docker Hub, then use the following command to create the deployment instead
-(i.e. simply add the `enableApplicationContainers=true` parameter)
+If you want to also test with ACR instead or in addition to Docker Hub, then use the following command to create the
+deployment instead i.e. simply add the `enableApplicationContainers=true` parameter.
 
 ```bash
-az deployment sub create                \
-  --name $AZ_DEPLOYMENT_NAME            \
-  --location $AZ_LOCATION               \
-  --template-file infrastructure.bicep  \
-  --parameters                          \
-      prefix=$AZ_PREFIX                 \
+#!/bin/bash
+
+az deployment sub create                    \
+  --name $AZ_DEPLOYMENT_NAME                \
+  --location $AZ_LOCATION                   \
+  --template-file infrastructure.bicep      \
+  --parameters                              \
+      resourceGroupName=$AZ_RESOURCE_GROUP  \
       enableApplicationContainers=true
 ```
 
@@ -83,7 +85,6 @@ We can the CLI tool deployed in previous step to verify the deployment.
 ```bash
 #!/bin/bash
 > AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-> AZ_RESOURCE_GROUP=$AZ_PREFIX-dev
 
 # use the `sb show` command
 > sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
@@ -171,7 +172,7 @@ But first, we need to push the container image for the AzFinSim application to t
 # fetch acr name from the deployment;
 # you can also use Azure Portal to navigate to the resource group and get the 
 # Azure Container Registry resource name manually
-ACR_NAME=$(sb show -g <resource group> -s <subscription id> --query "acr_name")
+ACR_NAME=$(sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "acr_name")
 
 # NOTE: ACR_NAME is valid only when deployed with `enableApplicationContainers=true` parameter
 

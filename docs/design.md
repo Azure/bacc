@@ -3,7 +3,7 @@
 The repository contains Bicep code that can be used to deploy resources to Azure. The deployment can be customized in two ways:
 First, you can pass parameters to the main deployment script ([infrastructure.bicep]) when triggering the
 deployment using Azure CLI. These parameters are intentionally minimal and provide coarse customization e.g. specifying
-prefix for all resource groups. Second, you can edit JSON configuration files under [config/] that let you
+the resource group name. Second, you can edit JSON configuration files under [config/] that let you
 customize the deployed resources even more e.g. define how many pools to add to the batch account and their types, SKUs,
 virtual machine images to use etc.
 
@@ -14,14 +14,13 @@ Let's start by looking at the available parameters and their usage. Parameters a
 
 | Parameter | Default | Description |
 | --- | --- | --- |
+|__resourceGroupName__| `[REQUIRED]` | name to use for the resource group to create to hold all resources in this deployment.|
 | __batchServiceObjectId__| `(empty)` |  batch service object id; this cab be obtained by executing the following command in Azure Cloud Shell with Bash (or similar terminal): `az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" \| jq -r '.[].id'`; this is __REQUIRED__ when the [batch config][batch.jsonc] specifies `poolAllocationMode` as `UserSubscription`; can be omitted otherwise.
-|__prefix__| `(auto-generated)` | a short string as a prefix for resources groups and other subscription level resources created. |
 |__enableApplicationPackages__| `false`| when set to `true` additional resources will be deployed to support [Batch application packages](https://learn.microsoft.com/en-us/azure/batch/batch-application-packages). |
 |__enableApplicationContainers__| `false` | when set to `true` additional resources will be deployed to support running jobs that use [containerized applications](https://learn.microsoft.com/en-us/azure/batch/batch-docker-container-workloads). |
-|_environment_| `dev` | a short string used to identify the deployment environment; for example, one can use this parameter to distinguish between production and development deployments. |
 |_location_| `deployment location` | a string identifying the location for all the resources. |
 |_tags_| `{}` | an object to add as tags to all resources created; initialized to `{}` by default. |
-|_suffixSalt_| `(empty)` | a random string used to generate a resource group suffix; primarily intended for automated testing to separate resources deployed by different workflows. |
+|_suffixSalt_| `(empty)` | a random string used to generate a resource group suffix; internal; primarily intended for automated testing to separate resources deployed by different workflows. NOT FOR GENERAL PUBLIC USE.|
 
 ## Configuration files
 
@@ -88,18 +87,24 @@ This requires Azure CLI with Bicep support. As before, you can simply use the Az
 packages installed on your workstation.
 
 ```bash
+#!/bin/bash
 # assuming bash (on Linux or using WSL2 on Windows)
 # change commands appropriately on PowerShell or other Windows terminal 
-> AZ_BATCH_SERVICE_OBJECT_ID=$(az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" | jq -r '.[].id')
-> AZ_LOCATION="westus2"
-> AZ_PREFIX="uda20230321a"  # e.g "<initials><date><suffix>"
-> AZ_DEPLOYMENT_NAME="azbatch-starter-$AZ_LOCATION"
-> az deployment sub create --location $AZ_LOCATION  \
+
+AZ_BATCH_SERVICE_OBJECT_ID=$(az ad sp list --display-name "Microsoft Azure Batch" --filter "displayName eq 'Microsoft Azure Batch'" --query "[].id" -o tsv)
+
+# values for the following variables are provided as examples
+AZ_LOCATION="westus2"
+AZ_RESOURCE_GROUP="uda20230321a"  # e.g "<initials><date><suffix>"
+AZ_DEPLOYMENT_NAME="azbatch-starter-$AZ_LOCATION"
+
+az deployment sub create --location $AZ_LOCATION  \
       --name $AZ_DEPLOYMENT_NAME                    \
       --template-file infrastructure.bicep          \
       --parameters                                  \
-        prefix=$AZ_PREFIX                           \
-        batchServiceObjectId=$AZ_BATCH_SERVICE_OBJECT_ID # <... add any other parameters are key=value here....>
+        resourceGroupName=$AZ_RESOURCE_GROUP        \
+        batchServiceObjectId=$AZ_BATCH_SERVICE_OBJECT_ID  # ...
+          # <... add any other parameters are key=value here....>
 ```
 
 ## Testing / Validating the Deployment

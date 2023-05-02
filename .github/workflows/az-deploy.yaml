@@ -6,9 +6,9 @@ on:
         type: string
         description: 'Deployment location'
         required: true
-      prefix:
+      resource_group_name:
         type: string
-        description: 'Deployment prefix'
+        description: 'Resource group name'
         required: true
       suffix_salt:
         type: string
@@ -47,9 +47,9 @@ on:
         type: string
         description: 'Deployment location'
         required: true
-      prefix:
+      resource_group_name:
         type: string
-        description: 'Deployment prefix'
+        description: 'Resource group name'
         required: true
       suffix_salt:
         type: string
@@ -116,12 +116,12 @@ jobs:
           subscriptionId: ${{ secrets.AZ_SUBSCRIPTION_ID }}
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
-          deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} prefix=${{ inputs.prefix }} suffixSalt="${{ inputs.suffix_salt }}" tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
+          deploymentName: dpl-${{ inputs.resource_group_name }}-${{ github.run_id }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} suffixSalt="${{ inputs.suffix_salt }}" tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
       - name: show / save outputs
         id: az_outputs
         run: |
-          az deployment sub show -n dpl-${{ inputs.prefix }}-${{ github.run_id }} --query properties.outputs > $GITHUB_WORKSPACE/outputs.json
+          az deployment sub show -n dpl-${{ inputs.resource_group_name }}-${{ github.run_id }} --query properties.outputs > $GITHUB_WORKSPACE/outputs.json
           cat $GITHUB_WORKSPACE/outputs.json
           echo "AZ_BATCH_ACCOUNT_ENDPOINT=$(jq -r .batchAccountEndpoint.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
           echo "AZ_BATCH_ACCOUNT_GROUP=$(jq -r .batchAccountResourceGroup.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
