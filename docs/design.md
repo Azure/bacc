@@ -177,29 +177,7 @@ in more detail.
 * [images.jsonc] defines the default OS images to use for the pools. The default configuration
   defines the default images for the a version of Windows Server and Ubuntu Server. You can customize these as needed.
 
-## CLI
-
-One the deployment is complete, one can use the Azure Portal or Azure CLI to interact with the resources
-to do various tasks like resizing batch pools, submitting jobs etc.
-
-You can also use CLI tool developed specifically for this project to make it easier to work with the deployment
-and included demos. The tool also demonstrate how one can develop such tools to make it easy for non-expert users to
-interact with your specific deployments to perform common tasks with ease.
-
-Installation instructions and usage is documented [here](./cli.md)
-
-## Demos / Applications
-
-Once the deployment is complete, you can try various demos and applications. These demonstrate how the batch account together with
-various resources deployed in our deployment can be used to run various workloads. The following demos are available:
-
-* [AzFinSim](./understanding-azfinsim.md): This is a financial simulation application that uses Azure Batch to run option risk analysis
-  workloads.
-
-<!-- * [LULESH](./demos/lulesh-catalyst/README.md): This is a scientific simulation mini-app that uses Azure Batch to run MPI-based
-  workloads. (placeholder: not yet available) -->
-
-## Developer Guidelines
+<!-- ## Developer Guidelines
 
 We follow the following naming conventions for resources deployed by this project:
 
@@ -219,7 +197,7 @@ We follow the following naming conventions for resources deployed by this projec
 
 * When naming nested deployments, the top level creates a unique deployment name suffix as
   `uniqueString(deployment().name, location, prefix, environment, suffixSalt)`. All nested deployments can then simply use
-  a deployment name suffix generated using `uniqueString(deployment().name)`.
+  a deployment name suffix generated using `uniqueString(deployment().name)`. -->
 
 [config/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
 [schemas/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/schemas
