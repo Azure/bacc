@@ -156,7 +156,11 @@ Azure Batch Explorer.
 To understand how to monitor the AzFinSim demo using various tools available and inspect the results, please refer to the
 [understanding AzFinSim](../understanding-azfinsim.md) document.
 
-## Step 7: Submit AzFinSim job using ACR (only for `enableApplicationContainers=true` deployments)
+## Step 7: Submit AzFinSim job using ACR
+
+> **NOTE**: This is only applicable if you deployed with `enableApplicationContainers=true` parameter.
+> If enableApplicationContainers=false (default), then Azure Container Registry is not deployed
+> and hence you try this step.
 
 If you deployed with `enableApplicationContainers=true` parameter, then you can also submit the AzFinSim job using ACR.
 But first, we need to push the container image for the AzFinSim application to the ACR we have created in our deployment.
