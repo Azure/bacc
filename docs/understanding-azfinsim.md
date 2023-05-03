@@ -46,7 +46,21 @@ specified, on Linux compute nodes,  `$AZ_BATCH_NODE_SHARED_DIR/data` is used whi
 
 In this section, we will discuss how to use the Azure Portal to monitor the job and inspect the results.
 
-### Locating the resources
+### Locating the resource group and resources
+
+When you create a deployment, you pass a string for a parameter named `resourceGroupName`.
+This string is the name of the resource group that contains all the resources created by the deployment.
+First things first, let's locate the resource group in the Azure Portal. Once you have logged into the Azure Portal,
+you can search for the resource group by typing its name in the search box at the top of the page. Or you can navigate
+to the **Resource Groups** page by selecting **Resource Groups** from the left navigation bar. This will show you a list
+of all resource groups in your subscription. You can then select or search for the resource group we created in our
+deployment. Refer to the
+[Azure documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal)
+for details on how to locate a resource group in the Azure Portal.
+
+Once you have located the resource group, you can see all the resources created by the deployment. The resources
+created by the deployment are:
+
 
 > __TODO__:
 >
