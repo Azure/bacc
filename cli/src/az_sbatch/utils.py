@@ -1,6 +1,6 @@
 import os
 
-from azure.identity import DefaultAzureCredential, AzureCliCredential
+from azure.identity import AzureCliCredential
 from azure.mgmt.resource import ResourceManagementClient
 from azure.batch import BatchServiceClient, models
 from knack.log import get_logger

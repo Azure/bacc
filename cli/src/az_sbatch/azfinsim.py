@@ -1,4 +1,4 @@
-from knack.commands import CLICommandsLoader, CommandGroup
+from knack.commands import CommandGroup
 from knack.arguments import ArgumentsContext
 from knack.help_files import helps
 from knack.log import get_logger
@@ -73,8 +73,8 @@ def populate_arguments(loader):
             "data_dir",
             options_list=["--data-dir", "-d"],
             help="The path to the shared data directory to use for the job. If not specified, "
-                "for Linux compute nodes, the default is `$AZ_BATCH_NODE_MOUNTS_DIR/data`; for Windows "
-                "compute nodes, the default is `l:`.",
+                 "for Linux compute nodes, the default is `$AZ_BATCH_NODE_MOUNTS_DIR/data`; for Windows "
+                 "compute nodes, the default is `l:`.",
             arg_group="AzFinSim",
         )
         # container image options
@@ -87,7 +87,8 @@ def populate_arguments(loader):
         c.argument(
             "container_registry",
             options_list=["--container-registry", "-r"],
-            help="The name of the container registry to use for the job. If not specified, ACR deployed as part of the sbatch deployment is used",
+            help="The name of the container registry to use for the job. If not specified, "
+                 "ACR deployed as part of the sbatch deployment is used",
             arg_group="Container",
         )
         c.argument(
@@ -96,6 +97,7 @@ def populate_arguments(loader):
             help="The path to the python executable to use for the job.",
             arg_group="Package"
         )
+
 
 def execute(
     resource_group_name: str,
@@ -194,7 +196,8 @@ def execute(
 
     def exec_generator():
         for i in range(num_tasks):
-            yield f"{task_cmd_prefix} -m azfinsim.azfinsim --no-color --cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
+            yield f"{task_cmd_prefix} -m azfinsim.azfinsim --no-color " \
+                   "--cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
 
     pricing_tasks = utils.create_tasks(
         task_command_lines=exec_generator(),
