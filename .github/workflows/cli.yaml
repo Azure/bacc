@@ -1,0 +1,50 @@
+# basic tests for CLI
+name: cli
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  
+permissions:
+  contents: read
+
+jobs:
+  build-n-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 ./cli/src --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 ./cli/src --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
+    - name: Install 'cli'
+      run: |
+        pip install ./cli
+    - name: Basic validation tests
+      run: |
+        sb --help
+    - name: Group 'pool' validation tests
+      run: |
+        sb pool --help
+        sb pool list --help
+        sb pool resize --help
+    - name: Command 'show' validation tests
+      run: |
+        sb show --help
+    - name: Command 'azfinsim' validation tests
+      run: |
+        sb azfinsim --help
