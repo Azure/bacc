@@ -129,6 +129,28 @@
                 }
             },
             "additionalProperties": false
+        },
+
+        "managedIdentities": {
+            "description": "managed identities to assign access to resources deployed",
+            "type": "array",
+            "default": [],
+            "items": {
+                "description": "managed identity information",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "managed identity name",
+                        "type": "string"
+                    },
+                    "group": {
+                        "description": "managed identity's resource group",
+                        "type": "string"
+                    }
+                },
+                "required": ["name", "group"],
+                "additionalProperties": false
+            }
         }
     },
     "additionalProperties": false
