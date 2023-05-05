@@ -89,6 +89,7 @@ cd .../azbatch-starter
 # replace default hub.jsonc with the hub.jsonc you downloaded in the previous step
 cp [location of you chose earlier]/hub.jsonc config/hub.jsonc
 
+AZ_LOCATION=eastsus2
 AZ_DEPLOYMENT_NAME=azfinsim-sb # name for the deployment
 AZ_RESOURCE_GROUP=azfinsim-sb  # name for the resource group
 BATCH_SERVICE_OBJECT_ID= ....  # should be set to the id obtained in prerequisites step
