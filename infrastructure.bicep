@@ -63,6 +63,7 @@ var hubConfig = union({
       instrumentationKey: ''
     }
   }
+  managedIdentities: []
   network: {
     routes: []
     peerings: []
@@ -160,6 +161,15 @@ module dplRoleAssignments 'modules/roleAssignments.bicep' = {
     roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
   }
 }
+
+@description('deploy hub role assignments')
+module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
+  name: 'roleAssignments-${index}-${dplSuffix}'
+  params: {
+    miConfig: config
+    roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
+  }
+}]
 
 @description('resource groups created')
 output resourceGroupNames array = [rg.name]

@@ -21,6 +21,17 @@
         }
     },
 
+    /// "managedIdentities" is the configuration for the managed identities.
+    /// If non-empty, the identities will be assigned access to the resources deployed by this deployment
+    /// i.e. storage accounts, batch account, key vault, etc.
+    "managedIdentities": [
+        /// e.g.
+        /// {
+        ///    "name": "az-identity",
+        ///    "group": "az-group",
+        /// }, ....
+    ],
+
     /// "network" is the configuration for the hub network.
     "network": {
         /// user defined routes to use as first hop for the spoke vnets. This is useful for routing traffic to
