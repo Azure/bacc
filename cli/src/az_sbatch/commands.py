@@ -4,7 +4,7 @@ from knack.help_files import helps
 from knack.log import get_logger
 from azure.batch import models
 
-from . import utils, azfinsim
+from . import utils, azfinsim, tools_json
 
 log = get_logger(__name__)
 
@@ -19,6 +19,7 @@ class CommandsLoader(CLICommandsLoader):
             g.command("list", "list")
             g.command("resize", "resize")
         azfinsim.populate_commands(self)
+        tools_json.populate_commands(self)
         return super().load_command_table(args)
 
     def load_arguments(self, command):
@@ -73,6 +74,7 @@ class CommandsLoader(CLICommandsLoader):
                 type=int,
             )
         azfinsim.populate_arguments(self)
+        tools_json.populate_arguments(self)
         return super().load_arguments(command)
 
 
