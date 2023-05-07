@@ -1,6 +1,6 @@
 import os
 
-from azure.identity import AzureCliCredential
+from azure.identity import DefaultAzureCredential
 from azure.mgmt.resource import ResourceManagementClient
 from azure.batch import BatchServiceClient, models
 from knack.log import get_logger
@@ -20,9 +20,7 @@ def get_credentials():
     :return: Credentials object
     :rtype: :class:`msrestazure.azure_active_directory.AdalAuthentication`
     """
-    # Get the CLI's access token
-    # return DefaultAzureCredential()
-    return AzureCliCredential()
+    return DefaultAzureCredential()
 
 
 def get_subscription_id(id):
