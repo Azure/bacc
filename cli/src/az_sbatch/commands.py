@@ -18,6 +18,7 @@ class CommandsLoader(CLICommandsLoader):
         with CommandGroup(self, "pool", "az_sbatch.commands#pool_{}") as g:
             g.command("list", "list")
             g.command("resize", "resize")
+            g.command("show", "show")
         azfinsim.populate_commands(self)
         tools_json.populate_commands(self)
         return super().load_command_table(args)
@@ -153,6 +154,34 @@ def pool_list(resource_group_name, subscription_id):
     bclient = utils.get_batch_client(credentials, subscription_id, resource_group_name)
     pools = bclient.pool.list()
     return [p for p in pools]
+
+
+helps[
+    "pool show"
+] = r"""
+    type: command
+    short-summary: Shows summary information for a specific pool in the batch account.
+    long-summary: |
+        Shows summary information for a specific pool in the batch account.
+"""
+
+def pool_show(resource_group_name, subscription_id, pool_id):
+    log.debug(f"subscription_id: {subscription_id}")
+    log.debug(f"resource_group_name: {resource_group_name}")
+    log.debug(f"pool_id: {pool_id}")
+    credentials = utils.get_credentials()
+    subscription_id = utils.get_subscription_id(subscription_id)
+    log.debug(f"subscription_id (x-formed): {subscription_id}")
+
+    # lets locate various components of the deployment.
+    if not utils.validate_resource_group(
+        credentials, subscription_id, resource_group_name
+    ):
+        log.critical("Resource group not found. Did you create the deployment?")
+        return
+
+    bclient = utils.get_batch_client(credentials, subscription_id, resource_group_name)
+    return bclient.pool.get(pool_id)
 
 
 helps[
