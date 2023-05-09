@@ -84,6 +84,9 @@ We can the CLI tool deployed in previous step to verify the deployment.
 
 ```bash
 #!/bin/bash
+
+# fetch subscription id from the portal or using the following command
+# if you have already logged in to Azure CLI using `az login` command
 > AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
 # use the `sb show` command

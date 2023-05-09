@@ -162,12 +162,22 @@ module dplRoleAssignments 'modules/roleAssignments.bicep' = {
   }
 }
 
+// hub MIs need to be given reader role to resource group so our CLI tools work;
+// this is not absolutely necessary; only needed for our CLI tools that scan
+// through the resource group to locate and validate resources
+var rgRoleAssignments = [{
+  kind: 'rg'
+  name: rg.name
+  group: rg.name
+  roles: ['Reader']
+}]
+
 @description('deploy hub role assignments')
 module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
   name: 'roleAssignments-${index}-${dplSuffix}'
   params: {
     miConfig: config
-    roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments)
+    roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments, rgRoleAssignments)
   }
 }]
 
