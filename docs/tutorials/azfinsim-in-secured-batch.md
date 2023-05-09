@@ -123,6 +123,27 @@ is the password you provided during the hub deployment.
 
 ## Step 8: Setup CLI and submit jobs
 
-Once connected to the Linux Jumpbox, you can now run the demo from there. The steps are same as the [With Containers](./azfinsim.md) tutorial.
-Simply follow the steps after the deployment step i.e. [`Step 4: Install CLI`](./azfinsim.md#step-4-install-cli) onwards.
-The only difference being instead of executing those commands on your local machine, you will execute them on the Linux jumpbox.
+Once connected to the Linux Jumpbox, you can now run the demo from there. The steps are same as the
+[With Containers](./azfinsim.md) tutorial. Simply follow the steps after the deployment step
+i.e. [`Step 4: Install CLI`](./azfinsim.md#step-4-install-cli) onwards.
+The only differences being the following:
+
+* instead of using your local machine, you will execute the commands on the Linux jumpbox.
+* to login in to Azure CLI, you have two options: either use your own credentials or use the managed identity
+  created during the hub deployment. If you choose to use your own credentials, then you will need to login
+  to Azure CLI using the following command:
+
+  ```bash
+  az login --use-device-code
+  # ... follow the instructions posted on terminal to login
+  ```
+
+  To use managed identity, you can use the following command:
+
+  ```bash
+  az login --identity
+  ```
+
+  Experienced users will soon realize that even this logging in to Azure CLI on the jumpbox is not required.
+  This is only necessary for the few commands we execute in the tutorial steps viz. obtaining the subscription ID.
+  You can skip these CLI login steps and instead manually provide the subscription ID in the `sb ...` commands.

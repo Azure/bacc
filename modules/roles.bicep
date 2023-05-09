@@ -1,6 +1,7 @@
 @allowed([
   'acr'
   'storage'
+  'rg'
 ])
 param kind string
 
@@ -20,6 +21,7 @@ resource mi 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview
   scope: resourceGroup(miConfig.group)
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (kind == 'storage') {
   name: name
 }
@@ -34,7 +36,7 @@ resource roleAssignmentSA 'Microsoft.Authorization/roleAssignments@2022-04-01' =
   }
 }]
 
-
+//----------------------------------------------------------------------------------------------------------------------
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = if (kind == 'acr') {
   name: name
 }
@@ -42,6 +44,16 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = if (
 resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'acr') {
   name: guid(resourceGroup().id, mi.id, name, role)
   scope: acr
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])
+    principalId: mi.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+//----------------------------------------------------------------------------------------------------------------------
+resource roleAssignmentRG 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'rg') {
+  name: guid(resourceGroup().id, mi.id, role)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])
     principalId: mi.properties.principalId
