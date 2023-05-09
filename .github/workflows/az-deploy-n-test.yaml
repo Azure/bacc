@@ -1,0 +1,33 @@
+name: az-deploy-n-test
+env:
+  location: 'westus2'
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '!schemas/**'
+      - '**.bicep'
+      - '**.jsonc'
+      - '**.json'
+  workflow_dispatch:
+    inputs:
+      location:
+        type: string
+        description: 'Deployment location'
+        required: true
+jobs:
+  deploy-n-test-matrix:
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        config: ['DEFAULT', 'azfinsim-linux', 'azfinsim-windows']
+    uses: ./.github/workflows/az-deploy.yaml
+    with:
+      location: ${{ github.event.inputs.location || env.location }}
+      resource_group_name: sbatch-ci-${{ github.event.inputs.location || env.location }}
+      enable_application_containers: true
+      enable_application_packages: false
+      config: ${{ matrix.config }}
+    secrets: inherit

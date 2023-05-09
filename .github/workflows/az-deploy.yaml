@@ -39,7 +39,7 @@ on:
         type: string
         description: 'Name of configuration files to use'
         required: false
-        default: 'default'
+        default: 'DEFAULT'
   workflow_dispatch:
     # ensure inputs are same as workflow_call.inputs
     inputs:
@@ -80,11 +80,11 @@ on:
         type: choice
         description: 'Name of configuration files to use'
         required: false
-        default: 'default'
+        default: 'DEFAULT'
         options:
-          - default
-          - examples/azfinsim-linux
-          - examples/azfinsim-windows
+          - DEFAULT
+          - azfinsim-linux
+          - azfinsim-windows
 permissions:
   # these are needed for azure login with OIDC
   contents: read
@@ -97,7 +97,23 @@ jobs:
       AZ_BATCH_ACCOUNT_ENDPOINT: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
       AZ_BATCH_ACCOUNT_GROUP: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_GROUP }}
       AZ_BATCH_ACCOUNT_NAME: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_NAME }}
+      AZ_SUFFIX: ${{ steps.az_build_name.outputs.AZ_SUFFIX }}
     steps:
+      - name: Generate build name suffix
+        id: az_build_name
+        run: |
+          suffix=""
+          if [ "${{ inputs.enable_application_containers }}" == "true" ]; then
+            suffix="$suffix+cntrs"
+          else
+            suffix="$suffix~cntrs"
+          fi
+          if [ "${{ inputs.enable_application_packages }}" == "true" ]; then
+            suffix="$suffix+pkgs"
+          else
+            suffix="$suffix~pkgs"
+          fi
+          echo "AZ_SUFFIX=$suffix" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v3
       - uses: azure/login@v1
         id: az_login
@@ -106,9 +122,9 @@ jobs:
           tenant-id: ${{ secrets.AZ_TENANT_ID }}
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - name: replace config with ${{ inputs.config }}
-        if: inputs.config != 'default'
+        if: inputs.config != 'DEFAULT'
         run: |
-          cp $GITHUB_WORKSPACE/${{ inputs.config }}/* $GITHUB_WORKSPACE/config/
+          cp $GITHUB_WORKSPACE/examples/${{ inputs.config }}/* $GITHUB_WORKSPACE/config/
       - uses: azure/arm-deploy@v1
         if: inputs.deploy
         with:
@@ -129,13 +145,12 @@ jobs:
           echo "AZ_BATCH_ACCOUNT_PUBLIC_NETWORK_ACCESS=$(jq -r .batchAccountPublicNetworkAccess.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
   test:
     # FIXME: need to add ability to test non-default configs as well
-    if: inputs.config == 'default'
     uses: ./.github/workflows/az-deploy-test.yaml
     needs: deploy
     with:
-      batch_account_endpoint: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
-      batch_account_group: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
-      batch_account_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_NAME }}
+      resource_group_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
+      config: ${{ inputs.config }}
+      build_name_suffix: ${{ needs.deploy.outputs.AZ_SUFFIX }}
     secrets: inherit
   cleanup:
     runs-on: ubuntu-latest

@@ -2,31 +2,37 @@ name: az-deploy-test
 on:
   workflow_dispatch:
     inputs:
-      batch_account_endpoint:
+      resource_group_name:
         type: string
-        description: 'Batch account endpoint'
+        description: 'Deployment group name'
         required: true
-      batch_account_group:
+      config:
         type: string
-        description: 'Batch account group'
-        required: true
-      batch_account_name:
+        description: 'Name of the configuration files to use'
+        required: false
+        default: DEFAULT
+        options:
+          - DEFAULT
+          - azfinsim-linux
+          - azfinsim-windows
+      build_name_suffix:
         type: string
-        description: 'Batch account name'
-        required: true
+        description: 'suffix for build name on CDash'
+        default: ''
+        required: false
   workflow_call:
     inputs:
-      batch_account_endpoint:
+      resource_group_name:
         type: string
-        description: 'Batch account endpoint'
+        description: 'Deployment group name'
         required: true
-      batch_account_group:
+      config:
         type: string
-        description: 'Batch account group'
+        description: 'Name of the configuration files to use'
         required: true
-      batch_account_name:
+      build_name_suffix:
         type: string
-        description: 'Batch account name'
+        description: 'suffix for build name on CDash'
         required: true
 permissions:
   # these are needed for azure login with OIDC
@@ -37,18 +43,34 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure
     steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y shelltestrunner
-          shelltest --version
-      - uses: azure/login@v1
-        id: az_login
-        with:
-          client-id: ${{ secrets.AZ_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZ_TENANT_ID }}
-          subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
-      - name: Run tests
-        run: |
-          shelltest $GITHUB_WORKSPACE/tests --color -DAZ_WORKSPACE=$GITHUB_WORKSPACE -DAZ_BATCH_ACCOUNT_GROUP=${{ inputs.batch_account_group }} -DAZ_BATCH_ACCOUNT_NAME=${{ inputs.batch_account_name }} -DAZ_BATCH_ACCOUNT_ENDPOINT=${{ inputs.batch_account_endpoint }}
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        cmake --version
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Install CLI Python package
+      run: |
+        python3.8 -m pip install --upgrade pip
+        python3.8 -m pip install ./cli
+    - uses: azure/login@v1
+      id: az_login
+      with:
+        client-id: ${{ secrets.AZ_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZ_TENANT_ID }}
+        subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+    - name: Run tests
+      env:
+        SB_BUILD_NAME: ${{ github.run_id }}${{ inputs.build_name_suffix }}-${{ inputs.config }}
+        SB_SITE_NAME: github-ubuntu
+        SB_CONFIG: ${{ inputs.config }}
+        SB_RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
+        SB_SOURCE_DIR: ./tests
+        SB_BINARY_DIR: ./build
+        SB_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      run: |
+        ctest -V -S ./.github/ci.cmake
