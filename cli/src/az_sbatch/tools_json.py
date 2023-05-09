@@ -52,7 +52,7 @@ def populate_arguments(loader):
         c.argument(
             "input_files",
             options_list=["--input-files", "-i"],
-            help="The input files to concatenate. Can be specified multiple times.",
+            help="The input files to concatenate. Multiple files can be specified separated by spaces.",
             nargs="+",
         )
         c.argument(
@@ -70,7 +70,7 @@ def populate_arguments(loader):
 
 def concat(input_files, use_union=False):
     """Concatenate json files."""
-    log.info("Concatenating json files...")
+    log.info("Concatenating json files...%s", str(input_files))
     inputs = []
     for input_file in input_files:
         log.info("  %s", input_file)
