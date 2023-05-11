@@ -50,6 +50,12 @@ def populate_arguments(loader):
             type=int,
         )
         c.argument(
+            "await_completion",
+            options_list=["--await-completion", "-c"],
+            help="Wait for the job to complete before returning.",
+            action="store_true",
+        )
+        c.argument(
             "trades_file",
             options_list=["--trades-file", "-t"],
             help="The path to the trades file to use instead of generating random trades.",
@@ -111,7 +117,8 @@ def execute(
     pool_id: str = "linux",
     mode: str = "container",
     python_executable: str = "c:/Python310/python.exe",
-    data_dir: str = None
+    data_dir: str = None,
+    await_completion: bool = False
 ):
     if num_trades is None and trades_file is None:
         log.critical("Either --num-trades or --trades-file must be specified.")
@@ -234,8 +241,17 @@ def execute(
         pool_id=pool_id,
         tasks=tasks,
     )
-    return {
+
+
+    result = {
         "job_id": job_id,
         "trades_file": trades_file if trades_file else f"{job_id}/{name}{ext}",
         "results_file": f"{job_id}/{name}.results{ext}"
     }
+
+    if await_completion:
+        log.info("Waiting for job to complete...")
+        utils.wait_until(lambda: utils.is_job_complete(credentials, subscription_id, resource_group_name, job_id) is True)
+        result['job_status'] = utils.get_job_status(credentials, subscription_id, resource_group_name, job_id)
+
+    return result
