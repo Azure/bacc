@@ -10,11 +10,6 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      suffix_salt:
-        type: string
-        description: 'Randomizer string for suffix'
-        required: false
-        default: ''
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -51,11 +46,6 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      suffix_salt:
-        type: string
-        description: 'Randomizer string for suffix'
-        required: false
-        default: ''
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -130,7 +120,7 @@ jobs:
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.resource_group_name }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} suffixSalt="${{ inputs.suffix_salt }}" tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
       - name: show outputs
         if: inputs.deploy
         run: |

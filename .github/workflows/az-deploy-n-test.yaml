@@ -24,8 +24,7 @@ jobs:
     uses: ./.github/workflows/az-deploy.yaml
     with:
       location: ${{ github.event.inputs.location || 'eastus2' }}
-      resource_group_name: sbatch-ci-${{ github.run_id }}
-      suffix_salt: 'config=${{ matrix.config }} apps=true packages=false'
+      resource_group_name: 'sbatch-ci-${{ github.run_id }}-${{ matrix.config }}'
       enable_application_containers: true
       enable_application_packages: false
       config: ${{ matrix.config }}

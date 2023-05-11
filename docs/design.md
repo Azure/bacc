@@ -20,7 +20,6 @@ Let's start by looking at the available parameters and their usage. Parameters a
 |__enableApplicationContainers__| `false` | when set to `true` additional resources will be deployed to support running jobs that use [containerized applications](https://learn.microsoft.com/en-us/azure/batch/batch-docker-container-workloads). |
 |_location_| `deployment location` | a string identifying the location for all the resources. |
 |_tags_| `{}` | an object to add as tags to all resources created; initialized to `{}` by default. |
-|_suffixSalt_| `(empty)` | a random string used to generate a resource group suffix; internal; primarily intended for automated testing to separate resources deployed by different workflows. NOT FOR GENERAL PUBLIC USE.|
 
 ## Configuration files
 
@@ -181,28 +180,6 @@ in more detail.
 
 * [images.jsonc] defines the default OS images to use for the pools. The default configuration
   defines the default images for the a version of Windows Server and Ubuntu Server. You can customize these as needed.
-
-<!-- ## Developer Guidelines
-
-We follow the following naming conventions for resources deployed by this project:
-
-* When creating a deployment, user specifies three things: `prefix`, and optionally, `environment` and `suffixSalt`.
-  `prefix` is an alphanumeric string of length between 5 and 13. `environment` is an optional string of length between 3 and 10
-  initialized to `dev` if not specified. `suffixSalt` is an optional string of arbitrary length.
-  `suffixSalt` is primarily intended for regression testing, allow us differentiate different deployments.
-
-* All resources created are deployed in a resource group named `${prefix}-${environment}`. If `suffixSalt` is specified, the
-  resource group name is `${prefix}-${uniqueString(suffixSalt)}-${environment}`. Thus `suffixSalt` is used to generate a unique suffix for the resource group name.
-
-* When naming non-globally unique resources, we don't use prefix or suffix. The resource-group
-  name already acts as a namespace and hence there's no risk of conflict with existing resources and hence we opt
-  for simplicity and readability.
-
-* When naming resources that need to be globally unique, a GUID is generated that incorporate prefix, environment, and suffixSalt.
-
-* When naming nested deployments, the top level creates a unique deployment name suffix as
-  `uniqueString(deployment().name, location, prefix, environment, suffixSalt)`. All nested deployments can then simply use
-  a deployment name suffix generated using `uniqueString(deployment().name)`. -->
 
 [config/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
 [schemas/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/schemas
