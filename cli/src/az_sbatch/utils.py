@@ -163,16 +163,15 @@ def submit_job(
     pool_info = models.PoolInformation(pool_id=pool_id)
     client.job.add(
         models.JobAddParameter(
-            id=job_id, pool_info=pool_info, uses_task_dependencies=True
+            id=job_id, pool_info=pool_info, uses_task_dependencies=True,
+            on_task_failure="performExitOptionsJobAction",
+            on_all_tasks_complete="terminateJob"
         )
     )
     client.task.add_collection(job_id, tasks)
 
-    # once tasks are added to job, update the job to terminate the job
-    # once all tasks complete
-    client.job.update(
-        job_id=job_id,
-        job_update_parameter=models.JobUpdateParameter(
-            on_all_tasks_complete="terminateJob", pool_info=pool_info
-        ),
-    )
+    # note: previously, we needed to ensure on_all_tasks_complete="terminateJob" was not
+    # set before tasks we added; however when we added the on_task_failure="performExitOptionsJobAction"
+    # updating the on_all_tasks_complete to terminateJob was not allowed.  So we are
+    # now setting on_all_tasks_complete to terminateJob before adding tasks.
+    # it seems to work, but we should test this more thoroughly.
