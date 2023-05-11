@@ -241,6 +241,12 @@ def pool_resize(
         utils.wait_until(lambda: bclient.pool.get(pool_id).allocation_state == "steady")
 
     def verify():
+        pool_config = bclient.pool.get(pool_id)
+        if pool_config.resize_errors and len(pool_config.resize_errors) > 0:
+            log.error(f"Pool {pool_id} resize failed.")
+            msg = "\n".join([f"  {e.code}: {e.message}" for e in pool_config.resize_errors])
+            log.error(f"Resize errors: \n{msg}")
+            return None  # abort
         count = 0
         for cn in bclient.compute_node.list(pool_id):
             if cn.state == "idle" or cn.state == "running":
