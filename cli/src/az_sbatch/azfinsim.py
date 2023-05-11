@@ -197,7 +197,7 @@ def execute(
     def exec_generator():
         for i in range(num_tasks):
             yield f"{task_cmd_prefix} -m azfinsim.azfinsim --no-color " \
-                   "--cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
+                   f"--cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
 
     pricing_tasks = utils.create_tasks(
         task_command_lines=exec_generator(),
