@@ -10,8 +10,13 @@ ctest_start(Experimental)
 find_package(Git)
 set(CTEST_UPDATE_VERSION_ONLY ON)
 set(CTEST_UPDATE_COMMAND "${GIT_EXECUTABLE}")
-ctest_update()
+ctest_update(RETURN_VALUE exit_code)
 
+if (exit_code EQUAL 0)
+    message(STATUS "Configure passed")
+else()
+    message(FATAL_ERROR "Configure failed")
+endif()
 
 # Configure the project.
 set(cmake_args
@@ -23,7 +28,13 @@ set(cmake_args
 ctest_configure(OPTIONS "${cmake_args}")
 
 # run the tests
-ctest_test()
+ctest_test(RETURN_VALUE exit_code)
 
 # submit the results
 ctest_submit()
+
+if (exit_code EQUAL 0)
+    message(STATUS "Tests passed")
+else()
+    message(FATAL_ERROR "Tests failed")
+endif()
