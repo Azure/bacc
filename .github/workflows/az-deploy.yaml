@@ -167,5 +167,4 @@ jobs:
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - name: cleanup
         run: |
-          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv
-          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --name
+          az group delete --yes --name '${{ inputs.resource_group_name }}'
