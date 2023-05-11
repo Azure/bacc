@@ -175,3 +175,15 @@ def submit_job(
     # updating the on_all_tasks_complete to terminateJob was not allowed.  So we are
     # now setting on_all_tasks_complete to terminateJob before adding tasks.
     # it seems to work, but we should test this more thoroughly.
+
+def is_job_complete(credentials, subscription_id, resource_group_name, job_id: str):
+    """check if a job is complete"""
+    client = get_batch_client(credentials, subscription_id, resource_group_name)
+    job = client.job.get(job_id)
+    return True if job.state in ['completed', 'deleting'] else False
+
+def get_job_status(credentials, subscription_id, resource_group_name, job_id: str):
+    """get job status"""
+    client = get_batch_client(credentials, subscription_id, resource_group_name)
+    job = client.job.get(job_id)
+    return job.execution_info.terminate_reason if job.state == 'completed' else job.state
