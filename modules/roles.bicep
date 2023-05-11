@@ -1,5 +1,6 @@
 @allowed([
   'acr'
+  'ba'
   'storage'
   'rg'
 ])
@@ -44,6 +45,21 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = if (
 resource roleAssignmentACR 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'acr') {
   name: guid(resourceGroup().id, mi.id, name, role)
   scope: acr
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])
+    principalId: mi.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+//----------------------------------------------------------------------------------------------------------------------
+resource ba 'Microsoft.Batch/batchAccounts@2022-10-01' existing = if (kind == 'ba') {
+  name: name
+}
+
+resource roleAssignmentBA 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in roles: if (kind == 'ba') {
+  name: guid(resourceGroup().id, mi.id, name, role)
+  scope: ba
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', builtinRoles[replace(role, ' ', '')])
     principalId: mi.properties.principalId

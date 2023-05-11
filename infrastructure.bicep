@@ -162,15 +162,27 @@ module dplRoleAssignments 'modules/roleAssignments.bicep' = {
   }
 }
 
-// hub MIs need to be given reader role to resource group so our CLI tools work;
-// this is not absolutely necessary; only needed for our CLI tools that scan
-// through the resource group to locate and validate resources
-var rgRoleAssignments = [{
-  kind: 'rg'
-  name: rg.name
-  group: rg.name
-  roles: ['Reader']
-}]
+var rgRoleAssignments = [
+
+  // hub MIs need to be given reader role to resource group so our CLI tools work;
+  // this is not absolutely necessary; only needed for our CLI tools that scan
+  // through the resource group to locate and validate resources
+  {
+    kind: 'rg'
+    name: rg.name
+    group: rg.name
+    roles: ['Reader']
+  }
+
+  // hub MIs need to be given contributor access to Batch account to be able to
+  // submit jobs etc.; eventually, we may use a custom role
+  {
+    kind: 'ba'
+    name: dplBatch.outputs.batchAccountName
+    group: rg.name
+    roles: ['Contributor']
+  }
+]
 
 @description('deploy hub role assignments')
 module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
