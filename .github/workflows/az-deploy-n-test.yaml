@@ -8,7 +8,10 @@ on:
       - '**.bicep'
       - '**.jsonc'
       - '**.json'
-      - '.github/**'
+      - '.github/ci.cmake'
+      - '.github/workflows/az-deploy-n-test.yaml'
+      - '.github/workflows/az-deploy.yaml'
+      - '.github/workflows/az-deploy-test.yaml'
   workflow_dispatch:
     inputs:
       location:
