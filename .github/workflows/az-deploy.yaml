@@ -35,6 +35,10 @@ on:
         description: 'Name of configuration files to use'
         required: false
         default: 'DEFAULT'
+      cdash_build_group_name:
+        type: string
+        description: 'CDash build group name'
+        required: true
   workflow_dispatch:
     # ensure inputs are same as workflow_call.inputs
     inputs:
@@ -75,6 +79,11 @@ on:
           - DEFAULT
           - azfinsim-linux
           - azfinsim-windows
+      cdash_build_group_name:
+        type: string
+        description: 'CDash build group name'
+        required: false
+        default: 'Experimental'
 permissions:
   # these are needed for azure login with OIDC
   contents: read
@@ -159,6 +168,7 @@ jobs:
         SB_SOURCE_DIR: ./tests
         SB_BINARY_DIR: ./build
         SB_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+        SB_BUILD_GROUP_NAME: ${{ inputs.cdash_build_group_name }}
       run: |
         ctest -V -S ./.github/ci.cmake
   cleanup:

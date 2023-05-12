@@ -3,8 +3,13 @@ set(CTEST_BUILD_NAME "$ENV{SB_BUILD_NAME}")
 set(CTEST_SOURCE_DIRECTORY "$ENV{SB_SOURCE_DIR}")
 set(CTEST_BINARY_DIRECTORY "$ENV{SB_BINARY_DIR}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set(SB_BUILD_GROUP_NAME "$ENV{SB_BUILD_GROUP_NAME}")
 
-ctest_start(Experimental)
+if (NOT SB_BUILD_GROUP_NAME)
+    set(SB_BUILD_GROUP_NAME "Experimental")
+endif()
+
+ctest_start(Experimental GROUP ${SB_BUILD_GROUP_NAME})
 
 # Gather update information.
 find_package(Git)

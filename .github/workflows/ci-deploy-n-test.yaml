@@ -22,7 +22,23 @@ concurrency:
   group: ${{ github.ref_name }}
   cancel-in-progress: true
 jobs:
+  get_coolname:
+    runs-on: ubuntu-latest
+    outputs:
+      AZ_COOL_NAME: ${{ steps.cool_name_step.outputs.AZ_COOL_NAME}}
+    steps:
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: install
+      id: cool_name_step
+      run: |
+        python3.8 -m pip install --upgrade pip
+        python3.8 -m pip install coolname
+        echo "AZ_COOL_NAME=chosen_name=$(python3.8 -m coolname 3)" > $GITHUB_OUTPUT
   deploy-n-test-matrix:
+    needs: get_coolname
     strategy:
       fail-fast: true
       max-parallel: 1
@@ -32,6 +48,7 @@ jobs:
     with:
       location: ${{ github.event.inputs.location || 'eastus2' }}
       resource_group_name: 'sbatch-ci-${{ github.run_id }}-${{ matrix.config }}'
+      cdash_build_group_name: ${{ needs.get_coolname.outputs.AZ_COOL_NAME }}
       enable_application_containers: true
       enable_application_packages: false
       config: ${{ matrix.config }}
