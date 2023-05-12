@@ -1,7 +1,8 @@
 # azbatch-starter
 
-[![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
-[![az-deploy-n-test](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-n-test.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-n-test.yaml)
+[![ci-cli](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-cli.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-cli.yaml)
+[![ci-validate-configs](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-validate.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-validate.yaml)
+[![ci-deploy-n-test](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-deploy-n-test.yaml/badge.svg?branch=main)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-deploy-n-test.yaml)
 ![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 
 > __Warning__

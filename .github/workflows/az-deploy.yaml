@@ -102,16 +102,17 @@ jobs:
           fi
           echo "AZ_SUFFIX=$suffix" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v3
+        if: inputs.config != 'DEFAULT'
+      - name: replace config with ${{ inputs.config }}
+        if: inputs.config != 'DEFAULT' && inputs.deploy
+        run: |
+          cp $GITHUB_WORKSPACE/examples/${{ inputs.config }}/* $GITHUB_WORKSPACE/config/
       - uses: azure/login@v1
-        id: az_login
+        if: inputs.deploy
         with:
           client-id: ${{ secrets.AZ_CLIENT_ID }}
           tenant-id: ${{ secrets.AZ_TENANT_ID }}
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
-      - name: replace config with ${{ inputs.config }}
-        if: inputs.config != 'DEFAULT'
-        run: |
-          cp $GITHUB_WORKSPACE/examples/${{ inputs.config }}/* $GITHUB_WORKSPACE/config/
       - uses: azure/arm-deploy@v1
         if: inputs.deploy
         with:
@@ -126,14 +127,40 @@ jobs:
         run: |
           az deployment sub show -n dpl-${{ inputs.resource_group_name }}-${{ github.run_id }} --query properties.outputs
   test:
-    # FIXME: need to add ability to test non-default configs as well
-    uses: ./.github/workflows/az-deploy-test.yaml
+    runs-on: ubuntu-latest
+    environment: azure
     needs: deploy
-    with:
-      resource_group_name: ${{ inputs.resource_group_name }}
-      config: ${{ inputs.config }}
-      build_name_suffix: ${{ needs.deploy.outputs.AZ_SUFFIX }}
-    secrets: inherit
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        cmake --version
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Install CLI Python package
+      run: |
+        python3.8 -m pip install --upgrade pip
+        python3.8 -m pip install ./cli
+    - uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZ_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZ_TENANT_ID }}
+        subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+    - name: Run tests
+      env:
+        SB_BUILD_NAME: ${{ github.run_id }}${{ needs.deploy.outputs.AZ_SUFFIX }}-${{ inputs.config }}
+        SB_SITE_NAME: github-ubuntu
+        SB_CONFIG: ${{ inputs.config }}
+        SB_RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
+        SB_SOURCE_DIR: ./tests
+        SB_BINARY_DIR: ./build
+        SB_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      run: |
+        ctest -V -S ./.github/ci.cmake
   cleanup:
     runs-on: ubuntu-latest
     environment: azure
@@ -142,7 +169,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: azure/login@v1
-        id: az_login
         with:
           client-id: ${{ secrets.AZ_CLIENT_ID }}
           tenant-id: ${{ secrets.AZ_TENANT_ID }}

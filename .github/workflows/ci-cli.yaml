@@ -1,5 +1,5 @@
 # basic tests for CLI
-name: cli
+name: ci-cli
 
 on:
   push:
@@ -7,11 +7,13 @@ on:
       - main
     paths:
       - 'cli/**'
+      - '.github/workflows/ci-cli.yaml'
   pull_request:
     branches:
       - main
     paths:
       - 'cli/**'
+      - '.github/workflows/ci-cli.yaml'
   
 permissions:
   contents: read
