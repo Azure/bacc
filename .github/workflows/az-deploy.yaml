@@ -152,8 +152,8 @@ jobs:
         subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
     - name: Run tests
       env:
-        SB_BUILD_NAME: ${{ github.run_id }}${{ needs.deploy.outputs.AZ_SUFFIX }}-${{ inputs.config }}
-        SB_SITE_NAME: github-ubuntu
+        SB_BUILD_NAME: ${{ github.ref_name }}${{ needs.deploy.outputs.AZ_SUFFIX }}-${{ inputs.config }}
+        SB_SITE_NAME: github-ci
         SB_CONFIG: ${{ inputs.config }}
         SB_RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
         SB_SOURCE_DIR: ./tests
