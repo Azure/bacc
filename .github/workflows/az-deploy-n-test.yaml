@@ -8,6 +8,7 @@ on:
       - '**.bicep'
       - '**.jsonc'
       - '**.json'
+      - '.github/**'
   workflow_dispatch:
     inputs:
       location:
