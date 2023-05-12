@@ -102,7 +102,7 @@ jobs:
           fi
           echo "AZ_SUFFIX=$suffix" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v3
-        if: inputs.config != 'DEFAULT'
+        if: inputs.deploy
       - name: replace config with ${{ inputs.config }}
         if: inputs.config != 'DEFAULT' && inputs.deploy
         run: |
