@@ -8,6 +8,7 @@ on:
       - '**.bicep'
       - '**.jsonc'
       - '**.json'
+      - '**.ps1'
       - '.github/ci.cmake'
       - '.github/workflows/ci-deploy-n-test.yaml'
       - '.github/workflows/az-deploy.yaml'
