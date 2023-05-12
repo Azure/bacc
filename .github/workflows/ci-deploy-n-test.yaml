@@ -18,6 +18,9 @@ on:
         type: string
         description: 'Deployment location'
         required: true
+concurrency:
+  group: ${{ github.ref_name }}
+  cancel-in-progress: true
 jobs:
   deploy-n-test-matrix:
     strategy:
