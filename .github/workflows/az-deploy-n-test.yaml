@@ -8,6 +8,7 @@ on:
       - '**.bicep'
       - '**.jsonc'
       - '**.json'
+      - '.github/**'
   workflow_dispatch:
     inputs:
       location:
@@ -23,8 +24,8 @@ jobs:
         config: ['DEFAULT', 'azfinsim-linux', 'azfinsim-windows']
     uses: ./.github/workflows/az-deploy.yaml
     with:
-      location: ${{ github.event.inputs.location || 'westus2' }}
-      resource_group_name: sbatch-ci
+      location: ${{ github.event.inputs.location || 'eastus2' }}
+      resource_group_name: 'sbatch-ci-${{ github.run_id }}-${{ matrix.config }}'
       enable_application_containers: true
       enable_application_packages: false
       config: ${{ matrix.config }}

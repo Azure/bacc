@@ -1,7 +1,7 @@
 # azbatch-starter
 
 [![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
-[![az-deploy-matrix](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml)
+[![az-deploy-n-test](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-n-test.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-n-test.yaml)
 ![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
 
 > __Warning__

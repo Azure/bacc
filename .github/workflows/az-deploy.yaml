@@ -10,11 +10,6 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      suffix_salt:
-        type: string
-        description: 'Randomizer string for suffix'
-        required: false
-        default: ''
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -51,11 +46,6 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      suffix_salt:
-        type: string
-        description: 'Randomizer string for suffix'
-        required: false
-        default: ''
       enable_application_containers:
         type: boolean
         description: 'Enable application containers'
@@ -94,9 +84,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure
     outputs:
-      AZ_BATCH_ACCOUNT_ENDPOINT: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_ENDPOINT }}
-      AZ_BATCH_ACCOUNT_GROUP: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_GROUP }}
-      AZ_BATCH_ACCOUNT_NAME: ${{ steps.az_outputs.outputs.AZ_BATCH_ACCOUNT_NAME }}
       AZ_SUFFIX: ${{ steps.az_build_name.outputs.AZ_SUFFIX }}
     steps:
       - name: Generate build name suffix
@@ -133,22 +120,17 @@ jobs:
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.resource_group_name }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} suffixSalt="${{ inputs.suffix_salt }}" tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
-      - name: show / save outputs
-        id: az_outputs
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
+      - name: show outputs
+        if: inputs.deploy
         run: |
-          az deployment sub show -n dpl-${{ inputs.resource_group_name }}-${{ github.run_id }} --query properties.outputs > $GITHUB_WORKSPACE/outputs.json
-          cat $GITHUB_WORKSPACE/outputs.json
-          echo "AZ_BATCH_ACCOUNT_ENDPOINT=$(jq -r .batchAccountEndpoint.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
-          echo "AZ_BATCH_ACCOUNT_GROUP=$(jq -r .batchAccountResourceGroup.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
-          echo "AZ_BATCH_ACCOUNT_NAME=$(jq -r .batchAccountName.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
-          echo "AZ_BATCH_ACCOUNT_PUBLIC_NETWORK_ACCESS=$(jq -r .batchAccountPublicNetworkAccess.value $GITHUB_WORKSPACE/outputs.json)" >> $GITHUB_OUTPUT
+          az deployment sub show -n dpl-${{ inputs.resource_group_name }}-${{ github.run_id }} --query properties.outputs
   test:
     # FIXME: need to add ability to test non-default configs as well
     uses: ./.github/workflows/az-deploy-test.yaml
     needs: deploy
     with:
-      resource_group_name: ${{ needs.deploy.outputs.AZ_BATCH_ACCOUNT_GROUP }}
+      resource_group_name: ${{ inputs.resource_group_name }}
       config: ${{ inputs.config }}
       build_name_suffix: ${{ needs.deploy.outputs.AZ_SUFFIX }}
     secrets: inherit
@@ -167,5 +149,4 @@ jobs:
           subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       - name: cleanup
         run: |
-          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv
-          az group list --tag "github-run-id=${{ github.run_id }}" --query "[].name" -o tsv | xargs -l az group delete --yes --name
+          az group delete --yes --name '${{ inputs.resource_group_name }}'

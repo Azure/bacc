@@ -27,10 +27,6 @@ param enableApplicationContainers bool = false
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
-@description('string used as salt to generate a random string to use suffix (internal/testing use only)')
-param suffixSalt string = ''
-
-
 // @description('admin password for pool nodes')
 // @secure()
 // param password string
@@ -38,11 +34,8 @@ param suffixSalt string = ''
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
-@description('resource group suffix')
-var rgName = empty(suffixSalt) ? resourceGroupName : take('${resourceGroupName}-${uniqueString(suffixSalt)}', 90)
-
 @description('suffix used for all nested deployments')
-var dplSuffix = uniqueString(deployment().name, location, rgName)
+var dplSuffix = uniqueString(deployment().name, location, resourceGroupName)
 
 @description('tags for all resources')
 var allTags = union(tags, {
@@ -90,7 +83,7 @@ var appInsightsConfig = hasAppInsights? {
 
 @description('all resources group')
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: rgName
+  name: resourceGroupName
   location: location
   tags: allTags
 }

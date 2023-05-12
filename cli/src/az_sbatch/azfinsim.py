@@ -123,6 +123,11 @@ def execute(
     if num_trades is None and trades_file is None:
         log.critical("Either --num-trades or --trades-file must be specified.")
         return
+
+    if num_trades <= 0 and trades_file is None:
+        log.critical("--num-trades must be greater than 0.")
+        return
+
     subscription_id = utils.get_subscription_id(subscription_id)
     credentials = utils.get_credentials()
     if not utils.validate_resource_group(credentials, subscription_id, resource_group_name):
@@ -180,8 +185,9 @@ def execute(
     dependencies = [tasks[-1].id] if len(tasks) > 0 else None
 
     # create task for splitting trade file into smaller chunks
-    log.info("Splitting trades file into %s chunks", num_tasks)
     trades_per_file = math.ceil(num_trades / num_tasks)
+    num_actual_tasks = num_trades // trades_per_file
+    log.info("Splitting trades file into %s chunks", num_actual_tasks)
     task_cmd = (
         f"{task_cmd_prefix} -m azfinsim.split --no-color --cache-path {in_file} "
         + f"--output-path {job_dir} "
@@ -202,7 +208,7 @@ def execute(
     name, ext = os.path.splitext(os.path.basename(in_file))
 
     def exec_generator():
-        for i in range(num_tasks):
+        for i in range(num_actual_tasks):
             yield f"{task_cmd_prefix} -m azfinsim.azfinsim --no-color " \
                    f"--cache-path {job_dir}/{name}.{i}{ext} --algorithm {algorithm}"
 
