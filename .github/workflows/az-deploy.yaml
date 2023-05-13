@@ -167,7 +167,6 @@ jobs:
     if: always() && inputs.cleanup
     needs: [deploy, test]
     steps:
-      - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZ_CLIENT_ID }}
