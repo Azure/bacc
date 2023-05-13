@@ -1,0 +1,106 @@
+# workflow to deploy the hub
+name: az-deploy-secured-batch
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        type: string
+        description: Deployment location
+        required: true
+      prefix:
+        type: string
+        description: Resource prefix
+        required: true
+      hub_dpl_name:
+        type: string
+        description: Name of existing hub deployment to reuse
+        required: false
+        default: ''
+      ref_name:
+        type: string
+        description: Hub repo branch name
+        required: true
+        default: 'main'
+      cleanup:
+        type: boolean
+        description: 'Cleanup resources'
+        required: false
+        default: true
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  deploy-hub:
+    runs-on: ubuntu-latest
+    environment: azure
+    outputs:
+      hub-config: '${{ steps.get_hub_config.outputs.HUB_CONFIG }}'
+    steps:
+    - name: Checkout connectivity repo
+      uses: actions/checkout@v3
+      if: inputs.hub_dpl_name == ''
+      with:
+        repository: mocelj/azbatch-starter-connectivity
+        ref: ${{ inputs.ref_name }}
+    - uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZ_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZ_TENANT_ID }}
+        subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+    - name: Prepare VPN root certificate
+      id: vpn-root-cert
+      if: inputs.hub_dpl_name == ''
+      run: |
+        echo "${{ secrets.AZ_P2S_ROOT_CERTIFICATE }}" > p2s_root.cer
+        AZ_P2S_ROOT_CERTIFICATE=$(tr '\r' '\n' < p2s_root.cer | awk 'BEGIN { ORS=""; } /^.*BEGIN CERTIFICATE.*$/,/^.*END CERTIFICATE.*$/ { if (! /.*CERTIFICATE/) { printf "%s", $0 } }')
+        rm p2s_root.cer
+        echo "::add-mask::$AZ_P2S_ROOT_CERTIFICATE"
+        echo "cert=$AZ_P2S_ROOT_CERTIFICATE" >> "$GITHUB_OUTPUT"
+    - uses: azure/arm-deploy@v1
+      if: inputs.hub_dpl_name == ''
+      with:
+        scope: subscription
+        subscriptionId: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+        region: ${{ inputs.location }}
+        template: ./connectivity.bicep
+        deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
+        parameters: prefix=${{ inputs.prefix }} clientRootCertData=${{ steps.vpn-root-cert.outputs.cert }} adminPassword=${{ secrets.AZ_JUMPBOX_PASSWORD }} deployVPNGateway=false deployAzureBastion=false deployLinuxJumpbox=true deployWindowsJumpbox=false
+        failOnStdErr: false # the deployment has warnings that case failure
+                            # so disabling this until those are fixed
+    - name: generate outputs
+      id: get_hub_config
+      run: |
+        dpl_name='dpl-${{ inputs.prefix }}-${{ github.run_id }}'
+        if [ "${{ inputs.hub_dpl_name }}" != "" ]; then
+          dpl_name='${{ inputs.hub_dpl_name }}'
+        fi
+        az deployment sub show -n $dpl_name --query properties.outputs.azbatchStarter.value
+        echo "HUB_CONFIG=$(az deployment sub show -n $dpl_name --query properties.outputs.azbatchStarter.value | base64 | tr -d '\n' )" >> $GITHUB_OUTPUT
+  deploy-spoke:
+    needs: deploy-hub
+    uses: ./.github/workflows/az-deploy.yaml
+    with:
+      location: ${{ inputs.location }}
+      resource_group_name: ${{ inputs.prefix }}-spoke
+      enable_application_containers: true
+      config: 'DEFAULT'
+      hub_config: ${{ needs.deploy-hub.outputs.hub-config }}
+      cleanup: ${{ inputs.cleanup }}
+    secrets: inherit
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [deploy-hub, deploy-spoke]
+    if: ${{ inputs.cleanup }}
+    steps:
+    - uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZ_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZ_TENANT_ID }}
+        subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+    - name: cleanup spoke
+      run: |
+        az group delete -n ${{ inputs.prefix }}-spoke --yes --no-wait
+    - name: cleanup hub
+      if: inputs.hub_dpl_name == ''
+      run: |
+        az group delete -n dev-${{ inputs.prefix }} --yes --no-wait

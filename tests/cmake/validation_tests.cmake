@@ -21,6 +21,7 @@ sb_add_test(
     NAME "validate-pools"
     COMMAND sb pool list -g ${SB_RESOURCE_GROUP_NAME} -s ${SB_SUBSCRIPTION_ID} --query "[].id" -o tsv
     PASS_REGULAR_EXPRESSION "${pool_names_regex}"
+    WILL_FAIL ${SB_TEST_SECURED_BATCH}
 )
 
 # validate various pool properties.
@@ -30,6 +31,7 @@ foreach(pool_name IN LISTS pool_names)
         NAME "validate-pool-${pool_name}-id"
         COMMAND sb pool show -g ${SB_RESOURCE_GROUP_NAME} -s ${SB_SUBSCRIPTION_ID} -p ${pool_name} --query "id" -o tsv
         PASS_REGULAR_EXPRESSION "^${pool_name}"
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
     )
 
     # verify pool vm size
@@ -38,6 +40,7 @@ foreach(pool_name IN LISTS pool_names)
         NAME "validate-pool-${pool_name}-vm-size"
         COMMAND sb pool show -g ${SB_RESOURCE_GROUP_NAME} -s ${SB_SUBSCRIPTION_ID} -p ${pool_name} --query "vmSize" -o tsv
         PASS_REGULAR_EXPRESSION "^${vm_size}"
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
     )
 
     # verify pool has mounted volumes
@@ -46,6 +49,7 @@ foreach(pool_name IN LISTS pool_names)
         NAME "validate-pool-${pool_name}-mounts-count"
         COMMAND sb pool show -g ${SB_RESOURCE_GROUP_NAME} -s ${SB_SUBSCRIPTION_ID} -p ${pool_name} --query "mountConfiguration | length(@)" -o tsv
         PASS_REGULAR_EXPRESSION "^${mounts_count}"
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
     )
 
     # verify pool is not using public IPs
@@ -53,5 +57,6 @@ foreach(pool_name IN LISTS pool_names)
         NAME "validate-pool-${pool_name}-no-public-ip"
         COMMAND sb pool show -g ${SB_RESOURCE_GROUP_NAME} -s ${SB_SUBSCRIPTION_ID} -p ${pool_name} --query "networkConfiguration.publicIpAddressConfiguration.provision" -o tsv
         PASS_REGULAR_EXPRESSION "^nopublicipaddresses"
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
     )
 endforeach()

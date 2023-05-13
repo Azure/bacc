@@ -11,6 +11,7 @@ set(SB_CONFIG DEFAULT CACHE STRING "The configuration to use for testing")
 set(SB_RESOURCE_GROUP_NAME "" CACHE STRING "The name of the deployment resource group")
 set(SB_SUBSCRIPTION_ID "" CACHE STRING "The subscription ID to use for testing")
 option(SB_TESTING_SKIP_POOL_DOWNSIZE "Skip pool downsize in automated testing" OFF)
+option(SB_TEST_SECURED_BATCH "Set to ON to test in Secured Batch enviroment" OFF)
 
 # locate available example configurations
 file(GLOB available_configs LIST_DIRECTORIES true

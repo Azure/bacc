@@ -74,14 +74,20 @@ endfunction()
 
 function(sb_add_test)
     set(options)
-    set(oneValueArgs PASS_REGULAR_EXPRESSION NAME)
+    set(oneValueArgs PASS_REGULAR_EXPRESSION NAME WILL_FAIL)
     set(multiValueArgs)
     cmake_parse_arguments(sb_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     add_test(NAME "${sb_args_NAME}"
              ${sb_args_UNPARSED_ARGUMENTS})
-    set_tests_properties("${sb_args_NAME}"
-                         PROPERTIES PASS_REGULAR_EXPRESSION "${sb_args_PASS_REGULAR_EXPRESSION}")
+    if (sb_args_PASS_REGULAR_EXPRESSION)
+        set_tests_properties("${sb_args_NAME}"
+                             PROPERTIES PASS_REGULAR_EXPRESSION "${sb_args_PASS_REGULAR_EXPRESSION}")
+    endif()
+    if (sb_args_WILL_FAIL)
+        set_tests_properties("${sb_args_NAME}"
+                             PROPERTIES WILL_FAIL TRUE)
+    endif()
 endfunction()
 
 function(sb_test_workflow fixture_name)

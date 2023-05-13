@@ -24,6 +24,7 @@ function(add_azfinsim_tests pool_name)
                     --await-compute-nodes
                     --query "current_dedicated_nodes"
                     -o tsv
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
         PASS_REGULAR_EXPRESSION "^1")
 
     # downsize pool
@@ -42,6 +43,7 @@ function(add_azfinsim_tests pool_name)
                     --target-spot-nodes 0
                     --await-compute-nodes
                     -o tsv
+        WILL_FAIL ${SB_TEST_SECURED_BATCH}
         PASS_REGULAR_EXPRESSION "^${downsize_target_nodes}.*0")
 
     # generate n process
@@ -61,6 +63,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
+            WILL_FAIL ${SB_TEST_SECURED_BATCH}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         sb_add_test(
@@ -77,6 +80,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
+            WILL_FAIL ${SB_TEST_SECURED_BATCH}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         list(APPEND tests
@@ -99,6 +103,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
+            WILL_FAIL ${SB_TEST_SECURED_BATCH}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         sb_add_test(
@@ -114,6 +119,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
+            WILL_FAIL ${SB_TEST_SECURED_BATCH}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         list(APPEND tests
