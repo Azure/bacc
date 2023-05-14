@@ -74,7 +74,7 @@ endfunction()
 
 function(sb_add_test)
     set(options)
-    set(oneValueArgs PASS_REGULAR_EXPRESSION NAME WILL_FAIL)
+    set(oneValueArgs PASS_REGULAR_EXPRESSION NAME WILL_FAIL TIMEOUT)
     set(multiValueArgs)
     cmake_parse_arguments(sb_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -87,6 +87,10 @@ function(sb_add_test)
     if (sb_args_WILL_FAIL)
         set_tests_properties("${sb_args_NAME}"
                              PROPERTIES WILL_FAIL TRUE)
+    endif()
+    if (sb_args_TIMEOUT)
+        set_tests_properties("${sb_args_NAME}"
+                             PROPERTIES TIMEOUT "${sb_args_TIMEOUT}")
     endif()
 endfunction()
 

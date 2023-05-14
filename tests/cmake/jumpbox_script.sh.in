@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# prepare the environment
+rm -rf /tmp/workspace
+mkdir -p /tmp/workspace
+
+cd /tmp/workspace
+
+# download cmake (need a newer version than the one provided by the jumpbox)
+wget --quiet https://github.com/Kitware/CMake/releases/download/v3.26.3/cmake-3.26.3-linux-x86_64.tar.gz
+
+mkdir -p /tmp/workspace/cmake
+tar -zxf cmake-3.26.3-linux-x86_64.tar.gz --strip-components=1 -C /tmp/workspace/cmake
+CMAKE=/tmp/workspace/cmake/bin/cmake
+CTEST=/tmp/workspace/cmake/bin/ctest
+
+# download the source code
+git clone --depth 1 https://github.com/utkarshayachit/azbatch-starter.git -b main src
+
+# install package in a virtual environment
+cd /tmp/workspace/src
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install ./cli
+
+# run the test suite
+export SB_CONFIG=@SB_CONFIG@
+export SB_RESOURCE_GROUP_NAME=@SB_RESOURCE_GROUP_NAME@
+export SB_SOURCE_DIR=/tmp/workspace/src/tests
+export SB_BINARY_DIR=/tmp/workspace/build
+export SB_SUBSCRIPTION_ID=@SB_SUBSCRIPTION_ID@
+export SB_TEST_SECURED_BATCH=FALSE
+export SB_SKIP_SUBMIT=TRUE
+export SB_DOCKERHUB_RESTRICTED=TRUE
+$CTEST -VV -S /tmp/workspace/src/.github/ci.cmake

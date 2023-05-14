@@ -1,5 +1,5 @@
 # workflow to deploy the hub
-name: az-deploy-secured-batch
+name: az-deploy-n-test-hub-n-spoke
 on:
   workflow_dispatch:
     inputs:
@@ -85,22 +85,21 @@ jobs:
       enable_application_containers: true
       config: 'DEFAULT'
       hub_config: ${{ needs.deploy-hub.outputs.hub-config }}
+      jumpbox_resource_group_name: rg-dev-${{ inputs.prefix }}
+      jumpbox_name: dev-${{ inputs.prefix }}-vm-linux
       cleanup: ${{ inputs.cleanup }}
     secrets: inherit
   cleanup:
     runs-on: ubuntu-latest
+    environment: azure
     needs: [deploy-hub, deploy-spoke]
-    if: ${{ inputs.cleanup }}
+    if: always() && inputs.cleanup && inputs.hub_dpl_name == ''
     steps:
     - uses: azure/login@v1
       with:
         client-id: ${{ secrets.AZ_CLIENT_ID }}
         tenant-id: ${{ secrets.AZ_TENANT_ID }}
         subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
-    - name: cleanup spoke
-      run: |
-        az group delete -n ${{ inputs.prefix }}-spoke --yes --no-wait
     - name: cleanup hub
-      if: inputs.hub_dpl_name == ''
       run: |
-        az group delete -n dev-${{ inputs.prefix }} --yes --no-wait
+        az group delete -n rg-dev-${{ inputs.prefix }} --yes --no-wait

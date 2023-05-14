@@ -40,6 +40,16 @@ on:
         description: 'Custom hub config to use'
         required: false
         default: ''
+      jumpbox_resource_group_name:
+        type: string
+        description: 'jumpbox resource group name (for secured batch testing)'
+        required: false
+        default: ''
+      jumpbox_name:
+        type: string
+        description: 'jumpbox name (for secured batch testing)'
+        required: false
+        default: ''
   workflow_dispatch:
     # ensure inputs are same as workflow_call.inputs
     inputs:
@@ -85,6 +95,17 @@ on:
         description: 'Custom hub config to use'
         required: false
         default: ''
+      jumpbox_resource_group_name:
+        type: string
+        description: 'jumpbox resource group name (for secured batch testing)'
+        required: false
+        default: ''
+      jumpbox_name:
+        type: string
+        description: 'jumpbox name (for secured batch testing)'
+        required: false
+        default: ''
+
 permissions:
   # these are needed for azure login with OIDC
   contents: read
@@ -174,6 +195,8 @@ jobs:
         SB_BINARY_DIR: ./build
         SB_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
         SB_TEST_SECURED_BATCH: ${{ inputs.hub_config || 'FALSE'}}
+        SB_JUMPBOX_RESOURCE_GROUP: ${{ inputs.jumpbox_resource_group_name }}
+        SB_JUMPBOX_NAME: ${{ inputs.jumpbox_name }}
       run: |
         ctest -V -S ./.github/ci.cmake
   cleanup:

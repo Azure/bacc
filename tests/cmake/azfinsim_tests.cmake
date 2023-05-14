@@ -49,6 +49,12 @@ function(add_azfinsim_tests pool_name)
     # generate n process
     set(tests)
     if (pool_name STREQUAL "linux")
+        if (SB_DOCKERHUB_RESTRICTED OR SB_TEST_SECURED_BATCH)
+            set(will_fail TRUE)
+        else()
+            set(will_fail FALSE)
+        endif()
+
         sb_add_test(
             NAME "${prefix}docker-pvonly"
             COMMAND sb azfinsim
@@ -63,7 +69,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
-            WILL_FAIL ${SB_TEST_SECURED_BATCH}
+            WILL_FAIL ${will_fail}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         sb_add_test(
@@ -80,7 +86,7 @@ function(add_azfinsim_tests pool_name)
                         --await-completion
                     --query "job_status"
                     -o tsv
-            WILL_FAIL ${SB_TEST_SECURED_BATCH}
+            WILL_FAIL ${will_fail}
             PASS_REGULAR_EXPRESSION "^AllTasksCompleted")
 
         list(APPEND tests
