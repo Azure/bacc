@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# exit if any command fails
+set -e
+
 # prepare the environment
 rm -rf /tmp/workspace
 mkdir -p /tmp/workspace
@@ -25,12 +28,16 @@ pip install --upgrade pip
 pip install ./cli
 
 # run the test suite
-export SB_CONFIG=@SB_CONFIG@
-export SB_RESOURCE_GROUP_NAME=@SB_RESOURCE_GROUP_NAME@
-export SB_SOURCE_DIR=/tmp/workspace/src/tests
-export SB_BINARY_DIR=/tmp/workspace/build
-export SB_SUBSCRIPTION_ID=@SB_SUBSCRIPTION_ID@
-export SB_TEST_SECURED_BATCH=FALSE
-export SB_SKIP_SUBMIT=TRUE
-export SB_DOCKERHUB_RESTRICTED=TRUE
-$CTEST -VV -S /tmp/workspace/src/.github/ci.cmake
+$CTEST -V \
+    -D SM_SKIP_SUBMIT:BOOL=ON \
+    -D SB_SUBSCRIPTION_ID:STRING=@SB_SUBSCRIPTION_ID@ \
+    -D SB_TEST_SUITE:STRING=azfinsim-default \
+    -D SB_RESOURCE_GROUP_NAME:STRING=@SB_RESOURCE_GROUP_NAME@ \
+    -D SB_JUMPBOX_RESOURCE_GROUP_NAME:STRING=@SB_JUMPBOX_RESOURCE_GROUP_NAME@ \
+    -D SB_JUMPBOX_NAME:STRING=@SB_JUMPBOX_NAME@ \
+    -D SB_DEPLOYMENT_CONFIG:STRING=@SB_CONFIG@ \
+    -D SB_DEPLOYMENT_ENABLE_CONTAINERS:BOOL=@SB_SUPPORTS_ACR@ \
+    -D SB_DEPLOYMENT_ENABLE_PACKAGES:BOOL=OFF \
+    -D CTEST_SOURCE_DIRECTORY:PATH=/tmp/workspace/src/tests \
+    -D CTEST_BINARY_DIRECTORY:PATH=/tmp/workspace/build \
+    -S /tmp/workspace/src/.github/ci/ctest.cmake

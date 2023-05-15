@@ -9,7 +9,7 @@ on:
       - '**.jsonc'
       - '**.json'
       - '**.ps1'
-      - '.github/ci.cmake'
+      - '.github/ci/*.cmake'
       - '.github/workflows/ci-deploy-n-test.yaml'
       - '.github/workflows/az-deploy.yaml'
   workflow_dispatch:
@@ -27,12 +27,12 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        config: ['DEFAULT', 'azfinsim-linux', 'azfinsim-windows']
+        test_suite: ['minimal', 'azfinsim-linux', 'azfinsim-windows']
     uses: ./.github/workflows/az-deploy.yaml
     with:
+      test_suite: ${{ matrix.test_suite }}
       location: ${{ github.event.inputs.location || 'eastus2' }}
-      resource_group_name: 'sbatch-ci-${{ github.run_id }}-${{ matrix.config }}'
-      enable_application_containers: true
-      enable_application_packages: false
-      config: ${{ matrix.config }}
+      resource_group_name: 'sbatch-ci-${{ matrix.test_suite }}'
+      deploy: true
+      cleanup: true
     secrets: inherit
