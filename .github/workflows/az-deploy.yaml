@@ -2,6 +2,10 @@ name: az-deploy
 on:
   workflow_call:
     inputs:
+      test_suite:
+        type: string
+        description: 'Select deployment/test suite to execute'
+        required: true
       location:
         type: string
         description: 'Deployment location'
@@ -10,16 +14,21 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      enable_application_containers:
-        type: boolean
-        description: 'Enable application containers'
+      hub_config:
+        type: string
+        description: 'Custom hub config to use, if applicable for chosen test suite'
         required: false
-        default: false
-      enable_application_packages:
-        type: boolean
-        description: 'Enable application packages'
+        default: ''
+      jumpbox_resource_group_name:
+        type: string
+        description: 'jumpbox resource group name, if applicable for chosen test suite'
         required: false
-        default: false
+        default: ''
+      jumpbox_name:
+        type: string
+        description: 'jumpbox name, if applicable for chosen test suite'
+        required: false
+        default: ''
       deploy:
         type: boolean
         description: 'Deploy resources'
@@ -30,29 +39,20 @@ on:
         description: 'Cleanup resources'
         required: false
         default: true
-      config:
-        type: string
-        description: 'Name of configuration files to use'
-        required: false
-        default: 'DEFAULT'
-      hub_config:
-        type: string
-        description: 'Custom hub config to use'
-        required: false
-        default: ''
-      jumpbox_resource_group_name:
-        type: string
-        description: 'jumpbox resource group name (for secured batch testing)'
-        required: false
-        default: ''
-      jumpbox_name:
-        type: string
-        description: 'jumpbox name (for secured batch testing)'
-        required: false
-        default: ''
   workflow_dispatch:
     # ensure inputs are same as workflow_call.inputs
     inputs:
+      test_suite:
+        type: choice
+        description: 'Select deployment/test suite to execute'
+        required: true
+        default: minimal
+        options:
+        - minimal
+        - azfinsim-default
+        - azfinsim-linux
+        - azfinsim-windows
+        - azfinsim-secured-batch
       location:
         type: string
         description: 'Deployment location'
@@ -61,16 +61,21 @@ on:
         type: string
         description: 'Resource group name'
         required: true
-      enable_application_containers:
-        type: boolean
-        description: 'Enable application containers'
+      hub_config:
+        type: string
+        description: 'Custom hub config to use, if applicable for chosen test suite'
         required: false
-        default: false
-      enable_application_packages:
-        type: boolean
-        description: 'Enable application packages'
+        default: ''
+      jumpbox_resource_group_name:
+        type: string
+        description: 'jumpbox resource group name, if applicable for chosen test suite'
         required: false
-        default: false
+        default: ''
+      jumpbox_name:
+        type: string
+        description: 'jumpbox name, if applicable for chosen test suite'
+        required: false
+        default: ''
       deploy:
         type: boolean
         description: 'Deploy resources'
@@ -81,31 +86,6 @@ on:
         description: 'Cleanup resources'
         required: false
         default: true
-      config:
-        type: choice
-        description: 'Name of configuration files to use'
-        required: false
-        default: 'DEFAULT'
-        options:
-          - DEFAULT
-          - azfinsim-linux
-          - azfinsim-windows
-      hub_config:
-        type: string
-        description: 'Custom hub config to use'
-        required: false
-        default: ''
-      jumpbox_resource_group_name:
-        type: string
-        description: 'jumpbox resource group name (for secured batch testing)'
-        required: false
-        default: ''
-      jumpbox_name:
-        type: string
-        description: 'jumpbox name (for secured batch testing)'
-        required: false
-        default: ''
-
 permissions:
   # these are needed for azure login with OIDC
   contents: read
@@ -115,31 +95,52 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure
     outputs:
-      AZ_SUFFIX: ${{ steps.az_build_name.outputs.AZ_SUFFIX }}
+      SB_DEPLOYMENT_CONFIG: ${{ steps.prepare.outputs.SB_DEPLOYMENT_CONFIG }}
+      SB_DEPLOYMENT_ENABLE_CONTAINERS: ${{ steps.prepare.outputs.SB_DEPLOYMENT_ENABLE_CONTAINERS }}
+      SB_DEPLOYMENT_ENABLE_PACKAGES: ${{ steps.prepare.outputs.SB_DEPLOYMENT_ENABLE_PACKAGES }}
     steps:
-      - name: Generate build name suffix
-        id: az_build_name
+      - name: prepare deployment configuration
+        id: prepare
         run: |
-          suffix=""
-          if [ "${{ inputs.enable_application_containers }}" == "true" ]; then
-            suffix="$suffix+cntrs"
-          else
-            suffix="$suffix~cntrs"
-          fi
-          if [ "${{ inputs.enable_application_packages }}" == "true" ]; then
-            suffix="$suffix+pkgs"
-          else
-            suffix="$suffix~pkgs"
-          fi
-          echo "AZ_SUFFIX=$suffix" >> $GITHUB_OUTPUT
+          case "${{ inputs.test_suite }}" in
+
+            minimal)
+              echo "SB_DEPLOYMENT_CONFIG=DEFAULT" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=false" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
+              ;;
+
+            azfinsim-default)
+              echo "SB_DEPLOYMENT_CONFIG=DEFAULT" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=false" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
+              ;;
+
+            azfinsim-linux)
+              echo "SB_DEPLOYMENT_CONFIG=azfinsim-linux" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=true" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
+              ;;
+
+            azfinsim-windows)
+              echo "SB_DEPLOYMENT_CONFIG=azfinsim-windows" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=false" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
+              ;;
+
+            azfinsim-secured-batch)
+              echo "SB_DEPLOYMENT_CONFIG=DEFAULT" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=true" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
+              ;;
+          esac
       - uses: actions/checkout@v3
         if: inputs.deploy
-      - name: replace config with ${{ inputs.config }}
-        if: inputs.config != 'DEFAULT' && inputs.deploy
-        run: |
-          cp $GITHUB_WORKSPACE/examples/${{ inputs.config }}/* $GITHUB_WORKSPACE/config/
+      - name: replace config
+        if: inputs.deploy && steps.prepare.outputs.SB_DEPLOYMENT_CONFIG != 'DEFAULT'
+        run: cp $GITHUB_WORKSPACE/examples/${{ steps.prepare.outputs.SB_DEPLOYMENT_CONFIG }}/* $GITHUB_WORKSPACE/config/
       - name: replace hub config
-        if: inputs.hub_config != '' && inputs.deploy
+        if: inputs.deploy && inputs.hub_config != ''
         run: |
           echo '${{ inputs.hub_config }}' | base64 -d > $GITHUB_WORKSPACE/config/hub.jsonc
       - uses: azure/login@v1
@@ -156,7 +157,7 @@ jobs:
           region: ${{ inputs.location }}
           template: ./infrastructure.bicep
           deploymentName: dpl-${{ inputs.resource_group_name }}-${{ github.run_id }}
-          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ inputs.enable_application_containers }} enableApplicationPackages=${{ inputs.enable_application_packages }}
+          parameters: batchServiceObjectId=${{ secrets.AZ_BATCH_SERVICE_OBJECT_ID }} resourceGroupName=${{ inputs.resource_group_name }} tags="{'github-action':'1', 'github-run-id':'${{ github.run_id }}'}" enableApplicationContainers=${{ steps.prepare.outputs.SB_DEPLOYMENT_ENABLE_CONTAINERS }} enableApplicationPackages=${{ steps.prepare.outputs.SB_DEPLOYMENT_ENABLE_PACKAGES }}
       - name: show outputs
         if: inputs.deploy
         run: |
@@ -186,19 +187,23 @@ jobs:
         tenant-id: ${{ secrets.AZ_TENANT_ID }}
         subscription-id: ${{ secrets.AZ_SUBSCRIPTION_ID }}
     - name: Run tests
-      env:
-        SB_BUILD_NAME: ${{ github.ref_name }}${{ needs.deploy.outputs.AZ_SUFFIX }}-${{ inputs.config }}
-        SB_SITE_NAME: github-ci
-        SB_CONFIG: ${{ inputs.config }}
-        SB_RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
-        SB_SOURCE_DIR: ./tests
-        SB_BINARY_DIR: ./build
-        SB_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
-        SB_TEST_SECURED_BATCH: ${{ inputs.hub_config || 'FALSE'}}
-        SB_JUMPBOX_RESOURCE_GROUP: ${{ inputs.jumpbox_resource_group_name }}
-        SB_JUMPBOX_NAME: ${{ inputs.jumpbox_name }}
       run: |
-        ctest -V -S ./.github/ci.cmake
+        [[ '${{ needs.deploy.outputs.SB_DEPLOYMENT_ENABLE_CONTAINERS }}' == 'true' ]] && enable_containers=ON || enable_containers=OFF
+        [[ '${{ needs.deploy.outputs.SB_DEPLOYMENT_ENABLE_PACKAGES }}' == 'true' ]] && enable_packages=ON || enable_packages=OFF
+        ctest -V                                                                                                  \
+          -D SB_SUBSCRIPTION_ID:STRING=${{ secrets.AZ_SUBSCRIPTION_ID }}                                          \
+          -D SB_TEST_SUITE:STRING=${{ inputs.test_suite }}                                                        \
+          -D SB_RESOURCE_GROUP_NAME:STRING=${{ inputs.resource_group_name }}                                      \
+          -D SB_JUMPBOX_RESOURCE_GROUP_NAME:STRING=${{ inputs.jumpbox_resource_group_name }}                      \
+          -D SB_JUMPBOX_NAME:STRING=${{ inputs.jumpbox_name }}                                                    \
+          -D SB_DEPLOYMENT_CONFIG:STRING=${{ needs.deploy.outputs.SB_DEPLOYMENT_CONFIG }}                         \
+          -D SB_DEPLOYMENT_ENABLE_CONTAINERS:BOOL=$enable_containers                                              \
+          -D SB_DEPLOYMENT_ENABLE_PACKAGES:BOOL=$enable_packages                                                  \
+          -D CTEST_BUILD_NAME:STRING='${{ github.ref_name }}-[${{ inputs.test_suite }}]-${{ inputs.location }}'   \
+          -D CTEST_SITE:STRING=github-ci                                                                          \
+          -D CTEST_SOURCE_DIRECTORY:PATH=./tests                                                                  \
+          -D CTEST_BINARY_DIRECTORY:PATH=./build                                                                  \
+          -S ./.github/ci/ctest.cmake
   cleanup:
     runs-on: ubuntu-latest
     environment: azure

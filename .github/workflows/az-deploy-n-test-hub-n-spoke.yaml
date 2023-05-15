@@ -80,10 +80,9 @@ jobs:
     needs: deploy-hub
     uses: ./.github/workflows/az-deploy.yaml
     with:
+      test_suite: azfinsim-secured-batch
       location: ${{ inputs.location }}
       resource_group_name: ${{ inputs.prefix }}-spoke
-      enable_application_containers: true
-      config: 'DEFAULT'
       hub_config: ${{ needs.deploy-hub.outputs.hub-config }}
       jumpbox_resource_group_name: rg-dev-${{ inputs.prefix }}
       jumpbox_name: dev-${{ inputs.prefix }}-vm-linux
