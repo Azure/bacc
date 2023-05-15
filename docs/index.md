@@ -1,9 +1,5 @@
 # azbatch-starter
 
-[![validate](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/validate.yaml)
-[![az-deploy-matrix](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml/badge.svg)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/az-deploy-matrix.yaml)
-![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
-
 > __Warning__
 > This repository is under active development. Expect everything to change until the first version is tagged/released.
 
@@ -71,6 +67,11 @@ In addition to the default configuration, we also provide a few example configur
 the deployment to meet specific needs. These are documented [here](./examples.md). To use any of these
 example configurations, you can copy the configuration files to the [`config`][config] directory and modify them as needed.
 Some of the tutorials also use these example configurations.
+
+## Automated Testing (CI)
+
+We use GitHub Actions to run automated tests on every pull request and/or change to the repository. For details on the
+workflows and tests, please refer to the [testing document](./testing.md).
 
 ## License
 
