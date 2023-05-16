@@ -179,13 +179,11 @@ ACR_NAME=$(sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "acr_nam
 
 # NOTE: ACR_NAME is valid only when deployed with `enableApplicationContainers=true` parameter
 
-# build and push the container image
-az acr build                    \
-    -r $ACR_NAME                \
-    -t azfinsim/azfinsim:latest \
-    "https://github.com/utkarshayachit/azfinsim#main"
-# will take a few minutes to build and push the image
-# output will show the build status
+# import prebuilt image from Docker Hub to ACR
+az acr import \
+   --name $ACR_NAME \
+   --source docker.io/utkarshayachit/azfinsim:main \
+   --image azfinsim/azfinsim:latest
 
 # on success, you can verify that the image is available in the ACR
 az acr repository list -n $ACR_NAME -o tsv

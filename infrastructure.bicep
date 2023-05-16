@@ -155,8 +155,7 @@ module dplRoleAssignments 'modules/roleAssignments.bicep' = {
   }
 }
 
-var rgRoleAssignments = [
-
+var rgRoleAssignments = union([
   // hub MIs need to be given reader role to resource group so our CLI tools work;
   // this is not absolutely necessary; only needed for our CLI tools that scan
   // through the resource group to locate and validate resources
@@ -175,7 +174,14 @@ var rgRoleAssignments = [
     group: rg.name
     roles: ['Contributor']
   }
-]
+], enableApplicationContainers ? [{
+    // hub  MIs need to be given contributor access to ACR for image import;
+    // eventually should use a custom role
+    kind: 'acr'
+    name: dplBatch.outputs.acrName
+    group: rg.name
+    roles: ['Contributor']
+  }] : [])
 
 @description('deploy hub role assignments')
 module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {

@@ -521,6 +521,9 @@ output batchAccountPublicNetworkAccess bool = publicNetworkAccess
 @description('resources needing role assignments')
 output roleAssignments array = union(acrRoleAssignments, saRoleAssignments)
 
+@description('acr name, if deployed')
+output acrName string = enableApplicationContainers ? acr.name : ''
+
 output miConfig object = {
   name: managedIdentity.name
   group: resourceGroup().name
