@@ -179,6 +179,10 @@ ACR_NAME=$(sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "acr_nam
 
 # NOTE: ACR_NAME is valid only when deployed with `enableApplicationContainers=true` parameter
 
+# NOTE: if you're running this on a Jumpbox VM e.g. for the Secured-Batch tutorial,
+# then you'll need to login to CLI using the VM's identity. You can do that as follows:
+# > az login --identity
+
 # import prebuilt image from Docker Hub to ACR
 az acr import \
    --name $ACR_NAME \

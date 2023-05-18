@@ -27,8 +27,12 @@ source venv/bin/activate
 pip -q install --upgrade pip
 pip -q install ./cli
 
+# login to Az CLI using VM identity
+az login -i
+
 # run the test suite
 $CTEST -V \
+    --output-on-failure \
     -D SB_SKIP_SUBMIT:BOOL=ON \
     -D SB_SUBSCRIPTION_ID:STRING=@SB_SUBSCRIPTION_ID@ \
     -D SB_TEST_SUITE:STRING=azfinsim-default \
