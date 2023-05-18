@@ -111,7 +111,7 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_AZFINSIM_PREINSTALLED_PACKAGES"
     )
 
-    sb_test_workflow(azfinsim
+    sb_test_workflow("azfinsim-${pool_name}"
         SETUP   "${prefix}resize"
         CLEANUP "${prefix}downsize"
         TESTS

@@ -138,7 +138,7 @@ function(sb_test_workflow fixture_name)
     foreach(test IN LISTS tests)
         if (TEST "${test}")
             set_tests_properties("${test}"
-                                 PROPERTIES FIXTURES_SETUP "${fixture_name}")
+                                 PROPERTIES FIXTURES_REQUIRED "${fixture_name}")
             set_property(TEST "${test}"
                          APPEND PROPERTY LABELS "${fixture_name}")
         endif()
