@@ -39,7 +39,6 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS"
     )
 
-    # generate n process
     sb_add_test(
         NAME "${prefix}docker-pvonly"
         COMMAND sb azfinsim
@@ -55,7 +54,7 @@ function(add_azfinsim_tests pool_name)
                 --query "job_status"
                 -o tsv
         PASS_REGULAR_EXPRESSION "^AllTasksCompleted"
-        REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_DOCKERHUB"
+        REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_DOCKERHUB AND \"${pool_name}\" MATCHES \".*linux.*\""
     )
 
     sb_add_test(
@@ -73,7 +72,7 @@ function(add_azfinsim_tests pool_name)
                 --query "job_status"
                 -o tsv
         PASS_REGULAR_EXPRESSION "^AllTasksCompleted"
-        REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_DOCKERHUB"
+        REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_DOCKERHUB AND \"${pool_name}\" MATCHES \".*linux.*\""
     )
 
     # add tests for package tasks
