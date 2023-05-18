@@ -196,9 +196,9 @@ jobs:
           -D SB_RESOURCE_GROUP_NAME:STRING=${{ inputs.resource_group_name }}                                      \
           -D SB_JUMPBOX_RESOURCE_GROUP_NAME:STRING=${{ inputs.jumpbox_resource_group_name }}                      \
           -D SB_JUMPBOX_NAME:STRING=${{ inputs.jumpbox_name }}                                                    \
-          -D SB_DEPLOYMENT_CONFIG:STRING=${{ needs.deploy.outputs.SB_DEPLOYMENT_CONFIG }}                         \
-          -D SB_DEPLOYMENT_ENABLE_CONTAINERS:BOOL=$enable_containers                                              \
-          -D SB_DEPLOYMENT_ENABLE_PACKAGES:BOOL=$enable_packages                                                  \
+          -D SB_CONFIG:STRING=${{ needs.deploy.outputs.SB_DEPLOYMENT_CONFIG }}                                    \
+          -D SB_SUPPORTS_ACR:BOOL=$enable_containers                                                              \
+          -D SB_SUPPORTS_PACKAGES:BOOL=$enable_packages                                                           \
           -D CTEST_BUILD_NAME:STRING='${{ github.ref_name }}-[${{ inputs.test_suite }}]-${{ inputs.location }}'   \
           -D CTEST_SITE:STRING=github-ci                                                                          \
           -D CTEST_SOURCE_DIRECTORY:PATH=./tests                                                                  \

@@ -238,7 +238,14 @@ def pool_resize(
     )
     if not no_wait:
         log.info("awaiting pool resize")
-        utils.wait_until(lambda: bclient.pool.get(pool_id).allocation_state == "steady")
+        rc = utils.wait_until(lambda: bclient.pool.get(pool_id).allocation_state == "steady")
+        if rc is utils.WAIT_UNTIL_RC.TIMEOUT:
+            log.error("Timed out waiting for pool resize.")
+            return {}
+        if rc is utils.WAIT_UNTIL_RC.FAILURE:
+            log.error("Pool resize failed.")
+            return {}
+        log.info("Pool resize is complete.")
 
     def verify():
         pool_config = bclient.pool.get(pool_id)
@@ -246,16 +253,18 @@ def pool_resize(
             log.error(f"Pool {pool_id} resize failed.")
             msg = "\n".join([f"  {e.code}: {e.message}" for e in pool_config.resize_errors])
             log.error(f"Resize errors: \n{msg}")
-            return None  # abort
+            return utils.WAIT_UNTIL_CALLBACK_RC.CANCEL_WAIT # abort
         count = 0
         for cn in bclient.compute_node.list(pool_id):
-            if cn.state == "idle" or cn.state == "running":
+            lc_state = cn.state.lower()
+            if lc_state in ["idle", "running"]:
                 count += 1
-            elif cn.state in ["unusable", "startTaskFailed", "offline", "unknown"]:
-                return None  # abort
+            elif lc_state in ["unusable", "starttaskfailed", "offline", "unknown"]:
+                log.error(f"Compute node {cn.id} is in {cn.state} state.")
+                return utils.WAIT_UNTIL_CALLBACK_RC.CANCEL_WAIT # abort
         if count == (target_dedicated_nodes or 0) + (target_spot_nodes or 0):
-            return True  # done
-        return False  # await
+            return utils.WAIT_UNTIL_CALLBACK_RC.SUCCESS # done
+        return utils.WAIT_UNTIL_CALLBACK_RC.CONTINUE_WAIT # continue waiting
 
     if no_wait and await_compute_nodes:
         log.warn(
@@ -265,8 +274,14 @@ def pool_resize(
         # pool allocation state change is not adequate; we must wait till compute nodes
         # are available
         log.info("awaiting compute nodes startup + init")
-        utils.wait_until(lambda: verify())
-
+        rc = utils.wait_until(lambda: verify())
+        if rc is utils.WAIT_UNTIL_RC.TIMEOUT:
+            log.error("Timed out waiting for compute nodes to be ready.")
+            return {}
+        if rc is utils.WAIT_UNTIL_RC.FAILURE:
+            log.error("Compute nodes failed to start.")
+            return {}
+        log.info("Compute nodes are ready.")
     pool_info = bclient.pool.get(pool_id)
     return {
         "current_dedicated_nodes": pool_info.current_dedicated_nodes,

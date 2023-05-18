@@ -310,7 +310,7 @@ resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
 var batchInsightsStartTask = !empty(appInsightsConfig) ? {
   windows: {
     commands: [
-      '"%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1\'))"'
+      'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1\'))"'
     ]
     environmentSettings: [
       {

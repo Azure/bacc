@@ -101,17 +101,33 @@ def locate_batch_endpoint(credentials, subscription_id, resource_group_name):
     return None
 
 
-def wait_until(x, timeout_in_mins=15):
+class WAIT_UNTIL_RC:
+    """return codes for wait_until"""
+    SUCCESS = True
+    FAILURE = False
+    TIMEOUT = None
+
+class WAIT_UNTIL_CALLBACK_RC:
+    """return codes for wait_until_callback"""
+    SUCCESS = True
+    CONTINUE_WAIT = False
+    CANCEL_WAIT = None
+
+def wait_until(wait_until_callback, timeout_in_mins=15):
     count_down = (timeout_in_mins * 60) // 15
     while count_down > 0:
-        s = x()
-        if s is True:
-            return True
-        if s is None:
-            return False
-        time.sleep(15)
-        count_down -= 1
-    return False
+        s = wait_until_callback()
+        if s is WAIT_UNTIL_CALLBACK_RC.SUCCESS:
+            return WAIT_UNTIL_RC.SUCCESS
+        elif s is WAIT_UNTIL_CALLBACK_RC.CANCEL_WAIT:
+            return WAIT_UNTIL_RC.FAILURE
+        elif s is WAIT_UNTIL_CALLBACK_RC.CONTINUE_WAIT:
+            time.sleep(15)
+            count_down -= 1
+        else:
+            # bad return code???
+            return WAIT_UNTIL_RC.FAILURE
+    return WAIT_UNTIL_RC.TIMEOUT
 
 
 def create_tasks(

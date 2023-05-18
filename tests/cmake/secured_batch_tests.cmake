@@ -11,5 +11,6 @@ sb_add_test(
         -n ${SB_JUMPBOX_NAME}
         --command-id RunShellScript
         --scripts @${SB_BINARY_DIR}/jumpbox_script.sh
+    PASS_REGULAR_EXPRESSION ".*100% tests passed,.*"
     TIMEOUT 1800 # 30 minutes
 )
