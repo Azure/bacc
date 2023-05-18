@@ -19,6 +19,10 @@ on:
         type: boolean
         description: Enable Azure VPN Gateway
         default: false
+      enable_windows_jumpbox:
+        type: boolean
+        description: Enable Windows Jumpbox
+        default: false
       hub_dpl_name:
         type: string
         description: Name of existing hub deployment to reuse
@@ -72,7 +76,7 @@ jobs:
         region: ${{ inputs.location }}
         template: ./connectivity.bicep
         deploymentName: dpl-${{ inputs.prefix }}-${{ github.run_id }}
-        parameters: prefix=${{ inputs.prefix }} clientRootCertData=${{ steps.vpn-root-cert.outputs.cert }} adminPassword=${{ secrets.AZ_JUMPBOX_PASSWORD }} deployVPNGateway=${{ inputs.enable_vpn_gateway }} deployAzureBastion=${{ inputs.enable_bastion }}
+        parameters: prefix=${{ inputs.prefix }} clientRootCertData=${{ steps.vpn-root-cert.outputs.cert }} adminPassword=${{ secrets.AZ_JUMPBOX_PASSWORD }} deployVPNGateway=${{ inputs.enable_vpn_gateway }} deployAzureBastion=${{ inputs.enable_bastion }} deployLinuxJumpbox=true deployWindowsJumpbox=${{ inputs.enable_windows_jumpbox }}
         failOnStdErr: false # the deployment has warnings that case failure
                             # so disabling this until those are fixed
     - name: generate outputs
