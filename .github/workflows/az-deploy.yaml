@@ -112,7 +112,7 @@ jobs:
 
             azfinsim-default)
               echo "SB_DEPLOYMENT_CONFIG=DEFAULT" >> $GITHUB_OUTPUT
-              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=false" >> $GITHUB_OUTPUT
+              echo "SB_DEPLOYMENT_ENABLE_CONTAINERS=true" >> $GITHUB_OUTPUT
               echo "SB_DEPLOYMENT_ENABLE_PACKAGES=false" >> $GITHUB_OUTPUT
               ;;
 
