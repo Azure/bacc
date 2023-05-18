@@ -113,8 +113,8 @@ endfunction()
 
 function(sb_test_workflow fixture_name)
     set(options)
-    set(oneValueArgs SETUP CLEANUP)
-    set(multiValueArgs TESTS)
+    set(oneValueArgs)
+    set(multiValueArgs SETUP CLEANUP TESTS)
 
     cmake_parse_arguments(sb_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     # raise error if unknown arguments are passed
@@ -122,25 +122,27 @@ function(sb_test_workflow fixture_name)
         message(FATAL_ERROR "Unknown arguments passed to sb_test_workflow: ${sb_args_UNPARSED_ARGUMENTS}")
     endif()
 
-    if (DEFINED sb_args_SETUP AND TEST "${sb_args_SETUP}")
-        set_tests_properties("${sb_args_SETUP}"
-                             PROPERTIES FIXTURES_SETUP "${fixture_name}")
-        set_property(TEST "${sb_args_SETUP}"
-                     APPEND PROPERTY LABELS "${fixture_name}")
-    endif()
-    if (DEFINED sb_args_CLEANUP AND TEST "${sb_args_CLEANUP}")
-        set_tests_properties("${sb_args_CLEANUP}"
-                             PROPERTIES FIXTURES_CLEANUP "${fixture_name}")
-        set_property(TEST "${sb_args_CLEANUP}"
-                     APPEND PROPERTY LABELS "${fixture_name}")
-    endif()
+    set(setup_tests ${sb_args_SETUP})
+    foreach(test IN LISTS setup_tests)
+        if (TEST "${test}")
+            set_property(TEST "${test}"
+                         APPEND PROPERTY FIXTURES_SETUP "${fixture_name}")
+        endif()
+    endforeach()
+
+    set(cleanup_tests ${sb_args_CLEANUP})
+    foreach(test IN LISTS cleanup_tests)
+        if (TEST "${test}")
+            set_property(TEST "${test}"
+                         APPEND PROPERTY FIXTURES_CLEANUP "${fixture_name}")
+        endif()
+    endforeach()
+
     set(tests ${sb_args_TESTS})
     foreach(test IN LISTS tests)
         if (TEST "${test}")
-            set_tests_properties("${test}"
-                                 PROPERTIES FIXTURES_REQUIRED "${fixture_name}")
             set_property(TEST "${test}"
-                         APPEND PROPERTY LABELS "${fixture_name}")
+                         APPEND PROPERTY FIXTURES_REQUIRED "${fixture_name}")
         endif()
     endforeach()
 endfunction()
