@@ -185,6 +185,9 @@ az acr import \
    --source docker.io/utkarshayachit/azfinsim:main \
    --image azfinsim/azfinsim:latest
 
+# You can also use `az acr build .. ` instead to build a container image from source code
+# and push it to the ACR. For more details, refer to Azure CLI documentation.
+
 # on success, you can verify that the image is available in the ACR
 az acr repository list -n $ACR_NAME -o tsv
 # expected output
