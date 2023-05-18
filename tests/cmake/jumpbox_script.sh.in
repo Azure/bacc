@@ -18,14 +18,14 @@ CMAKE=/tmp/workspace/cmake/bin/cmake
 CTEST=/tmp/workspace/cmake/bin/ctest
 
 # download the source code
-git clone --depth 1 https://github.com/utkarshayachit/azbatch-starter.git -b main src
+git clone -q --depth 1 https://github.com/utkarshayachit/azbatch-starter.git -b main src
 
 # install package in a virtual environment
 cd /tmp/workspace/src
 python3 -m venv venv
 source venv/bin/activate
-pip install --upgrade pip
-pip install ./cli
+pip -q install --upgrade pip
+pip -q install ./cli
 
 # run the test suite
 $CTEST -V \
@@ -42,3 +42,5 @@ $CTEST -V \
     -D CTEST_SOURCE_DIRECTORY:PATH=/tmp/workspace/src/tests \
     -D CTEST_BINARY_DIRECTORY:PATH=/tmp/workspace/build \
     -S /tmp/workspace/src/.github/ci/ctest.cmake
+
+rm -rf /tmp/workspace
