@@ -12,6 +12,7 @@ on:
       - '.github/ci/*.cmake'
       - '.github/workflows/ci-deploy-n-test.yaml'
       - '.github/workflows/az-deploy.yaml'
+      - '.github/workflows/az-deploy-n-test-hub-n-spoke.yaml'
   workflow_dispatch:
     inputs:
       location:
