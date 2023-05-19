@@ -9,6 +9,7 @@ on:
       - '**.jsonc'
       - '**.json'
       - '**.ps1'
+      - tests/**
       - '.github/ci/*.cmake'
       - '.github/workflows/ci-deploy-n-test.yaml'
       - '.github/workflows/az-deploy.yaml'
@@ -19,9 +20,7 @@ on:
         type: string
         description: 'Deployment location'
         required: true
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.inputs.location || 'eastus2' }}
-  cancel-in-progress: true
+concurrency: ${{ github.workflow }}-${{ github.event.inputs.location || 'eastus2' }}
 jobs:
   deploy-n-test-matrix:
     strategy:
@@ -33,15 +32,12 @@ jobs:
     with:
       test_suite: ${{ matrix.test_suite }}
       location: ${{ github.event.inputs.location || 'eastus2' }}
-      resource_group_name: 'sbatch-ci-${{ matrix.test_suite }}'
-      deploy: true
-      cleanup: true
+      resource_group_name: 'github-ci-${{ matrix.test_suite }}-${{ github.run_id }}'
     secrets: inherit
   deploy-n-test-secured-batch:
     needs: deploy-n-test-matrix
     uses: ./.github/workflows/az-deploy-n-test-hub-n-spoke.yaml
     with:
       location: ${{ github.event.inputs.location || 'eastus2' }}
-      prefix: 'sbatch-ci-sb'
-      cleanup: true
+      prefix: 'github-ci-sb'
     secrets: inherit
