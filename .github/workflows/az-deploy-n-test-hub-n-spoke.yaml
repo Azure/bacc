@@ -68,7 +68,7 @@ on:
       ref_name:
         type: string
         description: Hub repo branch name
-        required: true
+        required: false
         default: 'main'
       cleanup:
         type: boolean
