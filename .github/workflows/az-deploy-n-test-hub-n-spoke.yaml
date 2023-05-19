@@ -38,6 +38,43 @@ on:
         description: 'Cleanup resources'
         required: false
         default: true
+  workflow_call:
+    inputs:
+      location:
+        type: string
+        description: Deployment location
+        required: true
+      prefix:
+        type: string
+        description: Resource prefix
+        required: true
+      enable_bastion:
+        type: boolean
+        description: Enable Azure Bastion
+        default: false
+      enable_vpn_gateway:
+        type: boolean
+        description: Enable Azure VPN Gateway
+        default: false
+      enable_windows_jumpbox:
+        type: boolean
+        description: Enable Windows Jumpbox
+        default: false
+      hub_dpl_name:
+        type: string
+        description: Name of existing hub deployment to reuse
+        required: false
+        default: ''
+      ref_name:
+        type: string
+        description: Hub repo branch name
+        required: true
+        default: 'main'
+      cleanup:
+        type: boolean
+        description: 'Cleanup resources'
+        required: false
+        default: true
 permissions:
   contents: read
   id-token: write

@@ -27,12 +27,20 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        test_suite: ['minimal', 'azfinsim-linux', 'azfinsim-windows']
+        test_suite: ['minimal', 'azfinsim-default', 'azfinsim-linux', 'azfinsim-windows']
     uses: ./.github/workflows/az-deploy.yaml
     with:
       test_suite: ${{ matrix.test_suite }}
       location: ${{ github.event.inputs.location || 'eastus2' }}
       resource_group_name: 'sbatch-ci-${{ matrix.test_suite }}'
       deploy: true
+      cleanup: true
+    secrets: inherit
+  deploy-n-test-secured-batch:
+    needs: deploy-n-test-matrix
+    uses: ./.github/workflows/az-deploy-n-test-hub-n-spoke.yaml
+    with:
+      location: ${{ github.event.inputs.location || 'eastus2' }}
+      prefix: 'sbatch-ci-sb'
       cleanup: true
     secrets: inherit
