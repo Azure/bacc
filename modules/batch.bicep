@@ -261,10 +261,10 @@ resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
     }
   }
   properties: {
-    allowedAuthenticationModes: [
+    allowedAuthenticationModes: union([
       'AAD'
       'TaskAuthenticationToken'
-    ]
+    ], batchConfig.poolAllocationMode == 'BatchService' ? ['SharedKey'] : [])
 
     autoStorage: enableApplicationPackages ? {
       storageAccountId: sa.id
