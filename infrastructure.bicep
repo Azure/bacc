@@ -191,18 +191,17 @@ module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, ind
     roleAssignments: union(dplBatch.outputs.roleAssignments, dplStorage.outputs.roleAssignments, rgRoleAssignments)
   }
 }]
-
-@description('resource groups created')
-output resourceGroupNames array = [rg.name]
-
-@description('batch account endpoint')
-output batchAccountEndpoint string = dplBatch.outputs.batchAccountEndpoint
-
-@description('batch account resource group')
-output batchAccountResourceGroup string = dplBatch.outputs.batchAccountResourceGroup
-
-@description('batch account name')
-output batchAccountName string = dplBatch.outputs.batchAccountName
-
-@description('batch account public network access')
-output batchAccountPublicNetworkAccess bool = dplBatch.outputs.batchAccountPublicNetworkAccess
+@description('deployment summary')
+output summary object = {
+  batchAccount: {
+    group: resourceGroupName
+    name: dplBatch.outputs.batchAccountName
+    endpoint: dplBatch.outputs.batchAccountEndpoint
+  }
+  mi : {
+    group: resourceGroupName
+    name: dplBatch.outputs.miConfig.name
+  }
+  storageConfigs: reduce(dplStorage.outputs.unlattedConfigs, {}, (acc, x) => union(acc, x))
+  vnet: dplSpoke.outputs.vnet
+}

@@ -1,0 +1,14 @@
+{
+    "storage0": {
+        "enableNFSv3": false,
+
+        "containers": [
+            "datasets"
+        ],
+
+        "credentials": {
+            "accountName": "[FIXME:ACCOUNT_NAME]",
+            "accountKey": "[FIXME:ACCOUNT_KEY]"
+        }
+    }
+}

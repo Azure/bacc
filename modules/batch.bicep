@@ -305,6 +305,16 @@ resource batchAccount_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-pre
   properties: union(logConfig, diagConfig)
 }
 
+/// this role assignment is not really necessary in all cases
+/// we are only adding to make certain demos/use-cases easy e.g. vizer demo
+/// uses the MI to submit jobs.
+/// TODO: role should be restricted to a custom batch job submittor role
+var baRoleAssignments = [{
+  kind: 'ba'
+  name: batchAccount.name
+  group: resourceGroup().name
+  roles: ['Contributor']
+}]
 
 @description('start tasks for each os')
 var batchInsightsStartTask = !empty(appInsightsConfig) ? {
@@ -519,7 +529,7 @@ output batchAccountResourceGroup string = resourceGroup().name
 output batchAccountPublicNetworkAccess bool = publicNetworkAccess
 
 @description('resources needing role assignments')
-output roleAssignments array = union(acrRoleAssignments, saRoleAssignments)
+output roleAssignments array = union(acrRoleAssignments, saRoleAssignments, baRoleAssignments)
 
 @description('acr name, if deployed')
 output acrName string = enableApplicationContainers ? acr.name : ''
