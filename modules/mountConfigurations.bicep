@@ -22,15 +22,16 @@ var configsNFS = map(blobNFSConfigs, c => {
 
 var configsBFS = map(blobBFSConfigs, c => {
   // pre: isWindows == false
-  azureBlobFileSystemConfiguration : {
+  azureBlobFileSystemConfiguration : union({
     accountName: c.name
     containerName: c.container
     blobfuseOptions: '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120'
     relativeMountPath: c.key
+  }, !empty(c.credentials) ? c.credentials : {
     identityReference: {
       resourceId: mi
     }
-  }
+  })
 })
 
 var configsFS = map(fsConfigs, c => {
