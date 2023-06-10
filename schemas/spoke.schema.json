@@ -61,6 +61,21 @@
             },
             "required": ["private-endpoints"],
             "additionalProperties": false
+        },
+        "delegations": {
+            "description": "define delegations for subnets",
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                    "description": "delegations for named subnet",
+                    "type": "array",
+                    "items": {
+                        "description": "delegated service name",
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
         }
     },
 

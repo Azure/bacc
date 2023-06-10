@@ -16,7 +16,10 @@ param routes array = []
 @description('vnet peerings')
 param peerings array = []
 
-var config = loadJsonContent('../config/spoke.jsonc')
+var config = union(loadJsonContent('../config/spoke.jsonc'), {
+  delegations: {}
+})
+
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 @description('suffix to use for all nested deployments')
@@ -51,6 +54,23 @@ resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(rout
   }
 }
 
+// process snet delegations
+var delegationsConfigsArray = map(items(config.delegations), item => {
+  key: item.key
+  delegations: map(item.value, sname => {
+    name: sname
+    properties: {
+      serviceName: sname
+    }
+  })
+})
+
+var delegationsConfigs = reduce(delegationsConfigsArray, {}, (cur, next) => union(cur, {
+  '${next.key}' : {
+    delegations: next.delegations
+  }
+}))
+
 var commonSubnetConfig = union({
   privateEndpointNetworkPolicies: 'Disabled'
   privateLinkServiceNetworkPolicies: 'Disabled'
@@ -64,7 +84,7 @@ var snets = map(osnets, item => {
       networkSecurityGroup: {
         id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-${item.key}')
       }
-  })
+  }, contains(delegationsConfigs, item.key) ? delegationsConfigs[item.key] : {})
 })
 
 @description('the virtual network')
