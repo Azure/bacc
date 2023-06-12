@@ -13,11 +13,21 @@ param config object = loadJsonContent('../config/storage.jsonc')
 @description('suffix to use for unique deployment names')
 var dplSuffix = uniqueString(deployment().name)
 
+var existingAccounts =filter(items(config), item => contains(item.value, 'credentials') && !empty(item.value.credentials))
+var newAccounts = filter(items(config), item => !contains(item.value, 'credentials') || empty(item.value.credentials))
+
 @description('storage accounts to deploy')
-var accounts = map(items(config), entity => union(entity.value, {
+var accountsNew = map(newAccounts, entity => union(entity.value, {
   name: take(replace('${entity.key}${guid(resourceGroup().id, location, entity.key)}','-',''), 24)
   key: entity.key
 }))
+
+var accountsOld = map(existingAccounts, entity => union(entity.value, {
+  name: entity.value.credentials.accountName
+  key: entity.key
+}))
+
+var accounts = union(accountsOld, accountsNew)
 
 @description('deploy storage accounts')
 module mdlStorageAccounts 'storageAccount.bicep' = [for account in accounts: {
@@ -29,9 +39,8 @@ module mdlStorageAccounts 'storageAccount.bicep' = [for account in accounts: {
   }
 }]
 
-
-@description('resources needing role assignments')
-output roleAssignments array = [for account in accounts: {
+@description('resources needing role assignments (only done for new storage accounts)')
+output roleAssignments array = [for account in accountsNew: {
   kind: 'storage'
   name: account.name
   group: resourceGroup().name

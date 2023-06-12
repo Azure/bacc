@@ -1,0 +1,47 @@
+{
+    /// This configuration file controls the creation of the batch account and other required resources.
+
+    /// Specify the pool allocation mode. Accepted values are "UserSubscription" or "BatchService".
+    "poolAllocationMode": "UserSubscription",
+
+    /// Specify whether you want to users access certain resources like the Batch account for job / pool management,
+    /// the Azure Container Registry for container image management, from
+    /// a public network. Accepted values are true, false, or "auto". If "auto" is specified, the
+    /// the resources will be accessible from the public network only if there is not gateway peering
+    /// specified in the hub configuration (see `hub.jsonc`)
+    "publicNetworkAccess": "auto",
+
+    /// "pools" is a list of pools to create in the batch account. You can define arbitrary number of pools here, limited
+    /// by batch account limits and quotas. Each pool is a set of nodes that are homogeneous in terms of the operating
+    /// system, virtual machine size, and other attributes. The nodes in a pool are created in a subnet under the
+    /// spoke vnet defined in `spoke.jsonc`.
+    "pools": [
+        {
+            /// Name for the pool. This is used to identify the pool in the batch account. It must be unique
+            /// across all pools on this batch account.
+            "name": "linux",
+
+            /// Virtual machine configuration. "image" refers to an image definition in the `images.jsonc`.
+            "virtualMachine": {
+                "size": "Standard_HB120-16rs_v3",
+                "taskSlotsPerNode": 1,
+                "image": "azhop-compute-ubuntu-20"
+            },
+
+            /// Specify whether internode communication is needed for the tasks. Applications that use MPI, for example,
+            /// require that internode communication is enabled.
+            "interNodeCommunication": true,
+
+            /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
+            /// configuration files.
+            "subnet": "pool-linux",
+
+            /// Choose which storage containers/file-shares are to be mounted on this poool
+            /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
+            /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
+            "mounts": {
+                "data": "blob0/data"
+            }
+        }
+    ]
+}

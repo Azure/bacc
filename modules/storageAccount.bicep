@@ -1,4 +1,5 @@
 /// deploys a single storage account
+/// this code can either deploy a new one or "process" and existing one
 
 @description('location of all resources')
 param location string
@@ -13,11 +14,19 @@ var sanitizedAccount = union({
   shares: []
 }, account)
 
+var useExisting = contains(sanitizedAccount, 'credentials') && !empty(sanitizedAccount.credentials)
+var sasCredentials = useExisting && contains(sanitizedAccount.credentials, 'sasKey') ? {
+  sasKey: sanitizedAccount.credentials.sasKey
+} : {}
+var accessKeyCredentials = useExisting && empty(sasCredentials) ? {
+  accountKey: sanitizedAccount.credentials.accountKey
+} : {}
+
 // for containers, enable nfs by default, unless disabled
 // for non containers, don't enable nfs, unless enabled
 var enableNFSv3 = contains(sanitizedAccount, 'enableNFSv3') ? sanitizedAccount.enableNFSv3 : !empty(sanitizedAccount.containers)
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (!useExisting) {
   name: sanitizedAccount.name
   location: location
   tags: union({'config-key': sanitizedAccount.key}, tags)
@@ -51,7 +60,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
-resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = [for container in sanitizedAccount.containers: {
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = [for container in sanitizedAccount.containers: if (!useExisting) {
   name: container
   parent: storageAccount::blobServices
   properties: {
@@ -59,7 +68,7 @@ resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2
   }
 }]
 
-resource shares 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = [for share in sanitizedAccount.shares: {
+resource shares 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = [for share in sanitizedAccount.shares: if (!useExisting) {
   name: share
   parent: storageAccount::fileServices
   properties: {
@@ -70,42 +79,45 @@ resource shares 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-0
 var containerConfigs = map(sanitizedAccount.containers, (container) => {
   key: '${sanitizedAccount.key}/${container}'
   value: {
-    name: storageAccount.name
+    name: sanitizedAccount.name
     group: resourceGroup().name
     kind: 'blob'
     container: container
-    nfsv3: enableNFSv3
+    nfsv3: enableNFSv3 && !useExisting
+    credentials: union(sasCredentials, accessKeyCredentials)
   }
 })
 
 var shareConfigs = map(sanitizedAccount.shares, (share) => {
   key: '${sanitizedAccount.key}/${share}'
   value: {
-    name: storageAccount.name
+    name: sanitizedAccount.name
     group: resourceGroup().name
     kind: 'file'
     share: share
     // FIXME: can't see to avoid doing this for now :/
-    accountKey: storageAccount.listKeys().keys[0].value
+    accountKey: useExisting ? accessKeyCredentials.accountKey : storageAccount.listKeys().keys[0].value
   }
 })
 
 output configs object = toObject(union(containerConfigs, shareConfigs), arg => arg.key, arg => arg.value)
 
+/// private endpoints are only requested for newly created storage accounts.
+/// existing storage accounts are assumed to be accessible by the pool(s) vnet(s)
 var blobEndpoints = [for container in sanitizedAccount.containers: {
-  name: storageAccount.name
+  name: useExisting? '' : storageAccount.name
   group: resourceGroup().name
-  privateLinkServiceId: storageAccount.id
+  privateLinkServiceId: useExisting ? '' : storageAccount.id
   groupIds: [ 'blob' ]
   privateDnsZoneName: 'privatelink.blob.${az.environment().suffixes.storage}'
 }]
 
 var fileEndpoints = [for share in sanitizedAccount.shares: {
-  name: storageAccount.name
+  name: useExisting ? '' : storageAccount.name
   group: resourceGroup().name
-  privateLinkServiceId: storageAccount.id
+  privateLinkServiceId: useExisting ? '' : storageAccount.id
   groupIds: [ 'file' ]
   privateDnsZoneName: 'privatelink.file.${az.environment().suffixes.storage}'
 }]
 
-output endpoints array = union(blobEndpoints, fileEndpoints)
+output endpoints array = useExisting ? [] : union(blobEndpoints, fileEndpoints)

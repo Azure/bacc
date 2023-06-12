@@ -29,6 +29,34 @@
                         "description": "name for each container under this storage account",
                         "type": "string"
                     }
+                },
+                "credentials": {
+                    "description": "credentials for existing storage account, if any",
+                    "type": "object",
+                    "properties": {
+                        "accountName": {
+                            "description": "storage account name",
+                            "type": "string"
+                        },
+                        "accountKey": {
+                            "description": "storage account key",
+                            "type": "string"
+                        },
+                        "sasKey": {
+                            "description": "storage account SAS token",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["accountName"],
+                    "oneOf": [
+                        {
+                            "required": ["accountKey"]
+                        },
+                        {
+                            "required": ["sasKey"]
+                        }
+                    ],
+                    "additionalProperties": false
                 }
             },
             "additionalProperties": false

@@ -67,5 +67,16 @@
             "DenyAllInBound",
             "DenyAllOutBound"
         ]
-    }
+    },
+
+    /// "delegations" is a list of delegations to create in the vnet. Each delegation is a list
+    /// of service name(s). This is optional.
+    /// e.g. if we had defined a subnet named 'app-service' that we wanted to use for an AppService,
+    /// we would need to add the following delegations:
+    /// "delegations": {
+    ///     "app-service": [
+    ///         "Microsoft.Web/serverFarms"
+    ///     ]
+    /// }
+    "delegations": {}
 }

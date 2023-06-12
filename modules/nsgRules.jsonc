@@ -115,6 +115,18 @@
         "direction": "Inbound"
     },
 
+    /// allow vnet inbound
+    "AllowVnetInBound": {
+        "description": "Allow vnet inbound traffic",
+        "protocol": "*",
+        "sourcePortRange": "*",
+        "destinationPortRange": "*",
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Inbound"
+    },
+
     /// deny all inbound
     "DenyAllInBound": {
         "description": "Deny all inbound traffic",
