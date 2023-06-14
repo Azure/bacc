@@ -45,6 +45,16 @@ To dive into the details of how the AzFinSim application is setup to run in thes
 [understanding AzFinSim](./understanding-azfinsim.md) document. The document also discusses how to monitor the application
 progress using various tools provided by Azure.
 
+### vizer: 3D visualization of scientific data
+
+[vizer](https://github.com/utkarshayachit/vizer) is a ParaView/Python-based web application for visualizing scientific datasets.
+This demo application is designed to demonstrate how to deploy an interactive web application on Azure Batch. The following table lists
+the tutorials that take you through the process of deploying and testing vizer on Azure Batch in various configurations.
+
+| Tutorial | Description |
+| -------- | ----------- |
+| [vizer](./tutorials/vizer.md) | Simple setup using application containers on Linux compute nodes. The demo deploys [vizer-hub](https://github.com/utkarshayachit/vizer-hub) which can be used to browse and visualize datasets from a preexisting storage account.
+
 ### __[placeholder]__: some application example with MPI
 
 > __TODO__: add a tutorial for an MPI application
