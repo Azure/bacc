@@ -24,11 +24,11 @@ resource ba 'Microsoft.Batch/batchAccounts@2022-10-01' existing = {
   name: config.batchAccount.name
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-11-01' existing = {
+resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   name: config.vnet.name
 }
 
-resource snet 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' existing = {
+resource snet 'Microsoft.Network/virtualNetworks/subnets@2022-07-01' existing = {
   name: delegatedSubnetName
   parent: vnet
 }
