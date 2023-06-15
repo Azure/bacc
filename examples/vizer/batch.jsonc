@@ -27,7 +27,14 @@
             /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
             "mounts": {
                 "datasets": "storage0/datasets"
-            }
+            },
+
+            /// container images to prefetch on the pool nodes.
+            /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,
+            /// e.g. '${acr}/myrepository/myimage:tag'
+            "containerImages": [
+                "docker.io/utkarshayachit/vizer:osmesa-main"
+            ]
         }
     ]
 }

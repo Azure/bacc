@@ -64,6 +64,7 @@ var poolsConfig = map(batchConfig.pools, item => union({
     commands: []
   }
   isWindows: images[item.virtualMachine.image].isWindows // for convenience
+  containerImages: []
 }, item))
 
 var dplSuffix = uniqueString(deployment().name)
@@ -373,6 +374,7 @@ resource poolVNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   scope: resourceGroup(vnet.group)
 }
 
+@description('process pool mount configurations')
 module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in poolsConfig: {
   name: take('mountConfigurations-${item.name}-${dplSuffix}', 64)
   params: {
@@ -380,6 +382,15 @@ module mdlPoolMounts 'mountConfigurations.bicep' = [for (item, index) in poolsCo
     storageConfigurations: storageConfigurations
     isWindows: item.isWindows
     mi: managedIdentity.id
+  }
+}]
+
+@description('process pool container images')
+module mdlContainerImages 'containerImages.bicep' = [for item in poolsConfig: {
+  name: take('containerImages-${item.name}-${dplSuffix}', 64)
+  params: {
+    images: item.containerImages
+    acrLoginServer: enableApplicationContainers ? acr.properties.loginServer : '<invalidACRName>'
   }
 }]
 
@@ -427,10 +438,8 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
             }
           ] : null
 
-          // we don't prefetch any images when pool nodes are allocated.
-          // for production setups, one may want to prefetch image to avoid
-          // having to fetch them when jobs are allocated.
-          // containerImageNames: []
+          // prefetch container images, if any
+          containerImageNames:  mdlContainerImages[index].outputs.containerImageNames
         }
       }
     }

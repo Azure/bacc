@@ -76,6 +76,16 @@
                         "additionalProperties": false
                     },
 
+                    "containerImages": {
+                        "description": "container images to prefetch on pool nodes",
+                        "type": "array",
+                        "default": [],
+                        "items": {
+                            "description": "container image to prefetch; use '${acr}' as login server for ACR deployed as part of the deployment",
+                            "type": "string"
+                        }
+                    },
+
                     "startTask": {
                         "description": "start task for pool",
                         "type": "object",
