@@ -7,12 +7,14 @@ param location string
 @description('tags to assign to all resources created')
 param tags object
 
-@description('configuration')
-param config object = loadJsonContent('../config/storage.jsonc')
+@description('storage configuration')
+@secure()
+param storageJS object
 
 @description('suffix to use for unique deployment names')
 var dplSuffix = uniqueString(deployment().name)
 
+var config = storageJS
 var existingAccounts =filter(items(config), item => contains(item.value, 'credentials') && !empty(item.value.credentials))
 var newAccounts = filter(items(config), item => !contains(item.value, 'credentials') || empty(item.value.credentials))
 

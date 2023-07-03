@@ -32,6 +32,33 @@ param timestamp string = utcNow('g')
 // param password string
 
 //------------------------------------------------------------------------------
+// parameters used to specify configuration options
+@description('batch configuration')
+@secure()
+#disable-next-line secure-parameter-default
+param batchJS object = loadJsonContent('config/batch.jsonc')
+
+@description('hub configuration')
+@secure()
+#disable-next-line secure-parameter-default
+param hubJS object = loadJsonContent('config/hub.jsonc')
+
+@description('images configuration')
+@secure()
+#disable-next-line secure-parameter-default
+param imagesJS object = loadJsonContent('config/images.jsonc')
+
+@description('spoke configuration')
+@secure()
+#disable-next-line secure-parameter-default
+param spokeJS object = loadJsonContent('config/spoke.jsonc')
+
+@description('storage configuration')
+@secure()
+#disable-next-line secure-parameter-default
+param storageJS object = loadJsonContent('config/storage.jsonc')
+
+//------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
 @description('suffix used for all nested deployments')
@@ -62,7 +89,7 @@ var hubConfig = union({
     peerings: []
     dnsZones: []
   }
-}, loadJsonContent('config/hub.jsonc'))
+}, hubJS)
 
 @description('log analytics configuration to use for adding diagnostics settings to resources')
 var logConfig = contains(hubConfig.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfig.diagnostics.logAnalyticsWorkspace.id)? {
@@ -95,6 +122,7 @@ module dplSpoke 'modules/spoke.bicep' = {
   scope: rg
   params: {
     location: location
+    spokeJS: spokeJS
     tags: allTags
     logConfig: logConfig
     routes: hubConfig.network.routes
@@ -108,6 +136,7 @@ module dplStorage 'modules/storage.bicep' = {
   scope: rg
   params: {
     location: location
+    storageJS: storageJS
     tags: allTags
   }
 }
@@ -118,6 +147,8 @@ module dplBatch 'modules/batch.bicep' = {
   scope: rg
   params: {
     location: location
+    batchJS: batchJS
+    imagesJS: imagesJS
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages

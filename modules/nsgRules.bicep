@@ -5,6 +5,33 @@
 /**
 Format:
 {
+  "<key0>": [
+    "<rulename>",
+    "<rulename>",
+    ...
+  ],
+  "<key1>": [
+    "<rulename>",
+    "<rulename>",
+    ...
+  ],
+}
+*/
+@secure()
+param config object
+
+@description('priority number to start assigning priorities to rules.')
+param priority int = 100
+
+/// securityRues is a list-of-lists
+var rules = [for item in items(config): map(item.value, ruleName => {
+  name: ruleName
+  properties: nsgRules[ruleName]
+})]
+
+/**
+Format:
+{
   '<rulename>': {
     /// "properties" for the NSG security rule
     'description': '<description>',
@@ -21,34 +48,7 @@ Format:
   ....
 }
 */
-param nsgRules object = loadJsonContent('./nsgRules.jsonc')
-
-/**
-Format:
-{
-  "<key0>": [
-    "<rulename>",
-    "<rulename>",
-    ...
-  ],
-  "<key1>": [
-    "<rulename>",
-    "<rulename>",
-    ...
-  ],
-}
-*/
-param config object = loadJsonContent('../config/spoke.jsonc', 'networkSecurityGroups')
-
-@description('priority number to start assigning priorities to rules.')
-param priority int = 100
-
-/// securityRues is a list-of-lists
-var rules = [for item in items(config): map(item.value, ruleName => {
-  name: ruleName
-  properties: nsgRules[ruleName]
-})]
-
+var nsgRules = loadJsonContent('./nsgRules.jsonc')
 
 /// separate inbound and outbound rules
 var rulesIn0 = map(rules, rulesList=>filter(rulesList, rule => toLower(rule.properties.direction) == 'inbound'))

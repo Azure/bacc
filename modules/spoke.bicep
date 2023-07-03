@@ -16,7 +16,11 @@ param routes array = []
 @description('vnet peerings')
 param peerings array = []
 
-var config = union(loadJsonContent('../config/spoke.jsonc'), {
+@description('spoke configuration')
+@secure()
+param spokeJS object
+
+var config = union(spokeJS, {
   delegations: {}
 })
 
