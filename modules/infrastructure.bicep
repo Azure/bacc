@@ -36,27 +36,27 @@ param timestamp string = utcNow('g')
 @description('batch configuration')
 @secure()
 #disable-next-line secure-parameter-default
-param batchJS object = loadJsonContent('config/batch.jsonc')
+param batchJS object = loadJsonContent('../config/batch.jsonc')
 
 @description('hub configuration')
 @secure()
 #disable-next-line secure-parameter-default
-param hubJS object = loadJsonContent('config/hub.jsonc')
+param hubJS object = loadJsonContent('../config/hub.jsonc')
 
 @description('images configuration')
 @secure()
 #disable-next-line secure-parameter-default
-param imagesJS object = loadJsonContent('config/images.jsonc')
+param imagesJS object = loadJsonContent('../config/images.jsonc')
 
 @description('spoke configuration')
 @secure()
 #disable-next-line secure-parameter-default
-param spokeJS object = loadJsonContent('config/spoke.jsonc')
+param spokeJS object = loadJsonContent('../config/spoke.jsonc')
 
 @description('storage configuration')
 @secure()
 #disable-next-line secure-parameter-default
-param storageJS object = loadJsonContent('config/storage.jsonc')
+param storageJS object = loadJsonContent('../config/storage.jsonc')
 
 //------------------------------------------------------------------------------
 // Variables
@@ -117,7 +117,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 //------------------------------------------------------------------------------
 @description('deploy networking resources')
-module dplSpoke 'modules/spoke.bicep' = {
+module dplSpoke 'spoke.bicep' = {
   name: 'spoke-${dplSuffix}'
   scope: rg
   params: {
@@ -131,7 +131,7 @@ module dplSpoke 'modules/spoke.bicep' = {
 }
 
 @description('deployment for storage accounts')
-module dplStorage 'modules/storage.bicep' = {
+module dplStorage 'storage.bicep' = {
   name: 'storage-${dplSuffix}'
   scope: rg
   params: {
@@ -142,7 +142,7 @@ module dplStorage 'modules/storage.bicep' = {
 }
 
 @description('deployment for batch resources')
-module dplBatch 'modules/batch.bicep' = {
+module dplBatch 'batch.bicep' = {
   name: 'batch-${dplSuffix}'
   scope: rg
   params: {
@@ -163,7 +163,7 @@ module dplBatch 'modules/batch.bicep' = {
 }
 
 @description('deploy private endpoints and all related resources')
-module dplEndpoints 'modules/endpoints.bicep' = {
+module dplEndpoints 'endpoints.bicep' = {
   name: 'endpoints-${dplSuffix}'
   scope: rg
   params: {
@@ -178,7 +178,7 @@ module dplEndpoints 'modules/endpoints.bicep' = {
 /// TODO: in case of non-owner subscription access, we need to skip this and instead
 /// allow it to be done as a separate step after deployment completes
 @description('deploy role assignments')
-module dplRoleAssignments 'modules/roleAssignments.bicep' = {
+module dplRoleAssignments 'roleAssignments.bicep' = {
   name: 'roleAssignments-${dplSuffix}'
   params: {
     miConfig: dplBatch.outputs.miConfig
@@ -215,7 +215,7 @@ var rgRoleAssignments = union([
   }] : [])
 
 @description('deploy hub role assignments')
-module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
+module dplRoleAssignmentsHub 'roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
   name: 'roleAssignments-${index}-${dplSuffix}'
   params: {
     miConfig: config
