@@ -1,13 +1,13 @@
 {
     "addressPrefixes": [
-        "10.121.0.0/16"
+        "${addressPrefix}"
     ],
 
     "subnets": {
-        "private-endpoints": "10.121.0.0/24", /// <-- required
+        "private-endpoints": "${addressPrefix/24/0}",
 
         /// the following subnets are custom and optional
-        "pool-linux": "10.121.1.0/24"
+        "pool-linux": "${addressPrefix/24/1}"
     },
 
     "networkSecurityGroups": {

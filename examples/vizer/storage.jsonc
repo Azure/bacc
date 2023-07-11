@@ -6,9 +6,10 @@
             "datasets"
         ],
 
-        "credentials": {
-            "accountName": "[FIXME:ACCOUNT_NAME]",
-            "accountKey": "[FIXME:ACCOUNT_KEY]"
-        }
+        // added using parameters
+        // "credentials": {
+        //     "accountName": "${storageAccountName}",
+        //     "accountKey": "${storageAccountKey}",
+        // }
     }
 }
