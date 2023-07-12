@@ -1,33 +1,11 @@
 /**
-  Simply builds a list of NSG rules.
+  Simply builds a list of NSG security rules objects from a list of NSG rule names
 */
 
-/**
-Format:
-{
-  "<key0>": [
-    "<rulename>",
-    "<rulename>",
-    ...
-  ],
-  "<key1>": [
-    "<rulename>",
-    "<rulename>",
-    ...
-  ],
-}
-*/
-@secure()
-param config object
+param ruleNames array
 
 @description('priority number to start assigning priorities to rules.')
 param priority int = 100
-
-/// securityRues is a list-of-lists
-var rules = [for item in items(config): map(item.value, ruleName => {
-  name: ruleName
-  properties: nsgRules[ruleName]
-})]
 
 /**
 Format:
@@ -50,25 +28,25 @@ Format:
 */
 var nsgRules = loadJsonContent('./nsgRules.jsonc')
 
+/// securityRues is a list-of-lists
+var rules =  map(ruleNames, ruleName => {
+  name: ruleName
+  properties: nsgRules[ruleName]
+})
+
 /// separate inbound and outbound rules
-var rulesIn0 = map(rules, rulesList=>filter(rulesList, rule => toLower(rule.properties.direction) == 'inbound'))
-var rulesOut0 = map(rules, rulesList=>filter(rulesList, rule => toLower(rule.properties.direction) == 'outbound'))
+var rulesIn0 = filter(rules, rule => toLower(rule.properties.direction) == 'inbound')
+var rulesOut0 = filter(rules, rule => toLower(rule.properties.direction) == 'outbound')
 
 /// assign priorities to inbound and outbound rules separately
-var rulesIn = map(rulesIn0, rulesList => map(range(0, length(rulesList)), index => {
-  name: rulesList[index].name
-  properties: union({priority: index + priority}, rulesList[index].properties)
-}))
+var rulesIn = map(range(0, length(rulesIn0)), index => {
+  name: rulesIn0[index].name
+  properties: union({priority: index + priority}, rulesIn0[index].properties)
+})
 
-var rulesOut = map(rulesOut0, rulesList => map(range(0, length(rulesList)), index => {
-  name: rulesList[index].name
-  properties: union({priority: index + priority}, rulesList[index].properties)
-}))
+var rulesOut = map(range(0, length(rulesOut0)), index => {
+  name: rulesOut0[index].name
+  properties: union({priority: index + priority}, rulesOut0[index].properties)
+})
 
-/// combine the inbound and outbound rules into a single list
-var rulesX = [for (item, index) in items(config): {
-    key: item.key
-    value: union(rulesIn[index], rulesOut[index])
-}]
-
-output rules object = toObject(rulesX, item=>item.key, item=>item.value)
+output rules array = concat(rulesIn, rulesOut)

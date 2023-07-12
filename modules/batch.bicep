@@ -25,10 +25,6 @@ param enableApplicationPackages bool
 @secure()
 param batchJS object
 
-@description('images configuration')
-@secure()
-param imagesJS object
-
 @description('vnet under which pool subsets are defined')
 @metadata({
   group: 'vnet group name'
@@ -62,7 +58,7 @@ var batchConfig = union({
   pools: []
 }, batchJS)
 
-var images = imagesJS
+var images = loadJsonContent('./images.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 var poolsConfig = map(batchConfig.pools, item => union({

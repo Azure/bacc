@@ -33,30 +33,13 @@ param timestamp string = utcNow('g')
 
 //------------------------------------------------------------------------------
 // parameters used to specify configuration options
-@description('batch configuration')
+@description('deployment configuration')
 @secure()
-#disable-next-line secure-parameter-default
-param batchJS object = loadJsonContent('../config/batch.jsonc')
+param config object
 
 @description('hub configuration')
 @secure()
-#disable-next-line secure-parameter-default
-param hubJS object = loadJsonContent('../config/hub.jsonc')
-
-@description('images configuration')
-@secure()
-#disable-next-line secure-parameter-default
-param imagesJS object = loadJsonContent('../config/images.jsonc')
-
-@description('spoke configuration')
-@secure()
-#disable-next-line secure-parameter-default
-param spokeJS object = loadJsonContent('../config/spoke.jsonc')
-
-@description('storage configuration')
-@secure()
-#disable-next-line secure-parameter-default
-param storageJS object = loadJsonContent('../config/storage.jsonc')
+param hubConfig object = {}
 
 //------------------------------------------------------------------------------
 // Variables
@@ -73,7 +56,7 @@ var allTags = union(tags, {
 
 
 @description('hub configuration')
-var hubConfig = union({
+var hubConfigSanitized = union({
   diagnostics: {
     logAnalyticsWorkspace: {
       id: ''
@@ -89,19 +72,19 @@ var hubConfig = union({
     peerings: []
     dnsZones: []
   }
-}, hubJS)
+}, hubConfig)
 
 @description('log analytics configuration to use for adding diagnostics settings to resources')
-var logConfig = contains(hubConfig.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfig.diagnostics.logAnalyticsWorkspace.id)? {
-  workspaceId: hubConfig.diagnostics.logAnalyticsWorkspace.id
+var logConfig = contains(hubConfigSanitized.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfigSanitized.diagnostics.logAnalyticsWorkspace.id)? {
+  workspaceId: hubConfigSanitized.diagnostics.logAnalyticsWorkspace.id
 } : {}
 
-var hasAppInsights = contains(hubConfig.diagnostics, 'appInsights') && !empty(hubConfig.diagnostics.appInsights.appId) && !empty(hubConfig.diagnostics.appInsights.instrumentationKey)
+var hasAppInsights = contains(hubConfigSanitized.diagnostics, 'appInsights') && !empty(hubConfigSanitized.diagnostics.appInsights.appId) && !empty(hubConfigSanitized.diagnostics.appInsights.instrumentationKey)
 
 @description('app insights configuration')
 var appInsightsConfig = hasAppInsights? {
-  appId: hubConfig.diagnostics.appInsights.appId
-  instrumentationKey: hubConfig.diagnostics.appInsights.instrumentationKey
+  appId: hubConfigSanitized.diagnostics.appInsights.appId
+  instrumentationKey: hubConfigSanitized.diagnostics.appInsights.instrumentationKey
 } : {}
 
 //------------------------------------------------------------------------------
@@ -122,11 +105,11 @@ module dplSpoke 'spoke.bicep' = {
   scope: rg
   params: {
     location: location
-    spokeJS: spokeJS
+    config: config.?network ?? {}
     tags: allTags
     logConfig: logConfig
-    routes: hubConfig.network.routes
-    peerings: hubConfig.network.peerings
+    routes: hubConfigSanitized.network.routes
+    peerings: hubConfigSanitized.network.peerings
   }
 }
 
@@ -136,7 +119,7 @@ module dplStorage 'storage.bicep' = {
   scope: rg
   params: {
     location: location
-    storageJS: storageJS
+    storageJS: config.storage
     tags: allTags
   }
 }
@@ -147,8 +130,7 @@ module dplBatch 'batch.bicep' = {
   scope: rg
   params: {
     location: location
-    batchJS: batchJS
-    imagesJS: imagesJS
+    batchJS: config.batch
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages
@@ -171,7 +153,7 @@ module dplEndpoints 'endpoints.bicep' = {
     tags: allTags
     endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
     snetInfo: dplSpoke.outputs.snetPrivateEndpoints
-    existingDnsZones: hubConfig.network.dnsZones
+    existingDnsZones: hubConfigSanitized.network.dnsZones
   }
 }
 
@@ -215,7 +197,7 @@ var rgRoleAssignments = union([
   }] : [])
 
 @description('deploy hub role assignments')
-module dplRoleAssignmentsHub 'roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
+module dplRoleAssignmentsHub 'roleAssignments.bicep' = [for (config, index) in hubConfigSanitized.managedIdentities: {
   name: 'roleAssignments-${index}-${dplSuffix}'
   params: {
     miConfig: config

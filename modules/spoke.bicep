@@ -18,33 +18,31 @@ param peerings array = []
 
 @description('spoke configuration')
 @secure()
-param spokeJS object
-
-var config = union(spokeJS, {
-  delegations: {}
-})
+param config object
 
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 @description('suffix to use for all nested deployments')
 var dplSuffix = uniqueString(deployment().name)
 
-//----------------------------------------------------------------------------------------------------------------------
-// build nsg security rules.
-module dplNSGRules 'nsgRules.bicep' = {
-  name: 'nsgRules-${dplSuffix}'
-  params: {
-    config: config.networkSecurityGroups
-  }
-}
+var subnetItems = items(config.subnets)
 
 //----------------------------------------------------------------------------------------------------------------------
-resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for item in items(config.networkSecurityGroups): {
+// build nsg security rules.
+module dplNSGRules 'nsgRules.bicep' = [ for item in subnetItems: {
+  name: 'nsgRules-${item.key}-${dplSuffix}'
+  params: {
+    ruleNames: item.value.?nsgRules ?? []
+  }
+}]
+
+//----------------------------------------------------------------------------------------------------------------------
+resource nsgs 'Microsoft.Network/networkSecurityGroups@2022-09-01' = [for (item, index) in subnetItems: {
   name: 'nsg-${item.key}'
   location: location
   tags: tags
   properties: {
-    securityRules: dplNSGRules.outputs.rules[item.key]
+    securityRules: dplNSGRules[index].outputs.rules
   }
 }]
 
@@ -59,9 +57,9 @@ resource routeTable 'Microsoft.Network/routeTables@2022-07-01' = if (!empty(rout
 }
 
 // process snet delegations
-var delegationsConfigsArray = map(items(config.delegations), item => {
+var delegations = map(subnetItems, item => {
   key: item.key
-  delegations: map(item.value, sname => {
+  delegations: map(item.value.?delegations ?? [], sname => {
     name: sname
     properties: {
       serviceName: sname
@@ -69,7 +67,7 @@ var delegationsConfigsArray = map(items(config.delegations), item => {
   })
 })
 
-var delegationsConfigs = reduce(delegationsConfigsArray, {}, (cur, next) => union(cur, {
+var delegationsConfigs = reduce(delegations, {}, (cur, next) => union(cur, {
   '${next.key}' : {
     delegations: next.delegations
   }
@@ -84,11 +82,11 @@ var osnets = filter(items(config.subnets), item => item.key != 'private-endpoint
 var snets = map(osnets, item => {
   name: item.key
   properties: union(commonSubnetConfig, {
-      addressPrefix: item.value
+      addressPrefix: item.value.addressPrefix
       networkSecurityGroup: {
         id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-${item.key}')
       }
-  }, contains(delegationsConfigs, item.key) ? delegationsConfigs[item.key] : {})
+  }, delegationsConfigs[item.key])
 })
 
 @description('the virtual network')
@@ -98,12 +96,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   tags: tags
   properties: {
     addressSpace: {
-      addressPrefixes: config.addressPrefixes
+      addressPrefixes: [ config.addressPrefix ]
     }
     subnets: concat(snets, [{
         name: 'private-endpoints'
         properties: union(commonSubnetConfig, {
-          addressPrefix: config.subnets['private-endpoints']
+          addressPrefix: config.subnets['private-endpoints'].addressPrefix
           networkSecurityGroup: {
             id: resourceId('Microsoft.Network/networkSecurityGroups', 'nsg-private-endpoints')
           }
@@ -122,7 +120,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' = {
 
 //------------------------------------------------------------------------------
 // diagnostic settings
-resource nsgs_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for (item, index) in items(config.networkSecurityGroups): if (!empty(logConfig)) {
+resource nsgs_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for index in range(0, length(subnetItems)): if (!empty(logConfig)) {
   scope: nsgs[index]
   name: 'diag'
   properties: union(logConfig, {logs: diagConfig.logs})

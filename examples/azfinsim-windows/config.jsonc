@@ -1,0 +1,62 @@
+{
+    "network": {
+        "addressPrefix": "${addressPrefix}",
+        "subnets": {
+            "private-endpoints": {
+                "addressPrefix": "${addressPrefix/24/0}",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowVnetAzureFilesInBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+
+            "pool": {
+                "addressPrefix": "${addressPrefix/24/1}",
+                "nsgRules": [
+                    "AllowVnetRDPInBound",
+                    "AllowVnetAzureFilesOutBound",
+                    "AllowAllHTTPSOutBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            }
+        }
+    },
+
+    "storage": {
+        "afs0": {
+            "shares": [
+                "data"
+            ]
+        }
+    },
+
+    "batch": {
+        /// intentionally keep this minimal
+        "poolAllocationMode": "BatchService",
+        "pools": [
+            {
+                "name": "windows",
+                "virtualMachine": {
+                    "size": "Standard_DS5_V2",
+                    "taskSlotsPerNode": 8,
+                    "image": "microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest"
+                },
+                "subnet": "pool",
+                "mounts": {
+                    /// for file-shares on Windows, this must be a single letter since it is used as a drive letter.
+                    "l": "afs0/data"
+                },
+                "startTask": {
+                    "commands": [
+                        "curl https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/main/examples/azfinsim-windows/start_task.ps1 -o start_task.ps1",
+                        "powershell.exe -ExecutionPolicy Bypass -File start_task.ps1"
+                    ]
+                }
+            }
+        ]
+    }
+}

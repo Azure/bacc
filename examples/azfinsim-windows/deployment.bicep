@@ -22,14 +22,12 @@ param timestamp string = utcNow('g')
 param addressPrefix string = '10.121.0.0/16'
 
 //------------------------------------------------------------------------------
-var batchJS = loadJsonContent('./batch.jsonc')
-var storageJS = loadJsonContent('./storage.jsonc')
-var spokeTXT = loadTextContent('./spoke.jsonc')
+var configTXT = loadTextContent('./config.jsonc')
 
-var spoke0 = replace(spokeTXT, '\${addressPrefix}', addressPrefix)
-var spoke1 = replace(spoke0, '\${addressPrefix/24/0}', cidrSubnet(addressPrefix, 24, 0))
-var spoke2 = replace(spoke1, '\${addressPrefix/24/1}', cidrSubnet(addressPrefix, 24, 1))
-var spokeJS = json(spoke2)
+var config0 = replace(configTXT, '\${addressPrefix}', addressPrefix)
+var config1 = replace(config0, '\${addressPrefix/24/0}', cidrSubnet(addressPrefix, 24, 0))
+var config2 = replace(config1, '\${addressPrefix/24/1}', cidrSubnet(addressPrefix, 24, 1))
+var config = json(config2)
 
 @description('suffix used for all nested deployments')
 var dplSuffix = uniqueString(deployment().name, location, resourceGroupName)
@@ -40,9 +38,7 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
   params: {
     resourceGroupName: resourceGroupName
     location: location
-    batchJS: batchJS
-    storageJS: storageJS
-    spokeJS: spokeJS
+    config: config
     tags: tags
     enableApplicationContainers: false 
     enableApplicationPackages: false

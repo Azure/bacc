@@ -1,0 +1,230 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "definitions": {
+        "CIDR": {
+            "type": "string",
+            "pattern": "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}\\/(?:\\d|[12]\\d|3[01])$"
+        },
+        "SUBNET": {
+            "description": "subnet definition",
+            "type": "object",
+            "properties": {
+                "addressPrefix": {
+                    "type": "string"
+                },
+                "nsgRules": {
+                    "description": "list of NSG security rule names",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "security rule name (see nsgRules.jsonc)",
+                        "type": "string"
+                    }
+                },
+                "delegations": {
+                    "description": "service names to delegate subnet to",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "service name",
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "addressPrefix"
+            ]
+        }
+    },
+    "$comment": "schema for configuration file",
+    "title": "config",
+    "description": "resource configuration",
+    "type": "object",
+    "properties": {
+        "network": {
+            "description": "spoke network definition",
+            "type": "object",
+            "properties": {
+                "addressPrefix": {
+                    "type": "string"
+                },
+                "private-endpoints": {
+                    "description": "subnet definition for private endpoints subnet",
+                    "$ref": "#/definitions/SUBNET"
+                }
+            },
+            "patternProperties": {
+                "^[a-zA-Z0-9-_]+$": {
+                    "description": "subnet definition",
+                    "$ref": "#/definitions/SUBNET"
+                }
+            },
+            "additionalProperties": false,
+            "required": ["addressPrefix", "private-endpoints"]
+        },
+        "storage": {
+            "description": "storage accounts configuration",
+            "type": "object",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]+$": {
+                    "description": "a storage account",
+                    "type": "object",
+                    "properties": {
+                        "enableNFSv3": {
+                            "description": "enable NFSv3 for this storage account (only used when mounting containers)",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "shares": {
+                            "description": "azure file share",
+                            "type": "array",
+                            "items": {
+                                "description": "name for each file share under this storage account",
+                                "type": "string"
+                            }
+                        },
+                        "containers": {
+                            "description": "azure blob containers",
+                            "type": "array",
+                            "items": {
+                                "description": "name for each container under this storage account",
+                                "type": "string"
+                            }
+                        },
+                        "credentials": {
+                            "description": "credentials for existing storage account, if any",
+                            "type": "object",
+                            "properties": {
+                                "accountName": {
+                                    "description": "storage account name",
+                                    "type": "string"
+                                },
+                                "accountKey": {
+                                    "description": "storage account key",
+                                    "type": "string"
+                                },
+                                "sasKey": {
+                                    "description": "storage account SAS token",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [ "accountName" ],
+                            "oneOf": [ { "required": [ "accountKey" ] }, { "required": [ "sasKey" ] } ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "batch": {
+            "description": "batch account configuration",
+            "type": "object",
+            "properties": {
+                "poolAllocationMode": {
+                    "description": "pool allocation mode to use for the batch account",
+                    "type": "string",
+                    "enum": [ "UserSubscription", "BatchService" ],
+                    "default": "UserSubscription"
+                },
+                "publicNetworkAccess": {
+                    "description": "batch account should be accessible from public network",
+                    "type": [ "boolean", "string" ],
+                    "default": "auto",
+                    "enum": [ true, false, "auto" ]
+                },
+                "pools": {
+                    "description": "pools defined on the batch account",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "description": "pool definition",
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "unique name for the pool",
+                                "type": "string"
+                            },
+                            "virtualMachine": {
+                                "description": "virtual machine configuration",
+                                "type": "object",
+                                "properties": {
+                                    "size": {
+                                        "description": "Virtual Machine SKU e.g. Standard_DS5_v2",
+                                        "type": "string"
+                                    },
+                                    "taskSlotsPerNode": {
+                                        "description": "max number of tasks to run concurrently on a node",
+                                        "type": "integer"
+                                    },
+                                    "image": {
+                                        "description": "virtual machine image name, as defined in `images.jsonc`",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [ "size", "taskSlotsPerNode", "image" ],
+                                "additionalProperties": false
+                            },
+                            "interNodeCommunication": {
+                                "description": "enable internode communication (for MPI)",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "subnet": {
+                                "description": "name of the subnet to use for the pool",
+                                "type": "string"
+                            },
+                            "mounts": {
+                                "description": "containers/fileshares to mount",
+                                "type": "object",
+                                "default": {},
+                                "patternProperties": {
+                                    "^[a-zA-Z0-9_-]+$": {
+                                        "description": "container/fileshare to mount; property name is used as mount location on pool",
+                                        "type": "string",
+                                        "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "containerImages": {
+                                "description": "container images to prefetch on pool nodes",
+                                "type": "array",
+                                "default": [],
+                                "items": {
+                                    "description": "container image to prefetch; use '${acr}' as login server for ACR deployed as part of the deployment",
+                                    "type": "string"
+                                }
+                            },
+                            "startTask": {
+                                "description": "start task for pool",
+                                "type": "object",
+                                "default": {},
+                                "properties": {
+                                    "commands": {
+                                        "description": "commands to run as start task",
+                                        "type": "array",
+                                        "items": {
+                                            "description": "command to run as start task",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [ "commands" ]
+                            }
+                        },
+                        "required": [ "name", "virtualMachine", "subnet" ],
+                        "additionalProperties": false
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false,
+    "required": ["network", "batch"]
+}

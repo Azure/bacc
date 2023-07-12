@@ -29,11 +29,8 @@ param timestamp string = utcNow('g')
 param storageCredentials object
 
 //------------------------------------------------------------------------------
-var batchJS = loadJsonContent('./batch.jsonc')
-var spokeJS = loadJsonContent('./spoke.jsonc')
-var storageJS = loadJsonContent('./storage.jsonc')
-
-var storage0 = union(storageJS.storage0, {
+var config = loadJsonContent('./config.jsonc')
+var storage0 = union(config.storage.storage0, {
   credentials: storageCredentials
 })
 
@@ -46,13 +43,15 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
   params: {
     resourceGroupName: resourceGroupName
     location: location
-    batchJS: batchJS
-    storageJS: { storage0: storage0 }
-    spokeJS: spokeJS
     tags: tags
     enableApplicationContainers: false
     enableApplicationPackages: false
     timestamp: timestamp
+    config: {
+      batch: config.batch
+      network: config.network
+      storage: storage0
+    }
   }
 }
 

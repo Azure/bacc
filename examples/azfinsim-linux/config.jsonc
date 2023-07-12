@@ -1,0 +1,57 @@
+{
+    "network": {
+        "addressPrefix": "${addressPrefix}",
+        "subnets": {
+            "private-endpoints": {
+                "addressPrefix": "${addressPrefix/24/0}",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowVnetNFSv3InBound",
+                    "AllowVnetAzureFilesInBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+            "pool-linux": {
+                "addressPrefix": "${addressPrefix/24/1}",
+                "nsgRules": [
+                    "AllowVnetSSHInBound",
+                    "AllowVnetNFSv3OutBound",
+                    "AllowVnetAzureFilesOutBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowAllHTTPOutBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            }
+        }
+    },
+
+    "storage": {
+        "blob0": {
+            "enableNFSv3": false,
+            "containers": [
+                "data"
+            ]
+        }
+    },
+
+    "batch": {
+        "poolAllocationMode": "BatchService",
+        "pools": [
+            {
+                "name": "linux",
+                "virtualMachine": {
+                    "size": "Standard_DS5_V2",
+                    "taskSlotsPerNode": 8,
+                    "image": "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest"
+                },
+                "subnet": "pool-linux",
+                "mounts": {
+                    "data": "blob0/data"
+                }
+            }
+        ]
+    }
+}
