@@ -18,20 +18,14 @@ For those steps that are different for ACR variant, we have provided a note.
 
 Follow the [environment setup instructions](./environment-setup.md) to set up your environment. Since
 this tutorial uses **Batch Service** pool allocation mode, you can skip the **User Subscription** specific
-requirements and  steps described in that document.
+requirements and steps described in that document.
 
 ## Step 2: Select deployment configuration
 
 For this tutorial, we will use configuration files from [examples/azfinsim-linux] folder.
-To use these files, copy them to the config folder.
-
-```bash
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
-
-# copy config files
-cp examples/azfinsim-linux/* config/
-```
+The `deployment.bicep`
+is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
+resource configuration parameters for this deployment.
 
 ## Step 3: Deploy the batch account and other resources
 
@@ -45,11 +39,14 @@ AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim0
 AZ_RESOURCE_GROUP=azfinsim0
 
-az deployment sub create                  \
-  --name $AZ_DEPLOYMENT_NAME              \
-  --location $AZ_LOCATION                 \
-  --template-file infrastructure.bicep    \
-  --parameters                            \
+# change directory to azbatch-starter (or where you cloned/downloaded the repository)
+cd azbatch-starter
+
+az deployment sub create                                      \
+  --name $AZ_DEPLOYMENT_NAME                                  \
+  --location $AZ_LOCATION                                     \
+  --template-file examples/azfinsim-linux/deployment.bicep    \
+  --parameters                                                \
       resourceGroupName=$AZ_RESOURCE_GROUP
 ```
 
@@ -62,12 +59,12 @@ deployment instead i.e. simply add the `enableApplicationContainers=true` parame
 ```bash
 #!/bin/bash
 
-az deployment sub create                    \
-  --name $AZ_DEPLOYMENT_NAME                \
-  --location $AZ_LOCATION                   \
-  --template-file infrastructure.bicep      \
-  --parameters                              \
-      resourceGroupName=$AZ_RESOURCE_GROUP  \
+az deployment sub create                                      \
+  --name $AZ_DEPLOYMENT_NAME                                  \
+  --location $AZ_LOCATION                                     \
+  --template-file examples/azfinsim-linux/deployment.bicep    \
+  --parameters                                                \
+      resourceGroupName=$AZ_RESOURCE_GROUP                    \
       enableApplicationContainers=true
 ```
 

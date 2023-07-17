@@ -80,27 +80,25 @@ Typical steps to setup your environment are as follows:
    for your operating system.
 2. Install Python 3.10 or higher. Follow the instructions [here](https://www.python.org/downloads/).
 
-3. Download source code from [GitHub](https://github.com/utkarshayachit/azbatch-starter). You can either download the
-   source code as a [zip file](https://github.com/utkarshayachit/azbatch-starter/archive/refs/heads/main.zip)
-   or clone the repository using `git`.
+3. Download source code from [GitHub](https://github.com/utkarshayachit/azbatch-starter). Since the repository uses
+   submodules, it's easiest to clone the repository using `Git` as follows:
 
    ```bash
    cd [work-dir] # directory where you want to download the source code
 
    # clone the repository
-   git clone https://github.com/utkarshayachit/azbatch-starter
+   git clone --recursive https://github.com/utkarshayachit/azbatch-starter
    ```
 
-4. Download connectivity source code from [GitHub](https://github.com/mocelj/azbatch-starter-connectivity). You can either
-   download the source ode as a [zip file](https://github.com/mocelj/azbatch-starter-connectivity/archive/refs/heads/main.zip)
-   or clone the repository using `git`.
+   This fetches the code and all the submodules. If you have already cloned the repository, you can fetch the submodules
+   using the following command:
 
    ```bash
-   cd [work-dir] # directory where you want to download the source code
+   cd [work-dir]/azbatch-starter # directory where you downloaded the source code
 
-   # clone the repository
-   git clone https://github.com/mocelj/azbatch-starter-connectivity/
+   # fetch the submodules
+   git submodule update --init --recursive
    ```
 
-Steps `1` and `2` can be skipped if using Azure Cloud Shell since these are already installed there. Step `4` is only needed
-if you are trying out a demo / tutorial that requires the hub network as well.
+Steps `1` and `2` can be skipped if using Azure Cloud Shell since those tools / dependencies are already installed
+in the default Cloud Shell environment.

@@ -19,15 +19,9 @@ requirements and  steps described in that document.
 ## Step 2: Select deployment configuration
 
 For this tutorial, we will use configuration files from [examples/azfinsim-windows] folder.
-To use these files, copy them to the config folder.
-
-```bash
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
-
-# copy config files
-cp examples/azfinsim-windows/* config/
-```
+The `deployment.bicep`
+is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
+resource configuration parameters for this deployment.
 
 ## Step 3: Deploy the batch account and other resources
 
@@ -41,11 +35,14 @@ AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim-win
 AZ_RESOURCE_GROUP=azfinsim-win
 
-az deployment sub create                    \
-  --name $AZ_DEPLOYMENT_NAME                \
-  --location $AZ_LOCATION                   \
-  --template-file infrastructure.bicep      \
-  --parameters                              \
+# change directory to azbatch-starter (or where you cloned/downloaded the repository)
+cd azbatch-starter
+
+az deployment sub create                                      \
+  --name $AZ_DEPLOYMENT_NAME                                  \
+  --location $AZ_LOCATION                                     \
+  --template-file examples/azfinsim-windows/deployment.bicep  \
+  --parameters                                                \
       resourceGroupName=$AZ_RESOURCE_GROUP
 ```
 

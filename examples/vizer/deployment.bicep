@@ -18,7 +18,6 @@ param tags object = {}
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
-
 @description('storage account credentials')
 @secure()
 @metadata({

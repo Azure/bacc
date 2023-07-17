@@ -34,26 +34,18 @@ from a public network. If you want the deployment to create a new storage accoun
 ## Step 2: Select deployment configuration
 
 For this tutorial, we will use configuration files from [examples/vizer] folder.
+The `deployment.bicep`
+is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
 To use these files, copy them to the config folder.
-
-```bash
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
-
-# copy config files
-cp examples/vizer/*.jsonc config/
-```
-
-After copying the files, edit the `config/storage.jsonc` file to set the storage account name and SAS token or storage account key
-to use.
 
 ## Step 3: Deploy the batch account and other resources
 
-Create deployment using Azure CLI. The deployment is split into two parts. First, we deploy the
-core set of resources using the `infrastructure.bicep` template. Then, we deploy the `vizer-hub`
-application using the `vizer-hub.bicep` template.
+Create deployment using Azure CLI. Since in this example we are using an existing storage account, we need to
+provide the storage account name and the SAS token to access it. The SAS token must have read access to the
+storage account. Before running the deployment, make sure you have the SAS token ready and update the
+[`storage.json`] configuration file with the storage account name and the SAS token.
 
-```bash
+```bash 
 #!/bin/bash
 
 # create deployment
@@ -61,40 +53,18 @@ AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=vizer0
 AZ_RESOURCE_GROUP=vizer0
 
-az deployment sub create                  \
-  --name $AZ_DEPLOYMENT_NAME              \
-  --location $AZ_LOCATION                 \
-  --template-file infrastructure.bicep    \
-  --parameters                            \
-      resourceGroupName=$AZ_RESOURCE_GROUP
-```
+# storage credentials
+AZ_STORAGE_CREDENTIALS="{\"accountName\": \"<storage-account-name>\", \"sasToken\": \"<sas-token>\"}"
+# or you can use storage account access key as follows
+# AZ_STORAGE_CREDENTIALS="{\"accountName\": \"<storage-account-name>\", \"accountKey\": \"<storage-account-key>\"}"
 
-Once the deployment is successful, you generate a config file for the `vizer-hub` deployment.
-
-```bash
-#!/bin/bash
-
-# create config file
-az deployment sub show \
-  --name $AZ_DEPLOYMENT_NAME \
-  --query properties.outputs.summary.value \
-  --output json > /tmp/vizer-hub.json
-```
-
-Now, let's deploy the `vizer-hub` application.
-
-```bash
-#!/bin/bash
-
-AZ_HUB_DEPLOYMENT_NAME=vizer-hub0
-
-# create deployment
-az deployment group create                              \
-  --name $AZ_HUB_DEPLOYMENT_NAME                        \
-  --resource-group $AZ_RESOURCE_GROUP                   \
-  --template-file examples/vizer/vizer-hub.bicep        \
-  --parameters                                          \
-      config=@/tmp/vizer-hub.json
+az deployment sub create                          \
+  --name $AZ_DEPLOYMENT_NAME                      \
+  --location $AZ_LOCATION                         \
+  --template-file examples/vizer/deployment.bicep \
+  --parameters                                    \
+      resourceGroupName=$AZ_RESOURCE_GROUP        \
+      storageCredentials=$AZ_STORAGE_CREDENTIALS
 ```
 
 On success, a new resource group will be created with the name specified.
@@ -104,7 +74,7 @@ To obtain the URL for the `vizer-hub` web server, run the following command.
 #!/bin/bash
 
 az deployment group show \
-  --name $AZ_HUB_DEPLOYMENT_NAME \
+  --name $AZ_DEPLOYMENT_NAME \
   --resource-group $AZ_RESOURCE_GROUP \
   --query properties.outputs.vizerHubUrl.value \
   --output tsv

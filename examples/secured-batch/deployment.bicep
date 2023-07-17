@@ -51,12 +51,13 @@ param batchServiceObjectId string
 var dplSuffix = uniqueString(deployment().name, location, resourceGroupName)
 
 //------------------------------------------------------------------------------
+var hubPrefix = take('hub-${uniqueString(resourceGroupName)}', 13)
 module mdlConnectivity '../../tpl/connectivity/connectivity.bicep' = {
   name: 'connectivity-${dplSuffix}'
   params: {
     location: location
     environment: 'dev'
-    prefix: take('hub-${uniqueString(resourceGroupName)}', 13)
+    prefix: hubPrefix
     tags: tags
     deployAzureFirewall: true
     deployAzureBastion: enableBastion
@@ -85,3 +86,6 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
 
 @description('summary of the deployment')
 output summary object = mdlInfrastructure.outputs.summary
+
+@description('hub resource group name')
+output hubResourceGroupName string = 'rg-dev-${hubPrefix}'
