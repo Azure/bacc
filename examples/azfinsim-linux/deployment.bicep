@@ -51,3 +51,6 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
 
 @description('deployment summary')
 output summary object = mdlInfrastructure.outputs.summary
+
+@description('resource group names')
+output resourceGroups array = [ resourceGroupName ]

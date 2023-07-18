@@ -84,8 +84,15 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
   }
 }
 
+var hubRGName = 'rg-dev-${hubPrefix}'
 @description('summary of the deployment')
 output summary object = mdlInfrastructure.outputs.summary
 
 @description('hub resource group name')
-output hubResourceGroupName string = 'rg-dev-${hubPrefix}'
+output hubResourceGroupName string = hubRGName
+
+@description('hub prefix')
+output hubPrefix string = hubPrefix
+
+@description('resource group names')
+output resourceGroups array = [ resourceGroupName, hubRGName]

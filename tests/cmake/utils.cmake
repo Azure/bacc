@@ -1,17 +1,5 @@
 function(sb_get_config_files out_var config_name)
-    file(GLOB config_files RELATIVE "${SB_SOURCE_DIR}/config"
-         "${SB_SOURCE_DIR}/config/*.jsonc")
-    if (NOT config_name STREQUAL "DEFAULT")
-        file(GLOB config_files_custom
-             RELATIVE ${SB_SOURCE_DIR}/config/${config_name}
-             "${SB_SOURCE_DIR}/examples/${config_name}/*.jsonc")
-        list(REMOVE_ITEM config_files ${config_files_custom})
-        list(TRANSFORM config_files PREPEND "${SB_SOURCE_DIR}/config/")
-        list(TRANSFORM config_files_custom PREPEND "${SB_SOURCE_DIR}/examples/${config_name}/")
-        list(APPEND config_files ${config_files_custom})
-    else()
-        list(TRANSFORM config_files PREPEND "${SB_SOURCE_DIR}/config/")
-    endif()
+    set(config_files "${SB_SOURCE_DIR}/examples/${config_name}/config.jsonc")
     set(${out_var} ${config_files} PARENT_SCOPE)
 endfunction()
 
@@ -31,7 +19,7 @@ endfunction()
 function(sb_get_pools out_var config_name)
     sb_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "sort(pools[].name)"
+        COMMAND sb json concat --use-union -i ${config_files} --query "sort(batch.pools[].name)"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output_json
         # COMMAND_ECHO STDOUT
@@ -50,7 +38,7 @@ endfunction()
 function(sb_get_pool_vm_size out_var config_name pool_name)
     sb_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "pools[?name=='${pool_name}'].virtualMachine.size | [0]" -o tsv
+        COMMAND sb json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].virtualMachine.size | [0]" -o tsv
         COMMAND tr "[:upper:]" "[:lower:]"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
@@ -63,7 +51,7 @@ endfunction()
 function(sb_get_pool_mounts_count out_var config_name pool_name)
     sb_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "pools[?name=='${pool_name}'].mounts | [0] | length(@)"
+        COMMAND sb json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].mounts | [0] | length(@)"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
         # COMMAND_ECHO STDOUT

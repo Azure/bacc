@@ -49,7 +49,7 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
     config: {
       batch: config.batch
       network: config.network
-      storage: storage0
+      storage: { storage0: storage0 }
     }
   }
 }
@@ -70,3 +70,6 @@ output summary object = mdlInfrastructure.outputs.summary
 
 @description('vizer Hub URL')
 output vizerHubUrl string = mdlVizerHub.outputs.vizerHubUrl
+
+@description('resource group names')
+output resourceGroups array = [ resourceGroupName ]

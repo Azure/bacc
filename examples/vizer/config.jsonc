@@ -1,8 +1,6 @@
 {
     "network": {
-        "addressPrefixes": [
-            "10.121.0.0/16"
-        ],
+        "addressPrefix": "10.121.0.0/16",
         "subnets": {
             "private-endpoints": {
                 "addressPrefix": "10.121.0.0/24",
@@ -42,7 +40,7 @@
         "storage0": {
             "enableNFSv3": false,
             "containers": [
-                "datasets"
+                "test-datasets"
             ]
             // credentials will be added using parameters as follows
             // "credentials": {
@@ -75,7 +73,7 @@
                 /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
                 /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
                 "mounts": {
-                    "datasets": "storage0/datasets"
+                    "test-datasets": "storage0/test-datasets"
                 },
                 /// container images to prefetch on the pool nodes.
                 /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,

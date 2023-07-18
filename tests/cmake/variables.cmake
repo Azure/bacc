@@ -2,7 +2,7 @@
 # These variables are core deployment variables
 set(SB_SUBSCRIPTION_ID "" CACHE STRING "The subscription ID to use for testing")
 set(SB_RESOURCE_GROUP_NAME "" CACHE STRING "The name of the deployment resource group")
-set(SB_CONFIG "DEFAULT" CACHE STRING "The configuration to use for testing")
+set(SB_CONFIG "" CACHE STRING "The configuration to use for testing")
 
 #-------------------------------------------------------------------------------
 # These options are used to provide us information about the deployment / environment
@@ -27,7 +27,7 @@ option(SB_TESTING_SKIP_POOL_DOWNSIZE "Skip pool downsize in automated testing" O
 file(GLOB available_configs LIST_DIRECTORIES true
      RELATIVE "${SB_SOURCE_DIR}/examples"
      CONFIGURE_DEPENDS "${SB_SOURCE_DIR}/examples/*")
-set_property(CACHE SB_CONFIG PROPERTY STRINGS "DEFAULT" ${available_configs})
+set_property(CACHE SB_CONFIG PROPERTY STRINGS ${available_configs})
 
 #-------------------------------------------------------------------------------
 # Add some basic validation
