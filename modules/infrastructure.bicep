@@ -32,6 +32,16 @@ param timestamp string = utcNow('g')
 // param password string
 
 //------------------------------------------------------------------------------
+// parameters used to specify configuration options
+@description('deployment configuration')
+@secure()
+param config object
+
+@description('hub configuration')
+@secure()
+param hubConfig object = {}
+
+//------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
 @description('suffix used for all nested deployments')
@@ -46,7 +56,7 @@ var allTags = union(tags, {
 
 
 @description('hub configuration')
-var hubConfig = union({
+var hubConfigSanitized = union({
   diagnostics: {
     logAnalyticsWorkspace: {
       id: ''
@@ -62,19 +72,19 @@ var hubConfig = union({
     peerings: []
     dnsZones: []
   }
-}, loadJsonContent('config/hub.jsonc'))
+}, hubConfig)
 
 @description('log analytics configuration to use for adding diagnostics settings to resources')
-var logConfig = contains(hubConfig.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfig.diagnostics.logAnalyticsWorkspace.id)? {
-  workspaceId: hubConfig.diagnostics.logAnalyticsWorkspace.id
+var logConfig = contains(hubConfigSanitized.diagnostics, 'logAnalyticsWorkspace')  && !empty(hubConfigSanitized.diagnostics.logAnalyticsWorkspace.id)? {
+  workspaceId: hubConfigSanitized.diagnostics.logAnalyticsWorkspace.id
 } : {}
 
-var hasAppInsights = contains(hubConfig.diagnostics, 'appInsights') && !empty(hubConfig.diagnostics.appInsights.appId) && !empty(hubConfig.diagnostics.appInsights.instrumentationKey)
+var hasAppInsights = contains(hubConfigSanitized.diagnostics, 'appInsights') && !empty(hubConfigSanitized.diagnostics.appInsights.appId) && !empty(hubConfigSanitized.diagnostics.appInsights.instrumentationKey)
 
 @description('app insights configuration')
 var appInsightsConfig = hasAppInsights? {
-  appId: hubConfig.diagnostics.appInsights.appId
-  instrumentationKey: hubConfig.diagnostics.appInsights.instrumentationKey
+  appId: hubConfigSanitized.diagnostics.appInsights.appId
+  instrumentationKey: hubConfigSanitized.diagnostics.appInsights.instrumentationKey
 } : {}
 
 //------------------------------------------------------------------------------
@@ -90,34 +100,37 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 //------------------------------------------------------------------------------
 @description('deploy networking resources')
-module dplSpoke 'modules/spoke.bicep' = {
+module dplSpoke 'spoke.bicep' = {
   name: 'spoke-${dplSuffix}'
   scope: rg
   params: {
     location: location
+    config: config.?network ?? {}
     tags: allTags
     logConfig: logConfig
-    routes: hubConfig.network.routes
-    peerings: hubConfig.network.peerings
+    routes: hubConfigSanitized.network.routes
+    peerings: hubConfigSanitized.network.peerings
   }
 }
 
 @description('deployment for storage accounts')
-module dplStorage 'modules/storage.bicep' = {
+module dplStorage 'storage.bicep' = {
   name: 'storage-${dplSuffix}'
   scope: rg
   params: {
     location: location
+    storageJS: config.storage
     tags: allTags
   }
 }
 
 @description('deployment for batch resources')
-module dplBatch 'modules/batch.bicep' = {
+module dplBatch 'batch.bicep' = {
   name: 'batch-${dplSuffix}'
   scope: rg
   params: {
     location: location
+    batchJS: config.batch
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages
@@ -132,7 +145,7 @@ module dplBatch 'modules/batch.bicep' = {
 }
 
 @description('deploy private endpoints and all related resources')
-module dplEndpoints 'modules/endpoints.bicep' = {
+module dplEndpoints 'endpoints.bicep' = {
   name: 'endpoints-${dplSuffix}'
   scope: rg
   params: {
@@ -140,14 +153,14 @@ module dplEndpoints 'modules/endpoints.bicep' = {
     tags: allTags
     endpoints: union(dplBatch.outputs.endpoints, flatten(dplStorage.outputs.unflattedEndpoints))
     snetInfo: dplSpoke.outputs.snetPrivateEndpoints
-    existingDnsZones: hubConfig.network.dnsZones
+    existingDnsZones: hubConfigSanitized.network.dnsZones
   }
 }
 
 /// TODO: in case of non-owner subscription access, we need to skip this and instead
 /// allow it to be done as a separate step after deployment completes
 @description('deploy role assignments')
-module dplRoleAssignments 'modules/roleAssignments.bicep' = {
+module dplRoleAssignments 'roleAssignments.bicep' = {
   name: 'roleAssignments-${dplSuffix}'
   params: {
     miConfig: dplBatch.outputs.miConfig
@@ -184,7 +197,7 @@ var rgRoleAssignments = union([
   }] : [])
 
 @description('deploy hub role assignments')
-module dplRoleAssignmentsHub 'modules/roleAssignments.bicep' = [for (config, index) in hubConfig.managedIdentities: {
+module dplRoleAssignmentsHub 'roleAssignments.bicep' = [for (config, index) in hubConfigSanitized.managedIdentities: {
   name: 'roleAssignments-${index}-${dplSuffix}'
   params: {
     miConfig: config

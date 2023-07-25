@@ -1,0 +1,87 @@
+{
+    "network": {
+        "addressPrefix": "10.121.0.0/16",
+        "subnets": {
+            "private-endpoints": {
+                "addressPrefix": "10.121.0.0/24",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowVnetNFSv3InBound",
+                    "AllowVnetAzureFilesInBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+            /// the following subnets are custom and optional
+            "pool": {
+                "addressPrefix": "10.121.1.0/24",
+                "nsgRules": [
+                    "AllowVnetNFSv3OutBound",
+                    "AllowVnetAzureFilesOutBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowAllHTTPOutBound",
+                    "AllowVnetInBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+            // subnet for app service
+            "app-service": {
+                "addressPrefix": "10.121.2.0/24",
+                "delegations": [
+                    "Microsoft.Web/serverFarms"
+                ]
+            }
+        }
+    },
+
+    "storage": {
+        "storage0": {
+            "enableNFSv3": false,
+            "containers": [
+                "test-datasets"
+            ]
+            // credentials will be added using parameters as follows
+            // "credentials": {
+            //     "accountName": "${storageAccountName}",
+            //     "accountKey": "${storageAccountKey}",
+            // }
+        }
+    },
+
+    "batch": {
+        /// intentionally keep this minimal
+        "poolAllocationMode": "BatchService",
+        "publicNetworkAccess": true,
+        /// adding a single linux pool
+        "pools": [
+            {
+                /// Name for the pool. This is used to identify the pool in the batch account. It must be unique
+                /// across all pools on this batch account.
+                "name": "linux",
+                /// Virtual machine configuration. "image" refers to an image definition in the `images.jsonc`.
+                "virtualMachine": {
+                    "size": "Standard_D32s_v3",
+                    "taskSlotsPerNode": 16,
+                    "image": "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest"
+                },
+                /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
+                /// configuration files.
+                "subnet": "pool",
+                /// Choose which storage containers/file-shares are to be mounted on this pool
+                /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
+                /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
+                "mounts": {
+                    "test-datasets": "storage0/test-datasets"
+                },
+                /// container images to prefetch on the pool nodes.
+                /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,
+                /// e.g. '${acr}/myrepository/myimage:tag'
+                "containerImages": [
+                    "docker.io/utkarshayachit/vizer:osmesa-main"
+                ]
+            }
+        ]
+    }
+}

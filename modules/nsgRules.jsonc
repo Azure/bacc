@@ -139,7 +139,7 @@
         "access": "Deny"
     },
 
-    "DenyAllOutbound": {
+    "DenyAllOutBound": {
         "description": "Deny all outbound traffic",
         "direction": "Outbound",
         "protocol": "*",

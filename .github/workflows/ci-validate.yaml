@@ -23,10 +23,6 @@ permissions:
 
 jobs:
   validate:
-    strategy:
-      fail-fast: false
-      matrix:
-        config: [default, examples/azfinsim-linux, examples/azfinsim-windows, examples/vizer]
     runs-on: ubuntu-22.04
     environment: azure
     steps:
@@ -36,36 +32,28 @@ jobs:
         python-version: "3.8"
     - name: checkout source
       uses: actions/checkout@v3
-    - name: Merge default config with ${{ matrix.config }}
-      if: matrix.config != 'default'
-      run: |
-        cp -v $GITHUB_WORKSPACE/${{ matrix.config }}/* $GITHUB_WORKSPACE/config/
+      with:
+        submodules: 'true'
     - name: validate bicep
       run: |
         az --version
-        az bicep build --file $GITHUB_WORKSPACE/infrastructure.bicep
-        file $GITHUB_WORKSPACE/infrastructure.json
-    - name: Install dependencies
+        az bicep build --file $GITHUB_WORKSPACE/modules/infrastructure.bicep
+        file $GITHUB_WORKSPACE/modules/infrastructure.json
+
+    - name: validate examples bicep
       run: |
-        python3.8 -m pip install --upgrade pip
-        python3.8 -m pip install ./cli
-    - name: validate spoke.jsonc
-      run: |
-        sb json strip -i $GITHUB_WORKSPACE/config/spoke.jsonc > $GITHUB_WORKSPACE/config/spoke.json
-        jsonschema -i $GITHUB_WORKSPACE/config/spoke.json $GITHUB_WORKSPACE/schemas/spoke.schema.json
-    - name: validate storage.jsonc
-      run: |
-        sb json strip -i $GITHUB_WORKSPACE/config/storage.jsonc > $GITHUB_WORKSPACE/config/storage.json
-        jsonschema -i $GITHUB_WORKSPACE/config/storage.json $GITHUB_WORKSPACE/schemas/storage.schema.json
-    - name: validate batch.jsonc
-      run: |
-        sb json strip -i $GITHUB_WORKSPACE/config/batch.jsonc > $GITHUB_WORKSPACE/config/batch.json
-        jsonschema -i $GITHUB_WORKSPACE/config/batch.json $GITHUB_WORKSPACE/schemas/batch.schema.json
-    - name: validate hub.jsonc
-      run: |
-        sb json strip -i $GITHUB_WORKSPACE/config/hub.jsonc > $GITHUB_WORKSPACE/config/hub.json
-        jsonschema -i $GITHUB_WORKSPACE/config/hub.json $GITHUB_WORKSPACE/schemas/hub.schema.json
-    - name: validate images.jsonc
-      run: |
-        sb json strip -i $GITHUB_WORKSPACE/config/images.jsonc > $GITHUB_WORKSPACE/config/images.json
-        jsonschema -i $GITHUB_WORKSPACE/config/images.json $GITHUB_WORKSPACE/schemas/images.schema.json
+        find "$GITHUB_WORKSPACE/examples" -type f -name "deployment.bicep" | while read -r file; do
+          az bicep build --file "$file"
+        done
+    # - name: Install dependencies
+    #   run: |
+    #     python3.8 -m pip install --upgrade pip
+    #     python3.8 -m pip install ./cli
+    # - name: validate config.template.jsonc
+    #   run: |
+    #     sb json strip -i $GITHUB_WORKSPACE/config/config.template.jsonc > $GITHUB_WORKSPACE/config/config.json
+    #     jsonschema -i $GITHUB_WORKSPACE/config/config.json $GITHUB_WORKSPACE/schemas/config.schema.json
+    # - name: validate hubConfig.template.jsonc
+    #   run: |
+    #     sb json strip -i $GITHUB_WORKSPACE/config/hubConfig.template.jsonc > $GITHUB_WORKSPACE/config/hubConfig.json
+    #     jsonschema -i $GITHUB_WORKSPACE/config/hubConfig.json $GITHUB_WORKSPACE/schemas/hub.schema.json

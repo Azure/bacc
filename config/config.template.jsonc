@@ -1,0 +1,90 @@
+{
+    /// Configuration template
+
+    "network": {
+        /// "network" defines the network topology for the spoke that houses the
+        /// batch pools and other resources.
+
+        "addressPrefix": "10.200.0.0/16", /// the CIDR for the address space used by the spoke vnet
+
+        "subnets": {
+            /// "subnets" defines the subnets on the vnet. You can define multiple subnets
+            /// each given a unique name. A subnet named "private-endpoints" is reserved and must
+            /// be defined. It is used to house all private endpoints for deployed resources.
+
+            "[subnet name]": {
+                "addressPrefix": "10.200.0.0/24", /// address prefix for this subnet
+                "nsgRules": [
+                    /// optional list of NSG rules names that apply to this subnet.
+                    /// see nsgRules.jsonc for supported NSG rule names.
+                ],
+                "delegations": [
+                    /// option list of service names to delegate this subnet to.
+                    /// e.g. "Microsoft.Web/serverFarms"
+                ]
+            }
+        }
+    },
+
+    "storage": {
+        /// "storage" defines storage resources. Multiple storage accounts can be defined
+        /// each given a unique name
+        /// e.g.
+        "[storage name]": {
+            "enableNFSv3": false, /// whether this storage account should support NFSv3
+            "containers": [
+                /// optional list of blob container names on this storage account
+            ],
+            "shares": [
+                /// optional list of file shares on this storage account
+            ],
+            "credentials": {
+                /// optionally specify credentials to use an existing storage account
+                /// either accountKey or sasKey must be specified.
+                "accountName": "[account name]",
+                "accountKey": "[account access key]",
+                "sasKey": "[account SAS key]"
+            }
+        }
+    },
+
+    "batch": {
+        /// Batch service configuration
+        "poolAllocationMode": "BatchService", /// or UserSubscription
+        "publicNetworkAccess": true, /// true/false/"auto" are supported. Indicates whether the batch account should allow
+                                    /// public network access.
+        "pools": [
+            /// list of pools
+            {
+                "name": "[pool name]", // name of the pool
+
+                "virtualMachine": {
+                    /// VM definition for compute nodes in the pool
+                    "size": "Standard_D32s_v3", /// SKU to use
+                    "taskSlotsPerNode": 16, /// number of tasks slots to use per VM
+                    "image": "[image name]" /// VM image (see images.jsonc for supported images)
+                },
+
+                "subnet": "[subnet name]", /// name of subnet to use for this pool
+
+                "mounts": {
+                    /// optional storage accounts to auto-mount on nodes in this pool
+                    /// for Windows VMs, the mount location is a drive letter.
+                    "[relative mount location]": "[storage name]/[container or file-share name]"
+                },
+
+                "containerImages": [
+                    /// optional list of container images to prefetch on the pool nodes;
+                    /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,
+                    /// e.g. '${acr}/myrepository/myimage:tag'
+                ],
+
+                "startTask": {
+                    /// optional commands to execute as a pool start task on every compute node
+                    /// added to the pool
+                    "commands": [ ]
+                }
+            }
+        ]
+    }
+}

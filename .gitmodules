@@ -1,0 +1,3 @@
+[submodule "tpl/connectivity"]
+	path = tpl/connectivity
+	url = https://github.com/mocelj/azbatch-starter-connectivity.git

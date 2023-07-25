@@ -1,0 +1,93 @@
+{
+    "network": {
+        "addressPrefix": "10.121.0.0/16",
+        "subnets": {
+            /// required!
+            "private-endpoints": {
+                "addressPrefix": "10.121.0.0/24",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowVnetNFSv3InBound",
+                    "AllowVnetAzureFilesInBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+            /// the following subnets are custom and optional
+            "pool-linux": {
+                "addressPrefix": "10.121.1.0/24",
+                "nsgRules": [
+                    "AllowVnetSSHInBound",
+                    "AllowVnetNFSv3OutBound",
+                    "AllowVnetAzureFilesOutBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowAllHTTPOutBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+            "pool-windows": {
+                "addressPrefix": "10.121.2.0/24",
+                "nsgRules": [
+                    "AllowVnetRDPInBound",
+                    "AllowVnetAzureFilesOutBound",
+                    "AllowAllHTTPSOutBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            }
+        }
+    },
+    "storage": {
+        /// Lists storage accounts to be created.
+        /// The key of the storage account is used to reference the storage account
+        /// in the "mounts" section of the pool configuration.
+        "blob0": {
+            /// "container" is list of containers to create under this storage account.
+            "containers": [
+                "data"
+            ]
+        },
+        "afs0": {
+            /// "shares" is list file shares to create under this storage account.
+            "shares": [
+                "logs"
+            ]
+        }
+    },
+    "batch": {
+        "poolAllocationMode": "UserSubscription",
+        "publicNetworkAccess": false,
+        "pools": [
+            {
+                "name": "linux",
+                "virtualMachine": {
+                    "size": "Standard_DS5_V2",
+                    "taskSlotsPerNode": 8,
+                    "image": "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest"
+                },
+                "interNodeCommunication": false,
+                "subnet": "pool-linux",
+                "mounts": {
+                    "data": "blob0/data",
+                    "logs": "afs0/logs"
+                }
+            },
+            {
+                "name": "windows",
+                "virtualMachine": {
+                    "size": "Standard_DS5_V2",
+                    "taskSlotsPerNode": 8,
+                    "image": "microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest"
+                },
+                "interNodeCommunication": false,
+                "subnet": "pool-windows",
+                "mounts": {
+                    /// for file-shares on Windows, this must be a single letter since it is used as a drive letter.
+                    "l": "afs0/logs"
+                }
+            }
+        ]
+    }
+}

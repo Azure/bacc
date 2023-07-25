@@ -21,6 +21,10 @@ param enableApplicationPackages bool
 // @secure()
 // param password string
 
+@description('batch configuration')
+@secure()
+param batchJS object
+
 @description('vnet under which pool subsets are defined')
 @metadata({
   group: 'vnet group name'
@@ -52,9 +56,9 @@ var batchConfig = union({
   publicNetworkAccess: 'auto'
   poolAllocationMode: 'UserSubscription'
   pools: []
-}, loadJsonContent('../config/batch.jsonc'))
+}, batchJS)
 
-var images = loadJsonContent('../config/images.jsonc')
+var images = loadJsonContent('./images.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 var poolsConfig = map(batchConfig.pools, item => union({

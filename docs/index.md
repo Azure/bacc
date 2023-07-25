@@ -12,12 +12,20 @@ in a matter of minutes. Getting a proof-of-concept (POC) that demonstrates the v
 However, as one moves from a POC to a production deployment, by incorporating best practices and security guidelines,
 the complexity of the deployment invariably increases.
 
-This repository is a part of our accelerator solution to make it easier for customers to deploy **Azure Batch** workloads
+This repository is a part of our accelerator solution to make it easier for customers to deploy __Azure Batch__ workloads
 in a manner that follows best practices and security guidelines. When used in conjunction with a hub deployment such as
 [azbatch-starter-connectivity](https://github.com/mocelj/azbatch-starter-connectivity), it can be used to deploy
 a locked down Azure Batch environment, designed for industrial use cases such as those in Financial Services (FSI).
 For use-cases where the complexity of a fully locked-down, hub-spoke deployment is not required, this repository
 can be used by itself.
+
+## Philosophy
+
+This code-base is intended to be used to create custom deployments on Azure. It is not intended to be a one-size-fits-all
+solution. Instead, it is designed to be a starting point for creating custom deployments. Examples under
+[`examples`] directory demonstrate how to customize the deployment to meet specific needs. Several different example configurations
+with varying levels of complexity are provided. These examples can be used as-is or as a starting point for creating
+custom deployments.
 
 ## Getting Started / Tutorials
 
@@ -91,3 +99,4 @@ Licensed under the [MIT License](./LICENSE)
 
 [cli]: https://github.com/utkarshayachit/azbatch-starter/tree/main/cli
 [config]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
+[`examples`]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples

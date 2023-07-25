@@ -38,10 +38,18 @@ requirements and steps described in that document for the same.
 
 ## Step 2: Select deployment configuration
 
-For this tutorial, we will use default configuration and hence we don't need to change any of the config files -- a step we have
-to do for other tutorials.
+For this tutorial, we will use configuration files from [examples/secured-batch] folder.
+The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration
+file that contains all the resource configuration parameters for this deployment.
 
-## Step 3: Deploy hub
+The deployment deploys a hub using the `connectivity.bicep` template from the `azbatch-starter-connectivity`
+repository. The hub is deployed in a separate resource group. The hub contains a firewall and a virtual network
+gateway. The firewall is used to route all traffic from the compute nodes through a single point of egress.
+The virtual network gateway is used to connect the hub to the spoke network. The spoke network is deployed
+using the `deployment.bicep` template from the `azbatch-starter` repository. The spoke network contains
+a virtual network and a batch account.
+
+## Step 3: Deploy hub, spoke, and other resources
 
 Deploy the hub network and resources. For this demo, we will use Azure Bastion to get to the jumboxes that then allow us to access the resources.
 
@@ -50,20 +58,34 @@ Deploy the hub network and resources. For this demo, we will use Azure Bastion t
 cd .../azbatch-starter-connectivity
 
 AZ_LOCATION=eastsus2
-AZ_HUB_DEPLOYMENT_NAME=azfinsim-sb-hub
-AZ_HUB_PREFIX=azfinsim-sb-hub
+AZ_DEPLOYMENT_NAME=azfinsim-sb
+AZ_RESOURCE_GROUP=azfinsim-sb
+BATCH_SERVICE_OBJECT_ID= ....  # should be set to the id obtained in prerequisites step
 
-az deployment sub create                \
-    --location $AZ_LOCATION             \
-    --name $AZ_HUB_DEPLOYMENT_NAME      \
-    --template-file connectivity.bicep  \
-    --parameters prefix=$AZ_HUB_PREFIX  \
-       useSingleResourceGroup=true      \
-       deployVPNGateway=false
+az deployment sub create                                    \
+    --location $AZ_LOCATION                                 \
+    --name $AZ_DEPLOYMENT_NAME                              \
+    --template-file examples/secured-batch/deployment.bicep \
+    --parameters                                            \
+      resourceGroupName=$AZ_RESOURCE_GROUP_NAME             \
+      batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID         \
+      deployVPNGateway=false
 
 # >> ENTER PASSWORD:
 #    the deployment will prompt for a password to use for jumpboxes, enter a string that
 #    containers uppercase and lowercase letters, numbers.
+```
+
+On success, a new resource with the specified name will be created with all the resources deployed by this deployment.
+Another resource group will be created with all resources that form the hub. The name of this resource group
+can be obtained from the output of the deployment as follows:
+
+```bash
+#!/bin/bash
+
+az deployment sub show \
+  --name $AZ_DEPLOYMENT_NAME \
+  --query properties.outputs.hubResourceGroupName.value
 ```
 
 ## Step 4: Fetch hub configuration
@@ -76,36 +98,6 @@ az deployment sub show           \
   --name $AZ_HUB_DEPLOYMENT_NAME \
   --query properties.outputs.azbatchStarter.value > /[location of your choice]/hub.jsonc
 ```
-
-## Step 5: Deploy spoke with Batch account
-
-Deploy the spoke network and resources.
-
-```bash
-#!/bin/bash
-
-cd .../azbatch-starter
-
-# replace default hub.jsonc with the hub.jsonc you downloaded in the previous step
-cp [location of you chose earlier]/hub.jsonc config/hub.jsonc
-
-AZ_LOCATION=eastsus2
-AZ_DEPLOYMENT_NAME=azfinsim-sb # name for the deployment
-AZ_RESOURCE_GROUP=azfinsim-sb  # name for the resource group
-BATCH_SERVICE_OBJECT_ID= ....  # should be set to the id obtained in prerequisites step
-
-az deployment sub create                              \
-    --location $AZ_LOCATION                           \
-    --name $AZ_DEPLOYMENT_NAME                        \
-    --template-file infrastructure.bicep              \
-    --parameters                                      \
-      resourceGroupName=$AZ_RESOURCE_GROUP            \
-      batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID   \
-      enableApplicationContainers=true
-```
-
-On success, a new resource group with the specified name will be created. This resource group will contain all
-the resources deployed by this deployment.
 
 ## Step 6: Connect to Windows Jumpbox
 
