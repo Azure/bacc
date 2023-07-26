@@ -60,10 +60,10 @@ Before you can deploy the Azure resources and try out the demos, you need to ens
    limit increased by contacting your administrator.
 
 6. __Validate compute quotas__: Ensure that the region you will deploy under has not
-   sufficient quota left for the SKUs picked for batch compute nodes. The AzFinSim
-   and LULESH-Catalyst demos use `Standard_D2S_V3` while the trame demo uses
-   `Standard_DS5_V2` by default. You can change these by modifying the configuration
-   file [`batch.jsonc`](config/batch.jsonc).
+   sufficient quota left for the SKUs picked for batch compute nodes. The azfinsim
+   examples use `Standard_DS5_v2` while the `vizer` demo uses
+   `Standard_D32s_v3` by default. You can change these by modifying the configuration
+   file (`config.jsonc`) for the chosen deployment / example.
 
 > __FIXME__: need to split these into requirements for user-subscription and batch-service pool allocation
 > modes
