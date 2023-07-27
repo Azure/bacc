@@ -24,6 +24,14 @@ set_if_not_defined(SB_JUMPBOX_RESOURCE_GROUP_NAME "")
 set_if_not_defined(SB_JUMPBOX_NAME "")
 
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+
+if (${CMAKE_VERSION} VERSION_EQUAL "3.27.0")
+    # if cmake version is 3.27.0, workaround for bug #25120
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/25120
+    # increase default timeout to avoid erroneous timeouts
+    set(CTEST_TEST_TIMEOUT 1800)
+endif()
+
 ctest_start(Experimental)
 
 # Gather update information.
