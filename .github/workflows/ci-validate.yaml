@@ -19,7 +19,7 @@ on:
       - '.github/workflows/ci-validate.yaml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
