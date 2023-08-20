@@ -8,8 +8,18 @@ is a service for running compute intensive workloads on Azure. It provides a man
 jobs on a pool of compute nodes. The service is designed to be highly scalable and can be used to run jobs that
 require hundreds or thousands of compute nodes. The service is also designed to be highly customizable and can be
 used to run a wide variety of workloads. Getting started with Azure Batch is easy. The service can be used to run jobs
-in a matter of minutes. Getting a proof-of-concept (POC) that demonstrates the value of the service is also easy.
-However, as one moves from a POC to a production deployment, by incorporating best practices and security guidelines,
+in a matter of minutes. Getting a proof-of-concept (POC) that demonstrates the value of the service is relatively easy.
+However, taking that POC to a production deployment can be challenging especially if the deployment needs to follow
+best practices and security guidelines.
+
+That is where this repository comes in. It is designed to make it easier to develop and deploy Azure Batch infrastructure
+in a manner that follows best practices and security guidelines. This is part of our accelerator solution for Azure Batch
+intended to accelerate development of POCs as well as production deployments alike.
+
+<!-- 
+The complexity of the deployment increases further if the deployment needs to
+
+as one moves from a POC to a production deployment, by incorporating best practices and security guidelines,
 the complexity of the deployment invariably increases.
 
 This repository is a part of our accelerator solution to make it easier for customers to deploy __Azure Batch__ workloads
@@ -17,15 +27,22 @@ in a manner that follows best practices and security guidelines. When used in co
 [azbatch-starter-connectivity](https://github.com/mocelj/azbatch-starter-connectivity), it can be used to deploy
 a locked down Azure Batch environment, designed for industrial use cases such as those in Financial Services (FSI).
 For use-cases where the complexity of a fully locked-down, hub-spoke deployment is not required, this repository
-can be used by itself.
+can be used by itself. -->
 
 ## Philosophy
 
-This code-base is intended to be used to create custom deployments on Azure. It is not intended to be a one-size-fits-all
-solution. Instead, it is designed to be a starting point for creating custom deployments. Examples under
-[`examples`] directory demonstrate how to customize the deployment to meet specific needs. Several different example configurations
-with varying levels of complexity are provided. These examples can be used as-is or as a starting point for creating
-custom deployments.
+This code-base is intended to be used to create custom deployments on Azure. When thinking of migrating
+any computation workload to Azure, one of the first steps is to design the Azure resources used and the
+network topology i.e. the deployment. When designing a deployment with Azure resources and network topology
+for a specific application or workload, understanding the specific requirements of the application/workload is
+critical. Rather than trying to create a one-size-fits-all solution, this accelerator is designed
+to be a starting point for creating custom deployments tailored for specific applications. In simple cases,
+the default example configurations provided by this repository may be sufficient. In those cases, customizations
+are easily supported by editing the JSON configuration files. In more complex cases, the examples provided by this
+repository can be used as a starting point for creating custom Bicep IaC templates.
+
+The [`examples`] directory includes different example deployments for different applications. These are discussed
+in the tutorials below. 
 
 ## Getting Started / Tutorials
 
@@ -45,13 +62,23 @@ and testing AzFinSim on Azure Batch in various configurations.
 
 | Tutorial | Description |
 | -------- | ----------- |
-| [With Containers](./tutorials/azfinsim.md) | Simple setup using application containers on Linux compute nodes. The demo includes using public container registries, like [Docker Hub](https://hub.docker.com) or deploying and using a private [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/products/container-registry). |
-| [Without Containers](./tutorials/azfinsim-on-windows.md) | Same as above except using start tasks for application deployment instead of using container images. Also, this uses pool with nodes running Windows as the OS.|
-| [Secured Batch](./tutorials/azfinsim-in-secured-batch.md) | Setup using application containers on Linux compute nodes within a secured Azure Batch environment that includes a complete hub and spoke deployment with firewall, log analytics, etc. deployed using [azbatch-starter-connectivity](https://github.com/mocelj/azbatch-starter-connectivity). |
+| [Linux with Containers](./tutorials/azfinsim-linux.md) | Simple setup using application containers on Linux compute nodes. The demo includes using public container registries, like [Docker Hub](https://hub.docker.com) or deploying and using a private [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/products/container-registry). |
+| [Windows](./tutorials/azfinsim-windows.md) | Same as above except using start tasks for application deployment instead of using container images. Also, this uses pool with nodes running Windows as the OS.|
 
 To dive into the details of how the AzFinSim application is setup to run in these tutorials, please refer to the
 [understanding AzFinSim](./understanding-azfinsim.md) document. The document also discusses how to monitor the application
 progress using various tools provided by Azure.
+
+### Secured Batch: Reference deployment for FSI use-cases
+
+[Secured Batch](./tutorials/azfinsim-in-secured-batch.md) is a reference architecture for running FSI workloads on Azure Batch.
+This is a complete hub-n-spoke deployment that includes a secured Azure Batch environment with firewall, log analytics, etc.
+This tutorial demonstrates how a FSI application, like AzFinSim, can be deployed and used in a secured Azure Batch environment.
+
+
+| Tutorial | Description |
+| -------- | ----------- |
+| [Secured Batch](./tutorials/azfinsim-in-secured-batch.md) | Setup using application containers on Linux compute nodes within a secured Azure Batch environment that includes a complete hub and spoke deployment with firewall, log analytics, etc. |
 
 ### vizer: 3D visualization of scientific data
 
@@ -78,13 +105,6 @@ uses user-editable configuration files that can be used to customize the deploym
 To make it easier to try out the demo applications, we have developed a custom command-line interface (CLI). The CLI
 is described in the [CLI documentation](./cli.md). The [CLI][cli] also demonstrates how you can put together custom tools
 to model your own workflows using Python and the [Azure Python SDK](https://learn.microsoft.com/en-us/azure/developer/python/?view=azure-python).
-
-## Example Configurations
-
-In addition to the default configuration, we also provide a few example configurations that demonstrate how to customize
-the deployment to meet specific needs. These are documented [here](./examples.md). To use any of these
-example configurations, you can copy the configuration files to the [`config`][config] directory and modify them as needed.
-Some of the tutorials also use these example configurations.
 
 ## Automated Testing (CI)
 

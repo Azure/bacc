@@ -4,6 +4,10 @@ This tutorial is a step-by-step guide on how to deploy [`vizer-hub`](https://git
 a NodeJS-based web-server, using an Azure App Service. `vizer-hub` is configured to use Azure Batch as the compute backend
 for running the visualization tasks.
 
+For this tutorial, we will use configuration files from [examples/vizer] folder.
+The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
+To use these files, copy them to the config folder.
+
 ## Key Design Elements
 
 * `vizer-hub`, deployed as an Azure App Service, acts as the landing page for users. The UI allows users to browse
@@ -31,16 +35,14 @@ have one, create a storage with a blob container and upload some datasets to it.
 from a public network. If you want the deployment to create a new storage account, you can modify the
 [`storage.jsonc`](../../examples/vizer/storage.jsonc) configuration file by simply removing the `credentials` section.
 
-## Step 2: Select deployment configuration
+## Step 2: Deploy the batch account and other resources
 
-For this tutorial, we will use configuration files from [examples/vizer] folder.
-The `deployment.bicep`
-is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
-To use these files, copy them to the config folder.
+For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
+simply click the following link to deploy using Azure Portal.
 
-## Step 3: Deploy the batch account and other resources
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fvizer_deploy.json)
 
-Create deployment using Azure CLI. Since in this example we are using an existing storage account, we need to
+To create deployment using Azure CLI for these steps. Since in this example we are using an existing storage account, we need to
 provide the storage account name and the SAS token to access it. The SAS token must have read access to the
 storage account. Before running the deployment, make sure you have the SAS token ready and update the
 [`storage.json`] configuration file with the storage account name and the SAS token.

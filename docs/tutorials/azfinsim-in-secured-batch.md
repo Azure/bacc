@@ -1,8 +1,20 @@
 # Deploying Secured-Batch
 
-**Secured-Batch** refers to a configuration of `sbatch` that is deployed in a secure manner. The primary target
-for such a deployment is FSIs (Financial Services Institutions) that have strict security requirements. Of course, this
+**Secured-Batch** models a reference architecture for a secured deployment of resources for use with Azure Batch.
+The primary target for such a deployment is FSIs (Financial Services Institutions) that have strict security requirements. Of course, this
 configuration can be a starting point for any deployment that requires a secure deployment.
+
+For this tutorial, we will use configuration files from [examples/secured-batch] folder.
+The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration
+file that contains all the resource configuration parameters for this deployment.
+
+The deployment deploys a hub using the `connectivity.bicep` template from the [azbatch-starter-connectivity]
+repository. The hub is deployed in a separate resource group. The hub contains a firewall and a virtual network
+gateway. The firewall is used to route all traffic from the compute nodes through a single point of egress.
+The virtual network gateway is used to connect the hub to the spoke network. The spoke network is deployed
+using the `deployment.bicep` template from the `azbatch-starter` repository. The spoke network contains
+a virtual network and a batch account.
+
 
 ## Design Considerations
 
@@ -36,22 +48,14 @@ Follow the [environment setup instructions](./environment-setup.md) to set up yo
 this tutorial uses **User Subscription** pool allocation mode, make sure you follow the extra
 requirements and steps described in that document for the same.
 
-## Step 2: Select deployment configuration
+## Step 2: Deploy hub, spoke, and other resources
 
-For this tutorial, we will use configuration files from [examples/secured-batch] folder.
-The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration
-file that contains all the resource configuration parameters for this deployment.
+For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
+simply click the following link to deploy using Azure Portal.
 
-The deployment deploys a hub using the `connectivity.bicep` template from the `azbatch-starter-connectivity`
-repository. The hub is deployed in a separate resource group. The hub contains a firewall and a virtual network
-gateway. The firewall is used to route all traffic from the compute nodes through a single point of egress.
-The virtual network gateway is used to connect the hub to the spoke network. The spoke network is deployed
-using the `deployment.bicep` template from the `azbatch-starter` repository. The spoke network contains
-a virtual network and a batch account.
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fsecured-batch_deploy.json)
 
-## Step 3: Deploy hub, spoke, and other resources
-
-Deploy the hub network and resources. For this demo, we will use Azure Bastion to get to the jumboxes that then allow us to access the resources.
+To deploy using the CLI, use the following steps:
 
 ```bash
 #!/bin/bash
@@ -68,8 +72,7 @@ az deployment sub create                                    \
     --template-file examples/secured-batch/deployment.bicep \
     --parameters                                            \
       resourceGroupName=$AZ_RESOURCE_GROUP_NAME             \
-      batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID         \
-      deployVPNGateway=false
+      batchServiceObjectId=$BATCH_SERVICE_OBJECT_ID
 
 # >> ENTER PASSWORD:
 #    the deployment will prompt for a password to use for jumpboxes, enter a string that
@@ -88,32 +91,21 @@ az deployment sub show \
   --query properties.outputs.hubResourceGroupName.value
 ```
 
-## Step 4: Fetch hub configuration
-
-Once the deployment is complete, you can fetch the hub configuration using the following command:
-
-```bash
-#!/bin/bash
-az deployment sub show           \
-  --name $AZ_HUB_DEPLOYMENT_NAME \
-  --query properties.outputs.azbatchStarter.value > /[location of your choice]/hub.jsonc
-```
-
-## Step 6: Connect to Windows Jumpbox
+## Step 3: Connect to Windows Jumpbox
 
 Once the deployment is complete, you can connect to the Windows jumpbox using Azure Bastion. Locate the Windows
 jumpbox under the resource group created in the hub deployment. Click on the **Connect** button and follow the
 instructions to connect to the jumpbox using Bastion. The username, by default, is set to `localadmin` and the password
 is the password you provided during the hub deployment.
 
-## Step 7: Connect to Linux Jumpbox
+## Step 4: Connect to Linux Jumpbox
 
 Once the deployment is complete, you can connect to the Linux jumpbox using Azure Bastion. Locate the Linux
 jumpbox under the resource group created in the hub deployment. Click on the **Connect** button and follow the
 instructions to connect to the jumpbox using Bastion. The username, by default, is set to `localadmin` and the password
 is the password you provided during the hub deployment.
 
-## Step 8: Setup CLI and submit jobs
+## Step 5: Setup CLI and submit jobs
 
 Once connected to the Linux Jumpbox, you can now run the demo from there. The steps are same as the
 [With Containers](./azfinsim.md) tutorial. Simply follow the steps after the deployment step
@@ -139,3 +131,6 @@ The only differences being the following:
   Experienced users will soon realize that even this logging in to Azure CLI on the jumpbox is not required.
   This is only necessary for the few commands we execute in the tutorial steps viz. obtaining the subscription ID.
   You can skip these CLI login steps and instead manually provide the subscription ID in the `sb ...` commands.
+
+[examples/secured-batch]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/secured-batch
+[azbatch-starter-connectivity]: https://github.com/mocelj/azbatch-starter-connectivity

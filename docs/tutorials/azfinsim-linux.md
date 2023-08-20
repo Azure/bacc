@@ -8,11 +8,15 @@ This tutorial has two variants: using Docker Hub and using Azure Container Regis
 The Docker Hub variant is simpler and is recommended for first time users. Steps below describe the Docker Hub variant.
 For those steps that are different for ACR variant, we have provided a note.
 
+For this tutorial, we will use configuration files from [examples/azfinsim-linux] folder.
+The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
+resource configuration parameters for this deployment.
+
 ## Key Design Elements
 
 * Uses Azure Batch service deployed with pool allocation mode set to **Batch Service**.
-* AzFinSim application is packaged as a container image. The container image is pulled from a
-  Docker Hub repository.
+* AzFinSim application is packaged as a container image. The container image is pulled from either from
+  Docker Hub repository or Azure Container Registry (ACR) depending on the deployment configuration.
 
 ## Step 1: Prerequisites and environment setup
 
@@ -20,16 +24,14 @@ Follow the [environment setup instructions](./environment-setup.md) to set up yo
 this tutorial uses **Batch Service** pool allocation mode, you can skip the **User Subscription** specific
 requirements and steps described in that document.
 
-## Step 2: Select deployment configuration
+## Step 2: Deploy resources to Azure
 
-For this tutorial, we will use configuration files from [examples/azfinsim-linux] folder.
-The `deployment.bicep`
-is the entry point for this deployment and `config.jonc` is the configuration file that contains all the
-resource configuration parameters for this deployment.
+For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
+simply click the following link to deploy using Azure Portal.
 
-## Step 3: Deploy the batch account and other resources
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fazfinsim-linux_deploy.json)
 
-Create deployment using Azure CLI.
+Use the following steps to deploy using Azure CLI.
 
 ```bash
 #!/bin/bash
@@ -68,14 +70,14 @@ az deployment sub create                                      \
       enableApplicationContainers=true
 ```
 
-## Step 4: Install CLI
+## Step 3: Install CLI
 
 Next, we install the CLI tool provided by this repository. This tool is used to submit jobs and tasks to the batch account.
 We recommend using a python virtual environment to install the CLI tool to avoid polluting the global python environment.
 
 Follow the steps described [here](../cli.md#installation) to install the CLI tool.
 
-## Step 5: Verify deployment
+## Step 4: Verify deployment
 
 We can the CLI tool deployed in previous step to verify the deployment.
 
@@ -84,10 +86,13 @@ We can the CLI tool deployed in previous step to verify the deployment.
 
 # fetch subscription id from the portal or using the following command
 # if you have already logged in to Azure CLI using `az login` command
-> AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+# set resource group name to the one used in Step 2
+AZ_RESOURCE_GROUP=azfinsim0 # or whatever you used in Step 2
 
 # use the `sb show` command
-> sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
+sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
 # on success, you'll get the following output
 {
   "acr_name": null,
@@ -98,7 +103,7 @@ We can the CLI tool deployed in previous step to verify the deployment.
 # will be a valid URL instead of `null`.
 
 # To list all available pools, use the `sb pool list` command
-> sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --query "[].{pool_id:id, vm_size:vmSize, state:allocationState}"
 # expected output
 [
@@ -110,19 +115,19 @@ We can the CLI tool deployed in previous step to verify the deployment.
 ]
 ```
 
-## Step 6: Submit AzFinSim job using Docker Hub
+## Step 5: Submit AzFinSim job using Docker Hub
 
 We can now submit the AzFinSim job to the pool.
 
 ```bash
 #!/bin/bash
 
-> AZ_POOL_ID=$(sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
+AZ_POOL_ID=$(sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
 # --- or you can just manually set AZ_POOL_ID to "linux", of course!
 
 # submit the job to generate 1000 trades, and process them using 100 concurrent tasks;
 # here, we use the container image "utkarshayachit/azfinsim:main" from Docker Hub
-> sb azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
+sb azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
     -p $AZ_POOL_ID                                          \
     --num-trades 1000                                       \
     --num-tasks 100                                         \
@@ -143,7 +148,7 @@ change this as follows.
 
 ```bash
 # resize pool
-> sb pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 1
+sb pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 1
 # this will block until the pool is resized and then print the following:
 {
   "current_dedicated_nodes": 1,
@@ -157,7 +162,7 @@ Azure Batch Explorer.
 To understand how to monitor the AzFinSim demo using various tools available and inspect the results, please refer to the
 [understanding AzFinSim](../understanding-azfinsim.md) document.
 
-## Step 7: Submit AzFinSim job using ACR
+## Step 6: Submit AzFinSim job using ACR
 
 > **NOTE**: This is only applicable if you deployed with `enableApplicationContainers=true` parameter.
 > If enableApplicationContainers=false (default), then Azure Container Registry is not deployed.
@@ -202,12 +207,12 @@ use the ACR we created in the deployment.
 ```bash
 #!/bin/bash
 
-> AZ_POOL_ID=$(sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
+AZ_POOL_ID=$(sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
 # --- or you can just manually set AZ_POOL_ID to "linux", of course!
 
 # submit the job to generate 1000 trades, and process them using 100 concurrent tasks;
 # here, we use the container image "utkarshayachit/azfinsim:main" from Docker Hub
-> sb azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
+sb azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
     -p $AZ_POOL_ID                                          \
     --num-trades 1000                                       \
     --num-tasks 100                                         \
