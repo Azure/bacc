@@ -24,7 +24,7 @@ to deploy the resources under your subscription using Azure Portal.
 
 ## Architecture
 
-![alt text.](./images/architecture-diagram.png)
+![alt text.](./images/Secured-Azure-Batch.png)
 
 _Download a [Visio file](https://arch-center.azureedge.net/architecture.vsdx) that contains this architecture diagram.
 This file must be uploaded to `https://arch-center.azureedge.net/`_
@@ -107,6 +107,8 @@ communication between the spoke network and the outside world. The resources dep
 * [Azure Application Insights](https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview?tabs=net): together with Log Analytics Workspace, provides
   performance monitoring and troubleshooting capabilities for the resources deployed.
 
+* [Azure DNS Private Resolver](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview): provides an inbound endpoint to resolve IPs of private endpoints if queried outside of the provisioned virtual network, e.g. from on-prem resources. Will be deployed if the Azure VPN Gateway is deployed.
+
 ### Spoke Resources
 
 Let's now look at the resources deployed on the spoke network. These are the resources intended for executing the computation workloads and all supporting resources.
@@ -139,6 +141,8 @@ The resources deployed on the spoke network are as follows:
   a private deployment of the container registry helps control access to container images and also provides a more secure way to store container images.
   The container registry is deployed on the spoke network and is configured to allow access only from the Batch service. This ensures that the container
   images are not accessible from the public internet.
+
+* [Azure Managed Identity](https://learn.microsoft.com/en-us/azure/batch/managed-identity-pools): TODO: Verify with Utkarsh, if the final version uses managed identities which are assgined on Azure Batch Pool level.  
   
 ### Accessing the resources
 
