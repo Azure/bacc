@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.20.4.51522",
-      "templateHash": "8845630830262624800"
+      "templateHash": "7864464625617201426"
     }
   },
   "parameters": {
@@ -95,7 +95,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.20.4.51522",
-              "templateHash": "4599032324396834552"
+              "templateHash": "4077664788744682662"
             }
           },
           "parameters": {
@@ -1079,7 +1079,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.20.4.51522",
-                      "templateHash": "1930080331761300333"
+                      "templateHash": "14530242057782316800"
                     }
                   },
                   "parameters": {
@@ -1839,7 +1839,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.20.4.51522",
-                              "templateHash": "14600867138345815926"
+                              "templateHash": "4214743252351065533"
                             }
                           },
                           "parameters": {
@@ -1862,7 +1862,7 @@
                             "blobBFSConfigs": "[if(parameters('isWindows'), createArray(), filter(variables('sconfigs'), lambda('c', and(equals(lambdaVariables('c').kind, 'blob'), equals(lambdaVariables('c').nfsv3, false())))))]",
                             "fsConfigs": "[filter(variables('sconfigs'), lambda('c', equals(lambdaVariables('c').kind, 'file')))]",
                             "configsNFS": "[map(variables('blobNFSConfigs'), lambda('c', createObject('nfsMountConfiguration', createObject('mountOptions', '-o sec=sys,vers=3,nolock,proto=tcp,rw', 'relativeMountPath', lambdaVariables('c').key, 'source', format('{0}.blob.{1}:/{2}/{3}', lambdaVariables('c').name, environment().suffixes.storage, lambdaVariables('c').name, lambdaVariables('c').container)))))]",
-                            "configsBFS": "[map(variables('blobBFSConfigs'), lambda('c', createObject('azureBlobFileSystemConfiguration', union(createObject('accountName', lambdaVariables('c').name, 'containerName', lambdaVariables('c').container, 'blobfuseOptions', '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120', 'relativeMountPath', lambdaVariables('c').key), if(not(empty(lambdaVariables('c').credentials)), lambdaVariables('c').credentials, createObject('identityReference', createObject('resourceId', parameters('mi'))))))))]",
+                            "configsBFS": "[map(variables('blobBFSConfigs'), lambda('c', createObject('azureBlobFileSystemConfiguration', union(createObject('accountName', lambdaVariables('c').name, 'containerName', lambdaVariables('c').container, 'blobfuseOptions', '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other', 'relativeMountPath', lambdaVariables('c').key), if(not(empty(lambdaVariables('c').credentials)), lambdaVariables('c').credentials, createObject('identityReference', createObject('resourceId', parameters('mi'))))))))]",
                             "configsFS": "[map(variables('fsConfigs'), lambda('c', createObject('azureFileShareConfiguration', union(if(parameters('isWindows'), createObject(), createObject('mountOptions', '-o vers=3.0,dir_mode=0777,file_mode=0777,sec=ntlmssp')), createObject('relativeMountPath', lambdaVariables('c').key, 'accountName', lambdaVariables('c').name, 'accountKey', lambdaVariables('c').accountKey, 'azureFileUrl', format('https://{0}.file.{1}/{2}', lambdaVariables('c').name, environment().suffixes.storage, lambdaVariables('c').share))))))]",
                             "configs": "[concat(variables('configsNFS'), variables('configsBFS'), variables('configsFS'))]"
                           },
