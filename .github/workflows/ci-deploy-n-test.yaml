@@ -27,7 +27,7 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        test_suite: ['azfinsim-linux', 'azfinsim-windows', 'secured-batch', 'vizer']
+        test_suite: ['azfinsim-linux', 'azfinsim-windows', 'vizer', 'secured-batch']
     uses: ./.github/workflows/az-deploy.yaml
     with:
       test_suite: ${{ matrix.test_suite }}

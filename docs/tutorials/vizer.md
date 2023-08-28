@@ -32,8 +32,8 @@ requirements and  steps described in that document.
 
 This tutorial is designed to use an existing storage account for the datasets instead of creating a new one. If you don't already
 have one, create a storage with a blob container and upload some datasets to it. Make sure the storage account is accessible
-from a public network. If you want the deployment to create a new storage account, you can modify the
-[`storage.jsonc`](../../examples/vizer/storage.jsonc) configuration file by simply removing the `credentials` section.
+from a public network. If you want to let the deployment create a new storage account, then do not provide any of the
+`storage*` parameters described below.
 
 ## Step 2: Deploy the batch account and other resources
 
@@ -56,18 +56,41 @@ AZ_DEPLOYMENT_NAME=vizer0
 AZ_RESOURCE_GROUP=vizer0
 
 # storage credentials
-AZ_STORAGE_CREDENTIALS="{\"accountName\": \"<storage-account-name>\", \"sasToken\": \"<sas-token>\"}"
-# or you can use storage account access key as follows
-# AZ_STORAGE_CREDENTIALS="{\"accountName\": \"<storage-account-name>\", \"accountKey\": \"<storage-account-key>\"}"
+AZ_STORAGE_ACCOUNT_NAME='<storage-account-name>'
+AZ_STORAGE_ACCOUNT_CONTAINER='<storage-account-container>'
+AZ_STORAGE_ACCOUNT_SAS_TOKEN='<storage-account-sas-token>'
 
-az deployment sub create                          \
-  --name $AZ_DEPLOYMENT_NAME                      \
-  --location $AZ_LOCATION                         \
-  --template-file examples/vizer/deployment.bicep \
-  --parameters                                    \
-      resourceGroupName=$AZ_RESOURCE_GROUP        \
-      storageCredentials=$AZ_STORAGE_CREDENTIALS
+az deployment sub create                                    \
+  --name $AZ_DEPLOYMENT_NAME                                \
+  --location $AZ_LOCATION                                   \
+  --template-file examples/vizer/deployment.bicep           \
+  --parameters                                              \
+      resourceGroupName=$AZ_RESOURCE_GROUP                  \
+      storageAccountName=$AZ_STORAGE_ACCOUNT_NAME           \
+      storageAccountContainer=$AZ_STORAGE_ACCOUNT_CONTAINER \
+      storageAccountSasToken=$AZ_STORAGE_ACCOUNT_SAS_TOKEN
+
+# To use storage account key instead of SAS token, use the following parameters instead.
+AZ_STORAGE_ACCOUNT_KEY='<storage-account-key>'
+az deployment sub create                                    \
+  --name $AZ_DEPLOYMENT_NAME                                \
+  --location $AZ_LOCATION                                   \
+  --template-file examples/vizer/deployment.bicep           \
+  --parameters                                              \
+      resourceGroupName=$AZ_RESOURCE_GROUP                  \
+      storageAccountName=$AZ_STORAGE_ACCOUNT_NAME           \
+      storageAccountContainer=$AZ_STORAGE_ACCOUNT_CONTAINER \
+      storageAccountKey=$AZ_STORAGE_ACCOUNT_KEY
 ```
+
+> **NOTE**:
+> Only one of `storageAccountKey` or `storageAccountSasToken` parameters must be provided.
+> If both are provided, `storageAccountKey` will be used.
+
+> **NOTE**:
+> To let the deployment create a new storage account instead of using an existing one,
+> simply skip all the `storage*` parameters.
+
 
 On success, a new resource group will be created with the name specified.
 To obtain the URL for the `vizer-hub` web server, run the following command.

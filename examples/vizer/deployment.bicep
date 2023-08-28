@@ -18,20 +18,36 @@ param tags object = {}
 @description('deployment timestamp')
 param timestamp string = utcNow('g')
 
-@description('storage account credentials')
+//------------------------------------------------------------------------------
+// storage account parameters
+@description('existing storage account name')
+param storageAccountName string = ''
+
+@description('existing storage account access key')
 @secure()
-@metadata({
-  accountName: 'name of the storage account'
-  accountKey: 'storage account access key'
-  sasKey: 'storage account SAS token'
-})
-param storageCredentials object
+param storageAccountKey string = ''
+
+@description('existing storage account SAS token')
+@secure()
+param storageAccountSasToken string = ''
+
+@description('storage account container name')
+@minLength(3)
+param storageAccountContainer string = 'datasets'
 
 //------------------------------------------------------------------------------
-var config = loadJsonContent('./config.jsonc')
-var storage0 = union(config.storage.storage0, {
-  credentials: storageCredentials
-})
+var configTXT = loadTextContent('./config.jsonc')
+var config = json(replace(configTXT, '\${storageAccountContainer}', storageAccountContainer))
+
+var credentials = !empty(storageAccountKey) ? {
+  accountKey: storageAccountKey
+} : !empty(storageAccountSasToken) ? {
+  sasKey: storageAccountSasToken
+} : {}
+
+var storage0 = union(config.storage.storage0, !empty(storageAccountName) ? {
+  credentials: union(credentials, { accountName: storageAccountName })
+} : {})
 
 @description('suffix used for all nested deployments')
 var dplSuffix = uniqueString(deployment().name, location, resourceGroupName)

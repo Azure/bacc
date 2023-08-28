@@ -40,13 +40,8 @@
         "storage0": {
             "enableNFSv3": false,
             "containers": [
-                "test-datasets"
+                "${storageAccountContainer}"
             ]
-            // credentials will be added using parameters as follows
-            // "credentials": {
-            //     "accountName": "${storageAccountName}",
-            //     "accountKey": "${storageAccountKey}",
-            // }
         }
     },
 
@@ -69,12 +64,14 @@
                 /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`
                 /// configuration files.
                 "subnet": "pool",
+
                 /// Choose which storage containers/file-shares are to be mounted on this pool
                 /// "key" is the relative path for the mount and value is the "<storage-account-tag>/<container|fileshare>".
                 /// The "storage-account-tag" is used to look up the storage account defined in `storage.jsonc`.
                 "mounts": {
-                    "test-datasets": "storage0/test-datasets"
+                    "${storageAccountContainer}": "storage0/${storageAccountContainer}"
                 },
+
                 /// container images to prefetch on the pool nodes.
                 /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,
                 /// e.g. '${acr}/myrepository/myimage:tag'
