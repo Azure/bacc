@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.20.4.51522",
-      "templateHash": "16249468779953806849"
+      "templateHash": "10699848750639375426"
     }
   },
   "parameters": {
@@ -38,84 +38,41 @@
         "description": "deployment timestamp"
       }
     },
-    "storageCredentials": {
-      "type": "secureObject",
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "",
       "metadata": {
-        "accountName": "name of the storage account",
-        "accountKey": "storage account access key",
-        "sasKey": "storage account SAS token",
-        "description": "storage account credentials"
+        "description": "existing storage account name"
+      }
+    },
+    "storageAccountKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "existing storage account access key"
+      }
+    },
+    "storageAccountSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "existing storage account SAS token"
+      }
+    },
+    "storageAccountContainer": {
+      "type": "string",
+      "defaultValue": "datasets",
+      "minLength": 3,
+      "metadata": {
+        "description": "storage account container name"
       }
     }
   },
   "variables": {
-    "$fxv#0": {
-      "network": {
-        "addressPrefix": "10.121.0.0/16",
-        "subnets": {
-          "private-endpoints": {
-            "addressPrefix": "10.121.0.0/24",
-            "nsgRules": [
-              "AllowAllHTTPSInBound",
-              "AllowAllHTTPSOutBound",
-              "AllowVnetNFSv3InBound",
-              "AllowVnetAzureFilesInBound",
-              "DenyAllInBound",
-              "DenyAllOutBound"
-            ]
-          },
-          "pool": {
-            "addressPrefix": "10.121.1.0/24",
-            "nsgRules": [
-              "AllowVnetNFSv3OutBound",
-              "AllowVnetAzureFilesOutBound",
-              "AllowAllHTTPSOutBound",
-              "AllowAllHTTPOutBound",
-              "AllowVnetInBound",
-              "DenyAllInBound",
-              "DenyAllOutBound"
-            ]
-          },
-          "app-service": {
-            "addressPrefix": "10.121.2.0/24",
-            "delegations": [
-              "Microsoft.Web/serverFarms"
-            ]
-          }
-        }
-      },
-      "storage": {
-        "storage0": {
-          "enableNFSv3": false,
-          "containers": [
-            "test-datasets"
-          ]
-        }
-      },
-      "batch": {
-        "poolAllocationMode": "BatchService",
-        "publicNetworkAccess": true,
-        "pools": [
-          {
-            "name": "linux",
-            "virtualMachine": {
-              "size": "Standard_D32s_v3",
-              "taskSlotsPerNode": 16,
-              "image": "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest"
-            },
-            "subnet": "pool",
-            "mounts": {
-              "test-datasets": "storage0/test-datasets"
-            },
-            "containerImages": [
-              "docker.io/utkarshayachit/vizer:osmesa-main"
-            ]
-          }
-        ]
-      }
-    },
-    "config": "[variables('$fxv#0')]",
-    "storage0": "[union(variables('config').storage.storage0, createObject('credentials', parameters('storageCredentials')))]",
+    "configTXT": "{\n    \"network\": {\n        \"addressPrefix\": \"10.121.0.0/16\",\n        \"subnets\": {\n            \"private-endpoints\": {\n                \"addressPrefix\": \"10.121.0.0/24\",\n                \"nsgRules\": [\n                    \"AllowAllHTTPSInBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowVnetNFSv3InBound\",\n                    \"AllowVnetAzureFilesInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n            /// the following subnets are custom and optional\n            \"pool\": {\n                \"addressPrefix\": \"10.121.1.0/24\",\n                \"nsgRules\": [\n                    \"AllowVnetNFSv3OutBound\",\n                    \"AllowVnetAzureFilesOutBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowAllHTTPOutBound\",\n                    \"AllowVnetInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n            // subnet for app service\n            \"app-service\": {\n                \"addressPrefix\": \"10.121.2.0/24\",\n                \"delegations\": [\n                    \"Microsoft.Web/serverFarms\"\n                ]\n            }\n        }\n    },\n\n    \"storage\": {\n        \"storage0\": {\n            \"enableNFSv3\": false,\n            \"containers\": [\n                \"${storageAccountContainer}\"\n            ]\n        }\n    },\n\n    \"batch\": {\n        /// intentionally keep this minimal\n        \"poolAllocationMode\": \"BatchService\",\n        \"publicNetworkAccess\": true,\n        /// adding a single linux pool\n        \"pools\": [\n            {\n                /// Name for the pool. This is used to identify the pool in the batch account. It must be unique\n                /// across all pools on this batch account.\n                \"name\": \"linux\",\n                /// Virtual machine configuration. \"image\" refers to an image definition in the `images.jsonc`.\n                \"virtualMachine\": {\n                    \"size\": \"Standard_D32s_v3\",\n                    \"taskSlotsPerNode\": 16,\n                    \"image\": \"microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest\"\n                },\n                /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`\n                /// configuration files.\n                \"subnet\": \"pool\",\n\n                /// Choose which storage containers/file-shares are to be mounted on this pool\n                /// \"key\" is the relative path for the mount and value is the \"<storage-account-tag>/<container|fileshare>\".\n                /// The \"storage-account-tag\" is used to look up the storage account defined in `storage.jsonc`.\n                \"mounts\": {\n                    \"${storageAccountContainer}\": \"storage0/${storageAccountContainer}\"\n                },\n\n                /// container images to prefetch on the pool nodes.\n                /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,\n                /// e.g. '${acr}/myrepository/myimage:tag'\n                \"containerImages\": [\n                    \"docker.io/utkarshayachit/vizer:osmesa-main\"\n                ]\n            }\n        ]\n    }\n}\n",
+    "config": "[json(replace(variables('configTXT'), '${storageAccountContainer}', parameters('storageAccountContainer')))]",
+    "credentials": "[if(not(empty(parameters('storageAccountKey'))), createObject('accountKey', parameters('storageAccountKey')), if(not(empty(parameters('storageAccountSasToken'))), createObject('sasKey', parameters('storageAccountSasToken')), createObject()))]",
+    "storage0": "[union(variables('config').storage.storage0, if(not(empty(parameters('storageAccountName'))), createObject('credentials', union(variables('credentials'), createObject('accountName', parameters('storageAccountName')))), createObject()))]",
     "dplSuffix": "[uniqueString(deployment().name, parameters('location'), parameters('resourceGroupName'))]"
   },
   "resources": [
@@ -3621,7 +3578,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.20.4.51522",
-              "templateHash": "3458891270465640657"
+              "templateHash": "15862460734167285488"
             }
           },
           "parameters": {
@@ -3695,7 +3652,7 @@
                 "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('config').vnet.name, parameters('delegatedSubnetName'))]",
                 "publicNetworkAccess": "Enabled",
                 "siteConfig": {
-                  "appCommandLine": "[join(union(createArray('--port', '80', '-i', format('{0}', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('config').mi.name), '2023-01-31').clientId), '-b', format('https://{0}', reference(resourceId('Microsoft.Batch/batchAccounts', parameters('config').batchAccount.name), '2022-10-01').accountEndpoint), '-s', format('{0}', variables('saConfig').name), '--storage-container', format('{0}', variables('saConfig').container)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'accountKey')), createArray('-k', format('\"{0}\"', variables('saConfig').credentials.accountKey)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'sasKey')), createArray('-t', format('\"{0}\"', variables('saConfig').credentials.sasKey)), createArray()))), ' ')]",
+                  "appCommandLine": "[join(union(createArray('--port', '80', '-i', format('{0}', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('config').mi.name), '2023-01-31').clientId), '-b', format('https://{0}', reference(resourceId('Microsoft.Batch/batchAccounts', parameters('config').batchAccount.name), '2022-10-01').accountEndpoint), '-s', format('{0}', variables('saConfig').name), '--storage-container', format('{0}', variables('saConfig').container)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'accountKey')), createArray('-k', format('\"{0}\"', variables('saConfig').credentials.accountKey)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'sasKey')), createArray('-t', format('{0}', variables('saConfig').credentials.sasKey)), createArray()))), ' ')]",
                   "linuxFxVersion": "DOCKER|docker.io/utkarshayachit/vizer-hub:main",
                   "numberOfWorkers": 1,
                   "appSettings": [
