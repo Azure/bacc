@@ -25,7 +25,7 @@ var configsBFS = map(blobBFSConfigs, c => {
   azureBlobFileSystemConfiguration : union({
     accountName: c.name
     containerName: c.container
-    blobfuseOptions: '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120'
+    blobfuseOptions: '-o attr_timeout=240 -o entry_timeout=240 -o negative_timeout=120 -o allow_other'
     relativeMountPath: c.key
   }, !empty(c.credentials) ? c.credentials : {
     identityReference: {
