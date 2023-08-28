@@ -68,7 +68,7 @@ var cmdLine = union([
   '"${saConfig.credentials.accountKey}"'
 ] : contains(saConfig, 'credentials') && contains(saConfig.credentials, 'sasKey') ? [
   '-t'
-  '"${saConfig.credentials.sasKey}"'
+  '${saConfig.credentials.sasKey}'
 ] : [])
 
 var appServiceNameSuffix = replace(guid('vizer-hub', resourceGroup().id), '-', '')
