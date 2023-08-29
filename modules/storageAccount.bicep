@@ -16,7 +16,10 @@ var sanitizedAccount = union({
 
 var useExisting = contains(sanitizedAccount, 'credentials') && !empty(sanitizedAccount.credentials)
 var sasCredentials = useExisting && contains(sanitizedAccount.credentials, 'sasKey') ? {
-  sasKey: sanitizedAccount.credentials.sasKey
+  // Azure portal is inconsistent in how it displays the sas key, sometimes it has a leading '?', sometimes not
+  // this code ensures that the sas key always has a leading '?'. By manaully testing on batch pool with blobfuse,
+  // it seems that the leading '?' is required.
+  sasKey: startsWith(sanitizedAccount.credentials.sasKey, '?') ? sanitizedAccount.credentials.sasKey : '?${sanitizedAccount.credentials.sasKey}'
 } : {}
 var accessKeyCredentials = useExisting && empty(sasCredentials) ? {
   accountKey: sanitizedAccount.credentials.accountKey
