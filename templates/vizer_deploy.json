@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.20.4.51522",
-      "templateHash": "18054253590877883612"
+      "templateHash": "6911496503879182010"
     }
   },
   "parameters": {
@@ -122,7 +122,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.20.4.51522",
-              "templateHash": "4077664788744682662"
+              "templateHash": "14051606491324619625"
             }
           },
           "parameters": {
@@ -810,7 +810,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.20.4.51522",
-                      "templateHash": "3369770912147361824"
+                      "templateHash": "11177088904309197221"
                     }
                   },
                   "parameters": {
@@ -874,7 +874,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.20.4.51522",
-                              "templateHash": "817520215360675173"
+                              "templateHash": "15237024663178430053"
                             }
                           },
                           "parameters": {
@@ -925,7 +925,7 @@
                             ],
                             "sanitizedAccount": "[union(createObject('containers', createArray(), 'shares', createArray()), parameters('account'))]",
                             "useExisting": "[and(contains(variables('sanitizedAccount'), 'credentials'), not(empty(variables('sanitizedAccount').credentials)))]",
-                            "sasCredentials": "[if(and(variables('useExisting'), contains(variables('sanitizedAccount').credentials, 'sasKey')), createObject('sasKey', variables('sanitizedAccount').credentials.sasKey), createObject())]",
+                            "sasCredentials": "[if(and(variables('useExisting'), contains(variables('sanitizedAccount').credentials, 'sasKey')), createObject('sasKey', if(startsWith(variables('sanitizedAccount').credentials.sasKey, '?'), variables('sanitizedAccount').credentials.sasKey, format('?{0}', variables('sanitizedAccount').credentials.sasKey))), createObject())]",
                             "accessKeyCredentials": "[if(and(variables('useExisting'), empty(variables('sasCredentials'))), createObject('accountKey', variables('sanitizedAccount').credentials.accountKey), createObject())]",
                             "enableNFSv3": "[if(contains(variables('sanitizedAccount'), 'enableNFSv3'), variables('sanitizedAccount').enableNFSv3, not(empty(variables('sanitizedAccount').containers)))]",
                             "containerConfigs": "[map(variables('sanitizedAccount').containers, lambda('container', createObject('key', format('{0}/{1}', variables('sanitizedAccount').key, lambdaVariables('container')), 'value', createObject('name', variables('sanitizedAccount').name, 'group', resourceGroup().name, 'kind', 'blob', 'container', lambdaVariables('container'), 'nfsv3', and(variables('enableNFSv3'), not(variables('useExisting'))), 'credentials', union(variables('sasCredentials'), variables('accessKeyCredentials'))))))]"
