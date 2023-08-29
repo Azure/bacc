@@ -18,8 +18,9 @@ To use these files, copy them to the config folder.
 * `vizer-hub` also acts as web server proxy allowing the users' web browser to connect to the
   `vizer` web server running on the compute node.
 * In this tutorial, we use an existing storage account for the datasets instead of creating a new one. Either a SAS token
-  or a storage account key can be used to connect to the storage account. These must be provided in the
-  [`storage.jsonc`](../../examples/vizer/storage.jsonc) configuration file during deployment.
+  or a storage account key can be used to connect to the storage account. These must be passed as parameters to
+  the deployment. If you want to let the deployment create a new storage account, then do not provide any of the
+  `storage*` parameters described below.
 * Uses Azure Batch service deployed with pool allocation mode set to **Batch Service**.
 * Both `vizer-hub` and `vizer` are packaged as container images. The container images are pulled from a
   Docker Hub repository.
@@ -43,9 +44,7 @@ simply click the following link to deploy using Azure Portal.
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fvizer_deploy.json)
 
 To create deployment using Azure CLI for these steps. Since in this example we are using an existing storage account, we need to
-provide the storage account name and the SAS token to access it. The SAS token must have read access to the
-storage account. Before running the deployment, make sure you have the SAS token ready and update the
-[`storage.json`] configuration file with the storage account name and the SAS token.
+provide the storage account name, container name and the account access key or SAS token to access it.
 
 ```bash 
 #!/bin/bash
