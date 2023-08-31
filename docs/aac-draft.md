@@ -142,7 +142,7 @@ The resources deployed on the spoke network are as follows:
   The container registry is deployed on the spoke network and is configured to allow access only from the Batch service. This ensures that the container
   images are not accessible from the public internet.
 
-* [Azure Managed Identity](https://learn.microsoft.com/en-us/azure/batch/managed-identity-pools): TODO: Verify with Utkarsh, if the final version uses managed identities which are assgined on Azure Batch Pool level.  
+* [Azure Managed Identity](https://learn.microsoft.com/en-us/azure/batch/managed-identity-pools): Leverage an Azure Managed Identitiy to access resources with Role Based Access (RBAC) setup. 
   
 ### Accessing the resources
 
