@@ -1,0 +1,77 @@
+{
+    "network": {
+        "addressPrefix": "10.123.0.0/16",
+        "subnets": {
+            "private-endpoints": {
+                "addressPrefix": "10.123.0.0/24",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    // "AllowVnetNFSv3InBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+
+            "pool": {
+                "addressPrefix": "10.123.1.0/24",
+                "nsgRules": [
+                    // "AllowVnetNFSv3OutBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowAllHTTPOutBound",
+                    "AllowVnetSSHInBound",
+                    "AllowVnetSSHOutBound",
+                    // "DenyAllInBound",
+                    // "DenyAllOutBound"
+                ] 
+            }
+        }
+    },
+
+    "storage": {
+        // "storage0": {
+        //     "enableNFSv3": false,
+        //     "containers": [ "data" ]
+        // }
+    },
+
+    "images": {
+        // add a custom image definition
+        "redhat/rhel/8_4/latest": {
+            "imageReference": {
+                "offer": "rhel",
+                "publisher": "redhat",
+                "sku": "8_4",
+                "version": "latest"
+            },
+            "isWindows": false,
+            "nodeAgentSkuId": "batch.node.el 8",
+            "supportsContainers": false
+        }
+    },
+
+    "batch": {
+        "poolAllocationMode": "UserSubscription",
+        "publicNetworkAccess": true,
+        "pools": [
+            {
+                "name": "linux-HBv3",
+                "virtualMachine": {
+                    "size": "Standard_HB120rs_v3",
+                    "image": "redhat/rhel/8_4/latest",
+                    "taskSlotsPerNode": 1
+                },
+                "subnet": "pool",
+                "interNodeCommunication": true,
+                "startTask": {
+                    "commands": [
+                        "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/mpi-benchmarks/examples/mpi-benchmarks/start_task.sh",
+                        "chmod +x start_task.sh",
+                        "bash start_task.sh"
+                    ]
+                }
+            }
+        ]
+    }
+    
+}
