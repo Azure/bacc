@@ -7,7 +7,7 @@
     /// this is useful for debugging but also may be necessary when
     /// using MPI to run distributed jobs
     "AllowVnetSSHInBound": {
-        "description": "Allow SSH/RDP access within vnet for development",
+        "description": "Allow SSH/RDP access within vnet for development / mpi",
         "protocol": "tcp",
         "sourcePortRange": "*",
         "destinationPortRange": "22",
@@ -16,6 +16,18 @@
         "access": "Allow",
         "direction": "Inbound"
     },
+
+    "AllowVnetSSHOutBound": {
+        "description": "Allow SSH/RDP access within vnet for development / mpi",
+        "protocol": "tcp",
+        "sourcePortRange": "*",
+        "destinationPortRange": "22",
+        "sourceAddressPrefix": "VirtualNetwork",
+        "destinationAddressPrefix": "VirtualNetwork",
+        "access": "Allow",
+        "direction": "Outbound"
+    },
+
 
     /// allow inbound RDP access to the compute nodes from vnet
     /// this is useful for debugging.
