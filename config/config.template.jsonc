@@ -48,6 +48,24 @@
         }
     },
 
+    "images": {
+        /// "images" defines VM images that can be used to create pools.
+        /// only need when using non-standard images i.e. those not already defined in images.jsonc
+        "[image name]": {
+            "imageReference": {
+                /// image reference for the image
+                "offer": "[offer]",
+                "publisher": "[publisher]",
+                "sku": "[sku]",
+                "version": "[version]"
+            },
+            "isWindows": false, /// whether the image is a Windows image
+            "nodeAgentSkuId": "[node agent SKU ID]", /// node agent SKU ID
+            "supportsContainers": false /// whether the image supports containers
+        }
+        /// multiple images can be defined here, if needed
+    },
+
     "batch": {
         /// Batch service configuration
         "poolAllocationMode": "BatchService", /// or UserSubscription

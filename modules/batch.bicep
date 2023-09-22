@@ -52,13 +52,15 @@ param storageConfigurations object = {}
 @description('spoke deployed with gateway peerings')
 param gatewayPeeringEnabled bool
 
+@description('VM image definitions')
+param images object
+
 var batchConfig = union({
   publicNetworkAccess: 'auto'
   poolAllocationMode: 'UserSubscription'
   pools: []
 }, batchJS)
 
-var images = loadJsonContent('./images.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 var poolsConfig = map(batchConfig.pools, item => union({

@@ -115,6 +115,10 @@ as follows:
   "batch": {
     /// defines the batch account and pools
   },
+
+  "images": {
+    /// defines the VM images to use for the pools
+  }
 }
 ```
 
@@ -242,6 +246,28 @@ follow this practice.
   ]
 }
 ```
+
+`images` specifies the VM images to use for the pools as follows:
+
+```jsonc
+{
+  "[image name]": {
+    "imageReference": {
+      "offer": "[offer for the image]",
+      "publisher": "[publisher for the image]",
+      "sku": "[sku for the image]",
+      "version": "[version for the image]"
+    },
+    "nodeAgentSKUId": "[node agent sku id for the image]",
+    "isWindows": "[true/false to indicate if the image is windows or linux]",
+    "isContainer": "[true/false to indicate if the image supports container runtime]",
+  },
+  /// ...
+}
+```
+
+This module comes with a default library of imges that you can use. See [images.jsonc] for a list of images. The above
+is only intended for adding new images or unsupported images.
 
 [config/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
 [schemas/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/schemas
