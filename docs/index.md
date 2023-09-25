@@ -90,9 +90,18 @@ the tutorials that take you through the process of deploying and testing vizer o
 | -------- | ----------- |
 | [vizer](./tutorials/vizer.md) | Simple setup using application containers on Linux compute nodes. The demo deploys [vizer-hub](https://github.com/utkarshayachit/vizer-hub) which can be used to browse and visualize datasets from a preexisting storage account.
 
-### __[placeholder]__: some application example with MPI
+### MPI Benchmarks: MPI benchmarks (Intel and OSU micro-benchmarks)
 
-> __TODO__: add a tutorial for an MPI application
+MPI (Message Passing Interface) is a standard for writing parallel applications that run on distributed memory systems.
+Azure Batch enables a cloud-native MPI deployment that can be used to run MPI applications on Azure. The following table
+lists the tutorials that take you through the process of deploying and testing MPI benchmarks on Azure Batch in various
+configurations.
+
+| Tutorial | Description |
+| -------- | ----------- |
+| [MPI Benchmarks on RHEL](./tutorials/mpi-benchmarks-rhel.md) | Simple setup using application containers on Linux compute nodes with RHEL 8. |
+
+
 
 ## Design and Implementation
 

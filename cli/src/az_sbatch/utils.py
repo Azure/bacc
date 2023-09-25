@@ -137,6 +137,7 @@ def create_tasks(
     container_run_options=None,
     elevatedUser=False,
     get_dependencies=None,
+    num_mpi_nodes:int=1,
 ):
     """create a list of tasks"""
     user = (
@@ -156,12 +157,22 @@ def create_tasks(
         else None
     )
 
+    multi_instance_settings = (
+        models.MultiInstanceSettings(
+            number_of_instances=int(num_mpi_nodes),
+            coordination_command_line='echo "done!"'
+        )
+        if num_mpi_nodes > 1
+        else None
+    )
+
     return [
         models.TaskAddParameter(
             id="{}_{}".format(task_id_prefix, index),
             command_line=cmd,
             user_identity=user,
             container_settings=task_container_settings,
+            multi_instance_settings=multi_instance_settings,
             depends_on=models.TaskDependencies(task_ids=get_dependencies(index))
             if get_dependencies
             else None,

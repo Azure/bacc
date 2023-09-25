@@ -52,13 +52,15 @@ param storageConfigurations object = {}
 @description('spoke deployed with gateway peerings')
 param gatewayPeeringEnabled bool
 
+@description('VM image definitions')
+param images object
+
 var batchConfig = union({
   publicNetworkAccess: 'auto'
   poolAllocationMode: 'UserSubscription'
   pools: []
 }, batchJS)
 
-var images = loadJsonContent('./images.jsonc')
 var diagConfig = loadJsonContent('./diagnostics.json')
 
 var poolsConfig = map(batchConfig.pools, item => union({
@@ -68,6 +70,7 @@ var poolsConfig = map(batchConfig.pools, item => union({
     commands: []
   }
   isWindows: images[item.virtualMachine.image].isWindows // for convenience
+  supportsContainers: images[item.virtualMachine.image].?supportsContainers ?? (!images[item.virtualMachine.image].isWindows) // for convenience
   containerImages: []
 }, item))
 
@@ -431,7 +434,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
         nodeAgentSkuId: images[item.virtualMachine.image].nodeAgentSkuId
 
         // provide ACR information if containers are enabled (and supported)
-        containerConfiguration: images[item.virtualMachine.image].isWindows ? null : {
+        containerConfiguration: item.supportsContainers ? {
           type: 'DockerCompatible'
           containerRegistries: enableApplicationContainers ? [
             {
@@ -444,7 +447,7 @@ resource pools 'Microsoft.Batch/batchAccounts/pools@2022-10-01' = [for (item, in
 
           // prefetch container images, if any
           containerImageNames:  mdlContainerImages[index].outputs.containerImageNames
-        }
+        } : null
       }
     }
 

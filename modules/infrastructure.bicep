@@ -131,6 +131,7 @@ module dplBatch 'batch.bicep' = {
   params: {
     location: location
     batchJS: config.batch
+    images: config.?images ?? loadJsonContent('./images.jsonc')
     tags: allTags
     batchServiceObjectId: batchServiceObjectId
     enableApplicationPackages: enableApplicationPackages

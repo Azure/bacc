@@ -119,6 +119,51 @@
             },
             "additionalProperties": false
         },
+        "images": {
+            "description": "container images configuration",
+            "type": "object",
+            "properties": {
+                "imageReference": {
+                    "description": "image reference for the container image",
+                    "type": "object",
+                    "properties": {
+                        "offer": {
+                            "description": "offer for the container image",
+                            "type": "string"
+                        },
+                        "publisher": {
+                            "description": "publisher for the container image",
+                            "type": "string"
+                        },
+                        "sku": {
+                            "description": "sku for the container image",
+                            "type": "string"
+                        },
+                        "version": {
+                            "description": "version for the container image",
+                            "type": "string"
+                        }
+                    },
+                    "required": [ "offer", "publisher", "sku", "version" ],
+                    "additionalProperties": false
+                },
+                "nodeAgentSkuId": {
+                    "description": "node agent SKU ID for the container image",
+                    "type": "string"
+                },
+                "isWindows": {
+                    "description": "is the VM image a Windows image",
+                    "type": "boolean"
+                },
+                "isContainer": {
+                    "description": "does the VM image support container runtimes",
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "additionalProperties": false,
+            "required": ["imageReference", "nodeAgentSkuId", "isWindows"]
+        },
         "batch": {
             "description": "batch account configuration",
             "type": "object",
