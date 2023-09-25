@@ -65,7 +65,7 @@
                 "interNodeCommunication": true,
                 "startTask": {
                     "commands": [
-                        "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/mpi-benchmarks/examples/mpi-benchmarks/start_task.sh",
+                        "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/main/examples/mpi-benchmarks/start_task.sh",
                         "chmod +x start_task.sh",
                         "bash start_task.sh"
                     ]
