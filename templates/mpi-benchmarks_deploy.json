@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.21.1.54444",
-      "templateHash": "14217756581003572025"
+      "templateHash": "6373015659912101292"
     }
   },
   "parameters": {
@@ -38,41 +38,93 @@
         "description": "deployment timestamp"
       }
     },
-    "storageAccountName": {
+    "vnetPeerResourceGroupName": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "existing storage account name"
+        "description": "vnet peer resource group name"
       }
     },
-    "storageAccountKey": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "existing storage account access key"
-      }
-    },
-    "storageAccountSasToken": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "existing storage account SAS token"
-      }
-    },
-    "storageAccountContainer": {
+    "vnetPeerName": {
       "type": "string",
-      "defaultValue": "datasets",
-      "minLength": 3,
+      "defaultValue": "",
       "metadata": {
-        "description": "storage account container name"
+        "description": "vnet peer name"
+      }
+    },
+    "batchServiceObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Batch Service Object Id (az ad sp show --id \"ddbf3205-c6bd-46ae-8127-60eb93363864\" --query id)"
       }
     }
   },
   "variables": {
-    "configTXT": "{\n    \"network\": {\n        \"addressPrefix\": \"10.121.0.0/16\",\n        \"subnets\": {\n            \"private-endpoints\": {\n                \"addressPrefix\": \"10.121.0.0/24\",\n                \"nsgRules\": [\n                    \"AllowAllHTTPSInBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowVnetNFSv3InBound\",\n                    \"AllowVnetAzureFilesInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n            /// the following subnets are custom and optional\n            \"pool\": {\n                \"addressPrefix\": \"10.121.1.0/24\",\n                \"nsgRules\": [\n                    \"AllowVnetNFSv3OutBound\",\n                    \"AllowVnetAzureFilesOutBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowAllHTTPOutBound\",\n                    \"AllowVnetInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n            // subnet for app service\n            \"app-service\": {\n                \"addressPrefix\": \"10.121.2.0/24\",\n                \"delegations\": [\n                    \"Microsoft.Web/serverFarms\"\n                ]\n            }\n        }\n    },\n\n    \"storage\": {\n        \"storage0\": {\n            \"enableNFSv3\": false,\n            \"containers\": [\n                \"${storageAccountContainer}\"\n            ]\n        }\n    },\n\n    \"batch\": {\n        /// intentionally keep this minimal\n        \"poolAllocationMode\": \"BatchService\",\n        \"publicNetworkAccess\": true,\n        /// adding a single linux pool\n        \"pools\": [\n            {\n                /// Name for the pool. This is used to identify the pool in the batch account. It must be unique\n                /// across all pools on this batch account.\n                \"name\": \"linux\",\n                /// Virtual machine configuration. \"image\" refers to an image definition in the `images.jsonc`.\n                \"virtualMachine\": {\n                    \"size\": \"Standard_D32s_v3\",\n                    \"taskSlotsPerNode\": 16,\n                    \"image\": \"microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest\"\n                },\n                /// Choose the subnet. The name must match one of the subnets defined in the `spoke.jsonc`\n                /// configuration files.\n                \"subnet\": \"pool\",\n\n                /// Choose which storage containers/file-shares are to be mounted on this pool\n                /// \"key\" is the relative path for the mount and value is the \"<storage-account-tag>/<container|fileshare>\".\n                /// The \"storage-account-tag\" is used to look up the storage account defined in `storage.jsonc`.\n                \"mounts\": {\n                    \"${storageAccountContainer}\": \"storage0/${storageAccountContainer}\"\n                },\n\n                /// container images to prefetch on the pool nodes.\n                /// to use images from ACR deployed as part of the deployment, use '${acr}' as prefix,\n                /// e.g. '${acr}/myrepository/myimage:tag'\n                \"containerImages\": [\n                    \"docker.io/utkarshayachit/vizer:osmesa-main\"\n                ]\n            }\n        ]\n    }\n}\n",
-    "config": "[json(replace(variables('configTXT'), '${storageAccountContainer}', parameters('storageAccountContainer')))]",
-    "credentials": "[if(not(empty(parameters('storageAccountKey'))), createObject('accountKey', parameters('storageAccountKey')), if(not(empty(parameters('storageAccountSasToken'))), createObject('sasKey', parameters('storageAccountSasToken')), createObject()))]",
-    "storage0": "[union(variables('config').storage.storage0, if(not(empty(parameters('storageAccountName'))), createObject('credentials', union(variables('credentials'), createObject('accountName', parameters('storageAccountName')))), createObject()))]",
+    "$fxv#0": {
+      "network": {
+        "addressPrefix": "10.123.0.0/16",
+        "subnets": {
+          "private-endpoints": {
+            "addressPrefix": "10.123.0.0/24",
+            "nsgRules": [
+              "AllowAllHTTPSInBound",
+              "AllowAllHTTPSOutBound",
+              "DenyAllInBound",
+              "DenyAllOutBound"
+            ]
+          },
+          "pool": {
+            "addressPrefix": "10.123.1.0/24",
+            "nsgRules": [
+              "AllowAllHTTPSOutBound",
+              "AllowAllHTTPOutBound",
+              "AllowVnetSSHInBound",
+              "AllowVnetSSHOutBound"
+            ]
+          }
+        }
+      },
+      "storage": {},
+      "images": {
+        "redhat/rhel/8_4/latest": {
+          "imageReference": {
+            "offer": "rhel",
+            "publisher": "redhat",
+            "sku": "8_4",
+            "version": "latest"
+          },
+          "isWindows": false,
+          "nodeAgentSkuId": "batch.node.el 8",
+          "supportsContainers": false
+        }
+      },
+      "batch": {
+        "poolAllocationMode": "UserSubscription",
+        "publicNetworkAccess": true,
+        "pools": [
+          {
+            "name": "linux-HBv3",
+            "virtualMachine": {
+              "size": "Standard_HB120rs_v3",
+              "image": "redhat/rhel/8_4/latest",
+              "taskSlotsPerNode": 1
+            },
+            "subnet": "pool",
+            "interNodeCommunication": true,
+            "startTask": {
+              "commands": [
+                "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/mpi-benchmarks/examples/mpi-benchmarks/start_task.sh",
+                "chmod +x start_task.sh",
+                "bash start_task.sh"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "config": "[variables('$fxv#0')]",
+    "peerings": "[if(and(not(empty(parameters('vnetPeerResourceGroupName'))), not(empty(parameters('vnetPeerName')))), createArray(createObject('group', parameters('vnetPeerResourceGroupName'), 'name', parameters('vnetPeerName'), 'useGateway', true())), createArray())]",
+    "hubConfig": "[if(not(empty(variables('peerings'))), createObject('network', createObject('peerings', variables('peerings'))), createObject())]",
     "dplSuffix": "[uniqueString(deployment().name, parameters('location'), parameters('resourceGroupName'))]"
   },
   "resources": [
@@ -87,6 +139,12 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "config": {
+            "value": "[variables('config')]"
+          },
+          "hubConfig": {
+            "value": "[variables('hubConfig')]"
+          },
           "resourceGroupName": {
             "value": "[parameters('resourceGroupName')]"
           },
@@ -105,14 +163,8 @@
           "timestamp": {
             "value": "[parameters('timestamp')]"
           },
-          "config": {
-            "value": {
-              "batch": "[variables('config').batch]",
-              "network": "[variables('config').network]",
-              "storage": {
-                "storage0": "[variables('storage0')]"
-              }
-            }
+          "batchServiceObjectId": {
+            "value": "[parameters('batchServiceObjectId')]"
           }
         },
         "template": {
@@ -3567,142 +3619,6 @@
           }
         }
       }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('vizer-hub-{0}', variables('dplSuffix'))]",
-      "resourceGroup": "[parameters('resourceGroupName')]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "config": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('infrastructure-{0}', variables('dplSuffix'))), '2022-09-01').outputs.summary.value]"
-          },
-          "tags": {
-            "value": "[parameters('tags')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.21.1.54444",
-              "templateHash": "17336923182741997492"
-            }
-          },
-          "parameters": {
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]",
-              "metadata": {
-                "description": "location where all the resources are to be deployed"
-              }
-            },
-            "tags": {
-              "type": "object",
-              "defaultValue": {},
-              "metadata": {
-                "description": "additonal tags to attach to resources created"
-              }
-            },
-            "config": {
-              "type": "secureObject",
-              "metadata": {
-                "description": "deployment config"
-              }
-            },
-            "delegatedSubnetName": {
-              "type": "string",
-              "defaultValue": "app-service",
-              "metadata": {
-                "description": "delegated subnet name"
-              }
-            }
-          },
-          "variables": {
-            "saConfig": "[items(parameters('config').storageConfigs)[0].value]",
-            "appServiceNameSuffix": "[replace(guid('vizer-hub', resourceGroup().id), '-', '')]"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Web/serverfarms",
-              "apiVersion": "2022-09-01",
-              "name": "vizer-hub-plan",
-              "location": "[parameters('location')]",
-              "tags": "[parameters('tags')]",
-              "properties": {
-                "reserved": true
-              },
-              "sku": {
-                "name": "B1"
-              },
-              "kind": "linux",
-              "metadata": {
-                "description": "app service plan for the vizer-hub web app deployment"
-              }
-            },
-            {
-              "type": "Microsoft.Web/sites",
-              "apiVersion": "2022-09-01",
-              "name": "[take(format('vizer-hub-{0}', variables('appServiceNameSuffix')), 60)]",
-              "location": "[parameters('location')]",
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('config').mi.name))]": {}
-                }
-              },
-              "properties": {
-                "enabled": true,
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'vizer-hub-plan')]",
-                "httpsOnly": true,
-                "vnetRouteAllEnabled": true,
-                "vnetContentShareEnabled": false,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('config').vnet.name, parameters('delegatedSubnetName'))]",
-                "publicNetworkAccess": "Enabled",
-                "siteConfig": {
-                  "appCommandLine": "[join(union(createArray('--port', '80', '-i', format('{0}', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('config').mi.name), '2023-01-31').clientId), '-b', format('https://{0}', reference(resourceId('Microsoft.Batch/batchAccounts', parameters('config').batchAccount.name), '2022-10-01').accountEndpoint), '-s', format('{0}', variables('saConfig').name), '--storage-container', format('{0}', variables('saConfig').container)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'accountKey')), createArray('-k', format('\"{0}\"', variables('saConfig').credentials.accountKey)), if(and(contains(variables('saConfig'), 'credentials'), contains(variables('saConfig').credentials, 'sasKey')), createArray('-t', format('{0}', variables('saConfig').credentials.sasKey)), createArray()))), ' ')]",
-                  "linuxFxVersion": "DOCKER|docker.io/utkarshayachit/vizer-hub:main",
-                  "numberOfWorkers": 1,
-                  "appSettings": [
-                    {
-                      "name": "WEBSITES_PORT",
-                      "value": "80"
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', 'vizer-hub-plan')]"
-              ],
-              "metadata": {
-                "description": "app service"
-              }
-            }
-          ],
-          "outputs": {
-            "vizerHubUrl": {
-              "type": "string",
-              "metadata": {
-                "description": "vizer Hub URL"
-              },
-              "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', take(format('vizer-hub-{0}', variables('appServiceNameSuffix')), 60)), '2022-09-01').defaultHostName)]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('infrastructure-{0}', variables('dplSuffix')))]"
-      ]
     }
   ],
   "outputs": {
@@ -3712,13 +3628,6 @@
         "description": "deployment summary"
       },
       "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('infrastructure-{0}', variables('dplSuffix'))), '2022-09-01').outputs.summary.value]"
-    },
-    "vizerHubUrl": {
-      "type": "string",
-      "metadata": {
-        "description": "vizer Hub URL"
-      },
-      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('vizer-hub-{0}', variables('dplSuffix'))), '2022-09-01').outputs.vizerHubUrl.value]"
     },
     "resourceGroups": {
       "type": "array",

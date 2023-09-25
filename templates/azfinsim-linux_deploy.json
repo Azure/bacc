@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.20.4.51522",
-      "templateHash": "5151653462095302255"
+      "version": "0.21.1.54444",
+      "templateHash": "10541762469779599669"
     }
   },
   "parameters": {
@@ -101,8 +101,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.20.4.51522",
-              "templateHash": "14051606491324619625"
+              "version": "0.21.1.54444",
+              "templateHash": "12668683698825922974"
             }
           },
           "parameters": {
@@ -171,6 +171,348 @@
             }
           },
           "variables": {
+            "$fxv#0": {
+              "almalinux/almalinux/9-gen1/latest": {
+                "imageReference": {
+                  "offer": "almalinux",
+                  "publisher": "almalinux",
+                  "sku": "9-gen1",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.el 9"
+              },
+              "batch/rendering-centos73/rendering/latest": {
+                "imageReference": {
+                  "offer": "rendering-centos73",
+                  "publisher": "batch",
+                  "sku": "rendering",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.centos 7"
+              },
+              "batch/rendering-windows2016/rendering/latest": {
+                "imageReference": {
+                  "offer": "rendering-windows2016",
+                  "publisher": "batch",
+                  "sku": "rendering",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "canonical/0001-com-ubuntu-server-focal/20_04-lts/latest": {
+                "imageReference": {
+                  "offer": "0001-com-ubuntu-server-focal",
+                  "publisher": "canonical",
+                  "sku": "20_04-lts",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+              },
+              "canonical/0001-com-ubuntu-server-focal/20_04-lts-gen2/latest": {
+                "imageReference": {
+                  "offer": "0001-com-ubuntu-server-focal",
+                  "publisher": "canonical",
+                  "sku": "20_04-lts-gen2",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+              },
+              "canonical/0001-com-ubuntu-server-jammy/22_04-lts/latest": {
+                "imageReference": {
+                  "offer": "0001-com-ubuntu-server-jammy",
+                  "publisher": "canonical",
+                  "sku": "22_04-lts",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 22.04"
+              },
+              "canonical/ubuntuserver/18.04-lts/latest": {
+                "imageReference": {
+                  "offer": "ubuntuserver",
+                  "publisher": "canonical",
+                  "sku": "18.04-lts",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 18.04"
+              },
+              "debian/debian-10/10/latest": {
+                "imageReference": {
+                  "offer": "debian-10",
+                  "publisher": "debian",
+                  "sku": "10",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.debian 10"
+              },
+              "microsoft-azure-batch/centos-container/7-9/latest": {
+                "imageReference": {
+                  "offer": "centos-container",
+                  "publisher": "microsoft-azure-batch",
+                  "sku": "7-9",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.centos 7"
+              },
+              "microsoft-azure-batch/centos-container-rdma/7-9/latest": {
+                "imageReference": {
+                  "offer": "centos-container-rdma",
+                  "publisher": "microsoft-azure-batch",
+                  "sku": "7-9",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.centos 7"
+              },
+              "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest": {
+                "imageReference": {
+                  "offer": "ubuntu-server-container",
+                  "publisher": "microsoft-azure-batch",
+                  "sku": "20-04-lts",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+              },
+              "microsoft-azure-batch/ubuntu-server-container-rdma/20-04-lts/latest": {
+                "imageReference": {
+                  "offer": "ubuntu-server-container-rdma",
+                  "publisher": "microsoft-azure-batch",
+                  "sku": "20-04-lts",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.ubuntu 20.04"
+              },
+              "microsoftcblmariner/cbl-mariner/cbl-mariner-2/latest": {
+                "imageReference": {
+                  "offer": "cbl-mariner",
+                  "publisher": "microsoftcblmariner",
+                  "sku": "cbl-mariner-2",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.mariner 2.0"
+              },
+              "microsoftwindowsserver/windowsserver/2012-datacenter/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2012-datacenter",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2012-datacenter-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2012-datacenter-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2012-r2-datacenter/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2012-r2-datacenter",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2012-r2-datacenter-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2012-r2-datacenter-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2016-datacenter/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2016-datacenter",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2016-datacenter-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2016-datacenter-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2016-datacenter-with-containers/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2016-datacenter-with-containers",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-core/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-core",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-core-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-core-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-core-with-containers/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-core-with-containers",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-core-with-containers-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-core-with-containers-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-with-containers/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-with-containers",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2019-datacenter-with-containers-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2019-datacenter-with-containers-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2022-datacenter/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2022-datacenter",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2022-datacenter-core/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2022-datacenter-core",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2022-datacenter-core-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2022-datacenter-core-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest": {
+                "imageReference": {
+                  "offer": "windowsserver",
+                  "publisher": "microsoftwindowsserver",
+                  "sku": "2022-datacenter-smalldisk",
+                  "version": "latest"
+                },
+                "isWindows": true,
+                "nodeAgentSkuId": "batch.node.windows amd64"
+              },
+              "openlogic/centos/7_9/latest": {
+                "imageReference": {
+                  "offer": "centos",
+                  "publisher": "openlogic",
+                  "sku": "7_9",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.centos 7"
+              },
+              "openlogic/centos/7_9-gen2/latest": {
+                "imageReference": {
+                  "offer": "centos",
+                  "publisher": "openlogic",
+                  "sku": "7_9-gen2",
+                  "version": "latest"
+                },
+                "isWindows": false,
+                "nodeAgentSkuId": "batch.node.centos 7"
+              }
+            },
             "dplSuffix": "[uniqueString(deployment().name, parameters('location'), parameters('resourceGroupName'))]",
             "allTags": "[union(parameters('tags'), createObject('last deployed', parameters('timestamp'), 'codebase', 'azbatch-starter', 'version', '0.1.0'))]",
             "hubConfigSanitized": "[union(createObject('diagnostics', createObject('logAnalyticsWorkspace', createObject('id', ''), 'appInsights', createObject('appId', '', 'instrumentationKey', '')), 'managedIdentities', createArray(), 'network', createObject('routes', createArray(), 'peerings', createArray(), 'dnsZones', createArray())), parameters('hubConfig'))]",
@@ -225,8 +567,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "15816361450040032354"
+                      "version": "0.21.1.54444",
+                      "templateHash": "10252677314460662572"
                     }
                   },
                   "parameters": {
@@ -406,8 +748,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "13309917841350227982"
+                              "version": "0.21.1.54444",
+                              "templateHash": "10381560863554466408"
                             }
                           },
                           "parameters": {
@@ -425,7 +767,7 @@
                           "variables": {
                             "$fxv#0": {
                               "AllowVnetSSHInBound": {
-                                "description": "Allow SSH/RDP access within vnet for development",
+                                "description": "Allow SSH/RDP access within vnet for development / mpi",
                                 "protocol": "tcp",
                                 "sourcePortRange": "*",
                                 "destinationPortRange": "22",
@@ -433,6 +775,16 @@
                                 "destinationAddressPrefix": "VirtualNetwork",
                                 "access": "Allow",
                                 "direction": "Inbound"
+                              },
+                              "AllowVnetSSHOutBound": {
+                                "description": "Allow SSH/RDP access within vnet for development / mpi",
+                                "protocol": "tcp",
+                                "sourcePortRange": "*",
+                                "destinationPortRange": "22",
+                                "sourceAddressPrefix": "VirtualNetwork",
+                                "destinationAddressPrefix": "VirtualNetwork",
+                                "access": "Allow",
+                                "direction": "Outbound"
                               },
                               "AllowVnetRDPInBound": {
                                 "description": "Allow RDP access within vnet for development",
@@ -601,8 +953,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "4266885443750950687"
+                              "version": "0.21.1.54444",
+                              "templateHash": "27857195044618223"
                             }
                           },
                           "parameters": {
@@ -679,8 +1031,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "4266885443750950687"
+                              "version": "0.21.1.54444",
+                              "templateHash": "27857195044618223"
                             }
                           },
                           "parameters": {
@@ -789,8 +1141,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "11177088904309197221"
+                      "version": "0.21.1.54444",
+                      "templateHash": "6288222897179725283"
                     }
                   },
                   "parameters": {
@@ -853,8 +1205,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "15237024663178430053"
+                              "version": "0.21.1.54444",
+                              "templateHash": "10240081480022150970"
                             }
                           },
                           "parameters": {
@@ -1051,6 +1403,9 @@
                   "batchJS": {
                     "value": "[parameters('config').batch]"
                   },
+                  "images": {
+                    "value": "[coalesce(tryGet(parameters('config'), 'images'), variables('$fxv#0'))]"
+                  },
                   "tags": {
                     "value": "[variables('allTags')]"
                   },
@@ -1085,8 +1440,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "14530242057782316800"
+                      "version": "0.21.1.54444",
+                      "templateHash": "7432536924927961134"
                     }
                   },
                   "parameters": {
@@ -1161,352 +1516,16 @@
                       "metadata": {
                         "description": "spoke deployed with gateway peerings"
                       }
+                    },
+                    "images": {
+                      "type": "object",
+                      "metadata": {
+                        "description": "VM image definitions"
+                      }
                     }
                   },
                   "variables": {
                     "$fxv#0": {
-                      "almalinux/almalinux/9-gen1/latest": {
-                        "imageReference": {
-                          "offer": "almalinux",
-                          "publisher": "almalinux",
-                          "sku": "9-gen1",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.el 9"
-                      },
-                      "batch/rendering-centos73/rendering/latest": {
-                        "imageReference": {
-                          "offer": "rendering-centos73",
-                          "publisher": "batch",
-                          "sku": "rendering",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.centos 7"
-                      },
-                      "batch/rendering-windows2016/rendering/latest": {
-                        "imageReference": {
-                          "offer": "rendering-windows2016",
-                          "publisher": "batch",
-                          "sku": "rendering",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "canonical/0001-com-ubuntu-server-focal/20_04-lts/latest": {
-                        "imageReference": {
-                          "offer": "0001-com-ubuntu-server-focal",
-                          "publisher": "canonical",
-                          "sku": "20_04-lts",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 20.04"
-                      },
-                      "canonical/0001-com-ubuntu-server-focal/20_04-lts-gen2/latest": {
-                        "imageReference": {
-                          "offer": "0001-com-ubuntu-server-focal",
-                          "publisher": "canonical",
-                          "sku": "20_04-lts-gen2",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 20.04"
-                      },
-                      "canonical/0001-com-ubuntu-server-jammy/22_04-lts/latest": {
-                        "imageReference": {
-                          "offer": "0001-com-ubuntu-server-jammy",
-                          "publisher": "canonical",
-                          "sku": "22_04-lts",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 22.04"
-                      },
-                      "canonical/ubuntuserver/18.04-lts/latest": {
-                        "imageReference": {
-                          "offer": "ubuntuserver",
-                          "publisher": "canonical",
-                          "sku": "18.04-lts",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 18.04"
-                      },
-                      "debian/debian-10/10/latest": {
-                        "imageReference": {
-                          "offer": "debian-10",
-                          "publisher": "debian",
-                          "sku": "10",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.debian 10"
-                      },
-                      "microsoft-azure-batch/centos-container/7-9/latest": {
-                        "imageReference": {
-                          "offer": "centos-container",
-                          "publisher": "microsoft-azure-batch",
-                          "sku": "7-9",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.centos 7"
-                      },
-                      "microsoft-azure-batch/centos-container-rdma/7-9/latest": {
-                        "imageReference": {
-                          "offer": "centos-container-rdma",
-                          "publisher": "microsoft-azure-batch",
-                          "sku": "7-9",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.centos 7"
-                      },
-                      "microsoft-azure-batch/ubuntu-server-container/20-04-lts/latest": {
-                        "imageReference": {
-                          "offer": "ubuntu-server-container",
-                          "publisher": "microsoft-azure-batch",
-                          "sku": "20-04-lts",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 20.04"
-                      },
-                      "microsoft-azure-batch/ubuntu-server-container-rdma/20-04-lts/latest": {
-                        "imageReference": {
-                          "offer": "ubuntu-server-container-rdma",
-                          "publisher": "microsoft-azure-batch",
-                          "sku": "20-04-lts",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.ubuntu 20.04"
-                      },
-                      "microsoftcblmariner/cbl-mariner/cbl-mariner-2/latest": {
-                        "imageReference": {
-                          "offer": "cbl-mariner",
-                          "publisher": "microsoftcblmariner",
-                          "sku": "cbl-mariner-2",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.mariner 2.0"
-                      },
-                      "microsoftwindowsserver/windowsserver/2012-datacenter/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2012-datacenter",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2012-datacenter-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2012-datacenter-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2012-r2-datacenter/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2012-r2-datacenter",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2012-r2-datacenter-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2012-r2-datacenter-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2016-datacenter/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2016-datacenter",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2016-datacenter-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2016-datacenter-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2016-datacenter-with-containers/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2016-datacenter-with-containers",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-core/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-core",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-core-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-core-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-core-with-containers/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-core-with-containers",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-core-with-containers-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-core-with-containers-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-with-containers/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-with-containers",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2019-datacenter-with-containers-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2019-datacenter-with-containers-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2022-datacenter/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2022-datacenter",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2022-datacenter-core/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2022-datacenter-core",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2022-datacenter-core-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2022-datacenter-core-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest": {
-                        "imageReference": {
-                          "offer": "windowsserver",
-                          "publisher": "microsoftwindowsserver",
-                          "sku": "2022-datacenter-smalldisk",
-                          "version": "latest"
-                        },
-                        "isWindows": true,
-                        "nodeAgentSkuId": "batch.node.windows amd64"
-                      },
-                      "openlogic/centos/7_9/latest": {
-                        "imageReference": {
-                          "offer": "centos",
-                          "publisher": "openlogic",
-                          "sku": "7_9",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.centos 7"
-                      },
-                      "openlogic/centos/7_9-gen2/latest": {
-                        "imageReference": {
-                          "offer": "centos",
-                          "publisher": "openlogic",
-                          "sku": "7_9-gen2",
-                          "version": "latest"
-                        },
-                        "isWindows": false,
-                        "nodeAgentSkuId": "batch.node.centos 7"
-                      }
-                    },
-                    "$fxv#1": {
                       "logs": [
                         {
                           "categoryGroup": "allLogs",
@@ -1529,9 +1548,8 @@
                       ]
                     },
                     "batchConfig": "[union(createObject('publicNetworkAccess', 'auto', 'poolAllocationMode', 'UserSubscription', 'pools', createArray()), parameters('batchJS'))]",
-                    "images": "[variables('$fxv#0')]",
-                    "diagConfig": "[variables('$fxv#1')]",
-                    "poolsConfig": "[map(variables('batchConfig').pools, lambda('item', union(createObject('interNodeCommunication', false(), 'mounts', createObject(), 'startTask', createObject('commands', createArray()), 'isWindows', variables('images')[lambdaVariables('item').virtualMachine.image].isWindows, 'containerImages', createArray()), lambdaVariables('item'))))]",
+                    "diagConfig": "[variables('$fxv#0')]",
+                    "poolsConfig": "[map(variables('batchConfig').pools, lambda('item', union(createObject('interNodeCommunication', false(), 'mounts', createObject(), 'startTask', createObject('commands', createArray()), 'isWindows', parameters('images')[lambdaVariables('item').virtualMachine.image].isWindows, 'supportsContainers', coalesce(tryGet(parameters('images')[lambdaVariables('item').virtualMachine.image], 'supportsContainers'), not(parameters('images')[lambdaVariables('item').virtualMachine.image].isWindows)), 'containerImages', createArray()), lambdaVariables('item'))))]",
                     "dplSuffix": "[uniqueString(deployment().name)]",
                     "publicNetworkAccess": "[if(equals(variables('batchConfig').publicNetworkAccess, 'auto'), not(parameters('gatewayPeeringEnabled')), variables('batchConfig').publicNetworkAccess)]",
                     "needsKeyVault": "[equals(variables('batchConfig').poolAllocationMode, 'UserSubscription')]",
@@ -1780,9 +1798,9 @@
                         },
                         "deploymentConfiguration": {
                           "virtualMachineConfiguration": {
-                            "imageReference": "[variables('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].imageReference]",
-                            "nodeAgentSkuId": "[variables('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].nodeAgentSkuId]",
-                            "containerConfiguration": "[if(variables('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].isWindows, null(), createObject('type', 'DockerCompatible', 'containerRegistries', if(parameters('enableApplicationContainers'), createArray(createObject('registryServer', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)), '2022-12-01').loginServer, 'identityReference', createObject('resourceId', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'mi-batch')))), null()), 'containerImageNames', reference(resourceId('Microsoft.Resources/deployments', take(format('containerImages-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64)), '2022-09-01').outputs.containerImageNames.value))]"
+                            "imageReference": "[parameters('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].imageReference]",
+                            "nodeAgentSkuId": "[parameters('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].nodeAgentSkuId]",
+                            "containerConfiguration": "[if(variables('poolsConfig')[copyIndex()].supportsContainers, createObject('type', 'DockerCompatible', 'containerRegistries', if(parameters('enableApplicationContainers'), createArray(createObject('registryServer', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)), '2022-12-01').loginServer, 'identityReference', createObject('resourceId', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'mi-batch')))), null()), 'containerImageNames', reference(resourceId('Microsoft.Resources/deployments', take(format('containerImages-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64)), '2022-09-01').outputs.containerImageNames.value), null())]"
                           }
                         },
                         "scaleSettings": {
@@ -1845,8 +1863,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "4214743252351065533"
+                              "version": "0.21.1.54444",
+                              "templateHash": "16160205847879748183"
                             }
                           },
                           "parameters": {
@@ -1914,8 +1932,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "1669402636359740516"
+                              "version": "0.21.1.54444",
+                              "templateHash": "1856520036028729413"
                             }
                           },
                           "parameters": {
@@ -1974,8 +1992,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "14822912334284346509"
+                              "version": "0.21.1.54444",
+                              "templateHash": "16050681291154361719"
                             }
                           },
                           "parameters": {
@@ -2114,8 +2132,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "16453705314772707013"
+                      "version": "0.21.1.54444",
+                      "templateHash": "17309160143169170406"
                     }
                   },
                   "parameters": {
@@ -2210,8 +2228,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "9258946654031906585"
+                              "version": "0.21.1.54444",
+                              "templateHash": "13337401551208951083"
                             }
                           },
                           "parameters": {
@@ -2294,8 +2312,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "15909436820772955291"
+                              "version": "0.21.1.54444",
+                              "templateHash": "18230123485547608202"
                             }
                           },
                           "parameters": {
@@ -2420,8 +2438,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "7617931228579242561"
+                      "version": "0.21.1.54444",
+                      "templateHash": "11474686836054391008"
                     }
                   },
                   "parameters": {
@@ -2470,8 +2488,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "8357511842702748147"
+                              "version": "0.21.1.54444",
+                              "templateHash": "10702426060679684626"
                             }
                           },
                           "parameters": {
@@ -2976,8 +2994,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.20.4.51522",
-                      "templateHash": "7617931228579242561"
+                      "version": "0.21.1.54444",
+                      "templateHash": "11474686836054391008"
                     }
                   },
                   "parameters": {
@@ -3026,8 +3044,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.20.4.51522",
-                              "templateHash": "8357511842702748147"
+                              "version": "0.21.1.54444",
+                              "templateHash": "10702426060679684626"
                             }
                           },
                           "parameters": {
