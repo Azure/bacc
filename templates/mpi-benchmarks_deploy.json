@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.21.1.54444",
-      "templateHash": "6373015659912101292"
+      "templateHash": "3277097926603137435"
     }
   },
   "parameters": {
@@ -113,7 +113,7 @@
             "interNodeCommunication": true,
             "startTask": {
               "commands": [
-                "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/mpi-benchmarks/examples/mpi-benchmarks/start_task.sh",
+                "curl -O -L https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/main/examples/mpi-benchmarks/start_task.sh",
                 "chmod +x start_task.sh",
                 "bash start_task.sh"
               ]
