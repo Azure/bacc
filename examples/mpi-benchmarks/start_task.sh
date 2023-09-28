@@ -188,6 +188,16 @@ get_openmpi_hosts_with_slots () {
     echo "\$CCP_NODES_CORES" | awk '{for (i=2; i<=NF; i+=2) {printf "%s:%s,", \$i, \$(i+1)}}' | sed 's/,$//'
 }
 
+get_hosts () {
+    # convert "<ip>;<ip>;..." to "<ip>\n<ip>\n.."
+    echo "\$AZ_BATCH_NODE_LIST" | sed 's/;/\n/g'
+}
+
+get_hosts_with_slots () {
+    # convert "num nodes> <node ip> <num slots> to "<node ip> slots=<num slots>\n<node ip> slots=<num slots>\n..."
+    echo "\$CCP_NODES_CORES" | awk '{for (i=2; i<=NF; i+=2) {printf "%s slots=%s\n", \$i, \$(i+1)}}'
+}
+
 export AZ_BATCH_OMPI_HOSTS=\$(get_openmpi_hosts_with_slots)
 
 EOF

@@ -107,7 +107,7 @@ def imb(resource_group_name:str, subscription_id:str,
 
     num_ranks_per_node = math.ceil(num_ranks / num_nodes)
     if mpi_impl == "hpcx":
-        mpi_cmd=f"mpirun -host $AZ_BATCH_OMPI_HOSTS -x UCX_TLS=rc --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=rc --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
     
     imb_command = f"/mnt/intel_benchmarks/{mpi_impl}/{imb_exe} {imb_args}"
     task_cmd = f"bash -c 'source /etc/profile.d/modules.sh  && source /mnt/batch_utils.sh && module load mpi/{mpi_impl} && {mpi_cmd} {imb_command}'"
