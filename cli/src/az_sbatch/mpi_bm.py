@@ -23,6 +23,7 @@ def populate_commands(loader):
 def populate_commands(loader):
     with CommandGroup(loader, "mpi-bm", "az_sbatch.mpi_bm#{}") as g:
         g.command("imb", "imb")
+        g.command("osu", "osu")
 
 def populate_arguments(loader):
     with ArgumentsContext(loader, "mpi-bm") as c:
@@ -41,16 +42,16 @@ def populate_arguments(loader):
             arg_group="MPI Arguments",
         )
         c.argument(
-            "imb_exe",
+            "bm_exe",
             options_list=["--exe", "-e"],
             type=str,
-            help="The name of the Intel MPI Benchmark executable.",
+            help="The name of the benchmark executable.",
         )
         c.argument(
-            "imb_args",
+            "bm_args",
             options_list=["--args", "-a"],
             type=str,
-            help="The arguments to pass to the Intel MPI Benchmark executable.",
+            help="The arguments to pass to the benchmark executable.",
         )
         c.argument(
             "pool_id",
@@ -82,15 +83,15 @@ helps["mpi-bm imb"] = r"""
 """
 
 def imb(resource_group_name:str, subscription_id:str,
-        imb_exe:str, imb_args:str,
+        bm_exe:str, bm_args:str,
         pool_id:str="linux-HBv3",
         await_completion:bool=False,
         mpi_impl:str="hpcx",
         num_nodes:int=2, num_ranks:int=2):
     log.info("num_nodes: {}".format(num_nodes))
     log.info("num_ranks: {}".format(num_ranks))
-    log.info("imb_exe: {}".format(imb_exe))
-    log.info("imb_args: {}".format(imb_args))
+    log.info("bm_exe: {}".format(bm_exe))
+    log.info("bm_args: {}".format(bm_args))
     log.info("pool_id: {}".format(pool_id))
     log.info("await_completion: {}".format(await_completion))
     log.info("mpi_impl: {}".format(mpi_impl))
@@ -103,18 +104,65 @@ def imb(resource_group_name:str, subscription_id:str,
         return
 
     uid = utils.get_unique_id()
-    job_id = "{}-{}-{}".format(imb_exe.lower(), imb_args.lower(), uid)
+    job_id = "{}-{}-{}".format(bm_exe.lower(), bm_args.lower(), uid)
 
     num_ranks_per_node = math.ceil(num_ranks / num_nodes)
     if mpi_impl == "hpcx":
         mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=rc --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
     
-    imb_command = f"/mnt/intel_benchmarks/{mpi_impl}/{imb_exe} {imb_args}"
-    task_cmd = f"bash -c 'source /etc/profile.d/modules.sh  && source /mnt/batch_utils.sh && module load mpi/{mpi_impl} && {mpi_cmd} {imb_command}'"
+    bm_command = f"/mnt/intel_benchmarks/{mpi_impl}/{bm_exe} {bm_args}"
+    task_cmd = f"bash -c 'source /etc/profile.d/modules.sh  && source /mnt/batch_utils.sh && module load mpi/{mpi_impl} && {mpi_cmd} {bm_command}'"
 
     utils.submit_job(credentials, subscription_id, resource_group_name, job_id, pool_id,
                      utils.create_tasks([task_cmd],
-                                        task_id_prefix=imb_args.lower(),
+                                        task_id_prefix=bm_args.lower(),
+                                        num_mpi_nodes=num_nodes))
+
+    result = {
+        "job_id": job_id,
+    }
+    if await_completion:
+        log.info("Waiting for job to complete...")
+        utils.wait_until(lambda: utils.is_job_complete(credentials, subscription_id, resource_group_name, job_id) is True)
+        result['job_status'] = utils.get_job_status(credentials, subscription_id, resource_group_name, job_id)
+
+    return result
+
+
+def osu(resource_group_name:str, subscription_id:str,
+        bm_exe:str, bm_args:str="",
+        pool_id:str="linux-HBv3",
+        await_completion:bool=False,
+        mpi_impl:str="hpcx",
+        num_nodes:int=2, num_ranks:int=2):
+    log.info("num_nodes: {}".format(num_nodes))
+    log.info("num_ranks: {}".format(num_ranks))
+    log.info("bm_exe: {}".format(bm_exe))
+    log.info("bm_args: {}".format(bm_args))
+    log.info("pool_id: {}".format(pool_id))
+    log.info("await_completion: {}".format(await_completion))
+    log.info("mpi_impl: {}".format(mpi_impl))
+
+    subscription_id = utils.get_subscription_id(subscription_id)
+    credentials = utils.get_credentials()
+    if not utils.validate_resource_group(credentials, subscription_id, resource_group_name):
+        log.critical(
+            "Resource group '%s' is not a valid sbatch spoke resource group", resource_group_name)
+        return
+
+    uid = utils.get_unique_id()
+    job_id = "{}-{}".format(bm_exe.lower(), uid)
+
+    num_ranks_per_node = math.ceil(num_ranks / num_nodes)
+    if mpi_impl == "hpcx":
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=rc --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+
+    bm_command = f"$(find /mnt/osu-micro-benchmarks/{mpi_impl}/ -name {bm_exe} -type f | head -n 1) {bm_args}"
+    task_cmd = f"bash -c 'source /etc/profile.d/modules.sh  && source /mnt/batch_utils.sh && module load mpi/{mpi_impl} && {mpi_cmd} {bm_command}'"
+
+    utils.submit_job(credentials, subscription_id, resource_group_name, job_id, pool_id,
+                     utils.create_tasks([task_cmd],
+                                        task_id_prefix=bm_exe.lower(),
                                         num_mpi_nodes=num_nodes))
 
     result = {

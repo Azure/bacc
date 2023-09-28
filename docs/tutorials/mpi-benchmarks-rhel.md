@@ -118,7 +118,7 @@ The startup script installs the required software on the nodes. Once the pool is
 ```bash
 
 # submit job
-sb mpi-bm -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+sb mpi-bm imb -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --num-nodes 2 --num-ranks 2 \
     -e IMB-MPI1 -a PingPong
 # expected output
@@ -195,4 +195,46 @@ from one of the tasks.
 
 
 # All processes entering MPI_Finalize
+```
+
+Likewise, you can run OSU benchmarks using the following command.
+
+```bash
+
+# submit job
+sb mpi-bm osu -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+  -e osu_bcast -n 2 -r 64
+{
+  "job_id": "osu_bcast-[...]"
+}
+```
+
+And here's a sample output from this tasks.
+
+```txt
+# stdout.txt
+
+# OSU MPI Broadcast Latency Test v7.0
+# Size       Avg Latency(us)
+1                       3.22
+2                       3.23
+4                       3.21
+8                       3.25
+16                      3.27
+32                      3.37
+64                      3.37
+128                     3.69
+256                     3.84
+512                     4.18
+1024                    4.43
+2048                    4.86
+4096                    6.42
+8192                    8.57
+16384                  21.99
+32768                  13.94
+65536                  20.38
+131072                 32.46
+262144                 64.00
+524288                128.05
+1048576               253.97
 ```
