@@ -7,7 +7,27 @@ Before you can deploy the Azure resources and try out the demos, you need to ens
 1. __Ensure valid subscription__: Ensure that you a chargeable Azure subscription that you
    can use and you have __Owner__ access to the subscription.
 
-2. __Accept legal terms__: The demos use container images that require you to accept
+2. __Ensure Batch service has authorization to access your subscription__. Using the portal,
+   access your Subscription and select the __Access Control (IAM)__ page. Under there, we need to assign
+  __Contributor__ or __Owner__ role to the Batch API. You can find this account by searching for
+  __Microsoft Azure Batch__ (application ID should be __ddbf3205-c6bd-46ae-8127-60eb93363864__). For additional
+  details, see [this](https://learn.microsoft.com/en-us/azure/batch/batch-account-create-portal#allow-azure-batch-to-access-the-subscription-one-time-operation).
+
+3. __Validate Batch account quotas__: Ensure that the region you will deploy under has
+   not reached its batch service quota limit. Your subscription may have limits on
+   how many batch accounts can be created in a region. If you hit this limit, you
+   may have to delete old batch account, or deploy to a different region, or have the
+   limit increased by contacting your administrator.
+
+4. __Validate compute quotas__: Ensure that the region you will deploy under has
+   sufficient quota left for the SKUs picked for batch compute nodes. Each of the examples
+   may use different SKUs. Look the example specific configuration file to determine which SKU
+   it uses by default. In most examples, you can change the SKU in the config file for a different
+   one, if so preferred.
+
+Some of the examples use Batch pool allocation mode set to User Subscription. This mode has a few additional requirements:
+
+1. __Accept legal terms__: The demos use container images that require you to accept
    legal terms. This only needs to be done once for the subscription. To accept these legal terms,
    you need to execute the following Azure CLI command once. You can do this using the
    [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/) in the [Azure portal](https://ms.portal.azure.com)
@@ -21,7 +41,7 @@ Before you can deploy the Azure resources and try out the demos, you need to ens
    az vm image terms accept --urn microsoft-azure-batch:ubuntu-server-container:20-04-lts:latest
    ```
 
-3. __Get Batch Service Id__: Based on your tenant, which may be different, hence it's
+2. __Get Batch Service Id__: Based on your tenant, which may be different, hence it's
    best to confirm. In [Azure Cloud Shell](https://ms.portal.azure.com/#cloudshell/),
    run the following:
 
@@ -46,27 +66,6 @@ Before you can deploy the Azure resources and try out the demos, you need to ens
    ```sh
    az provider register -n Microsoft.Batch --subscription <your subscription name> --wait
    ```
-
-4. __Ensure Batch service has authorization to access your subscription__. Using the portal,
-   access your Subscription and select the __Access Control (IAM)__ page. Under there, we need to assign
-  __Contributor__ or __Owner__ role to the Batch API. You can find this account by searching for
-  __Microsoft Azure Batch__ (application ID should be __ddbf3205-c6bd-46ae-8127-60eb93363864__). For additional
-  details, see [this](https://learn.microsoft.com/en-us/azure/batch/batch-account-create-portal#allow-azure-batch-to-access-the-subscription-one-time-operation).
-
-5. __Validate Batch account quotas__: Ensure that the region you will deploy under has
-   not reached its batch service quota limit. Your subscription may have limits on
-   how many batch accounts can be created in a region. If you hit this limit, you
-   may have to delete old batch account, or deploy to a different region, or have the
-   limit increased by contacting your administrator.
-
-6. __Validate compute quotas__: Ensure that the region you will deploy under has not
-   sufficient quota left for the SKUs picked for batch compute nodes. The azfinsim
-   examples use `Standard_DS5_v2` while the `vizer` demo uses
-   `Standard_D32s_v3` by default. You can change these by modifying the configuration
-   file (`config.jsonc`) for the chosen deployment / example.
-
-> __FIXME__: need to split these into requirements for user-subscription and batch-service pool allocation
-> modes
 
 ## Environment Setup
 
