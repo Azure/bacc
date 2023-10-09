@@ -42,7 +42,7 @@ helps[
 
 
 def populate_commands(loader):
-    with CommandGroup(loader, "json", "az_sbatch.tools_json#{}") as g:
+    with CommandGroup(loader, "json", "bacc.tools_json#{}") as g:
         g.command("concat", "concat")
         g.command("strip", "strip")
 

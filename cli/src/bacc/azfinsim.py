@@ -25,7 +25,7 @@ helps[
 
 
 def populate_commands(loader):
-    with CommandGroup(loader, "", "az_sbatch.azfinsim#{}") as g:
+    with CommandGroup(loader, "", "bacc.azfinsim#{}") as g:
         g.command("azfinsim", "execute")
 
 

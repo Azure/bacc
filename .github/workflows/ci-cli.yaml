@@ -42,15 +42,15 @@ jobs:
         pip install ./cli
     - name: Basic validation tests
       run: |
-        sb --help
+        bacc --help
     - name: Group 'pool' validation tests
       run: |
-        sb pool --help
-        sb pool list --help
-        sb pool resize --help
+        bacc pool --help
+        bacc pool list --help
+        bacc pool resize --help
     - name: Command 'show' validation tests
       run: |
-        sb show --help
+        bacc show --help
     - name: Command 'azfinsim' validation tests
       run: |
-        sb azfinsim --help
+        bacc azfinsim --help

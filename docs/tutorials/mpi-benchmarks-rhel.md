@@ -76,16 +76,16 @@ AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 # set resource group name to the one used in Step 2
 AZ_RESOURCE_GROUP=azfinsim0 # or whatever you used in Step 2
 
-# use the `sb show` command
-sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
+# use the `bacc show` command
+bacc show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
 # on success, you'll get the following output
 {
   "acr_name": null,
   "batch_endpoint": "https://......batch.azure.com"
 }
 
-# To list all available pools, use the `sb pool list` command
-sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+# To list all available pools, use the `bacc pool list` command
+bacc pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --query "[].{pool_id:id, vm_size:vmSize, state:allocationState}"
 # expected output
 [
@@ -104,7 +104,7 @@ For this MPI application demo, we need at least 2 nodes. So we resize the pool t
 
 ```bash
 # resize pool
-sb pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 2
+bacc pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 2
 # this will block until the pool is resized and then print the following:
 {
   "current_dedicated_nodes": 2,
@@ -118,7 +118,7 @@ The startup script installs the required software on the nodes. Once the pool is
 ```bash
 
 # submit job
-sb mpi-bm imb -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+bacc mpi-bm imb -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --num-nodes 2 --num-ranks 2 \
     -e IMB-MPI1 -a PingPong
 # expected output
@@ -202,7 +202,7 @@ Likewise, you can run OSU benchmarks using the following command.
 ```bash
 
 # submit job
-sb mpi-bm osu -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+bacc mpi-bm osu -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
   -e osu_bcast -n 2 -r 64
 {
   "job_id": "osu_bcast-[...]"

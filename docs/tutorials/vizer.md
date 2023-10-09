@@ -90,7 +90,6 @@ az deployment sub create                                    \
 > To let the deployment create a new storage account instead of using an existing one,
 > simply skip all the `storage*` parameters.
 
-
 On success, a new resource group will be created with the name specified.
 To obtain the URL for the `vizer-hub` web server, run the following command.
 
@@ -104,4 +103,18 @@ az deployment group show \
   --output tsv
 ```
 
-Once the web-server has started, you can navigate to the URL and start using the application.
+Once the web-server has started, you can navigate to the URL and start using the application. Before visualizing any dataset,
+you will first want to resize the Batch account pool to have at least 1 node to run the visualization tasks. You can do this
+using the following command.
+
+```bash
+# resize pool
+bacc pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p linux --target-dedicated-nodes 1
+# this will block until the pool is resized and then print the following:
+{
+  "current_dedicated_nodes": 1,
+  "current_low_priority_nodes": 0
+}
+```
+
+You can also use the Azure Portal or Azure Batch Explorer to resize the pool.

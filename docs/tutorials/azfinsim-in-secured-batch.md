@@ -18,7 +18,7 @@ a virtual network and a batch account.
 
 ## Design Considerations
 
-* **Private endpoints**: All resources deployed by `sbatch` are accessible only via private endpoints. Network security
+* **Private endpoints**: All resources deployed by bacc are accessible only via private endpoints. Network security
   rules prohibit access from public networks using Azure-provided name resolution. This includes storage accounts,
   key vaults, batch accounts, etc. This adds additional complexity when accessing these resources from your workstation, for
   example, but it is a necessary trade-off for a secure deployment.
@@ -130,7 +130,7 @@ The only differences being the following:
 
   Experienced users will soon realize that even this logging in to Azure CLI on the jumpbox is not required.
   This is only necessary for the few commands we execute in the tutorial steps viz. obtaining the subscription ID.
-  You can skip these CLI login steps and instead manually provide the subscription ID in the `sb ...` commands.
+  You can skip these CLI login steps and instead manually provide the subscription ID in the `bacc ...` commands.
 
 [examples/secured-batch]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/secured-batch
 [azbatch-starter-connectivity]: https://github.com/mocelj/azbatch-starter-connectivity

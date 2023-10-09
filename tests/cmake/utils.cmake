@@ -1,13 +1,13 @@
-function(sb_get_config_files out_var config_name)
+function(bacc_get_config_files out_var config_name)
     set(config_files "${SB_SOURCE_DIR}/examples/${config_name}/config.jsonc")
     set(${out_var} ${config_files} PARENT_SCOPE)
 endfunction()
 
 # function to return a JSON string for the chosen deployment configuration
-function(sb_get_config out_var config_name)
-    sb_get_config_files(config_files ${config_name})
+function(bacc_get_config out_var config_name)
+    bacc_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files}
+        COMMAND bacc json concat --use-union -i ${config_files}
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
         # COMMAND_ECHO STDOUT
@@ -16,10 +16,10 @@ function(sb_get_config out_var config_name)
     set(${out_var} ${output} PARENT_SCOPE)
 endfunction()
 
-function(sb_get_pools out_var config_name)
-    sb_get_config_files(config_files ${config_name})
+function(bacc_get_pools out_var config_name)
+    bacc_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "sort(batch.pools[].name)"
+        COMMAND bacc json concat --use-union -i ${config_files} --query "sort(batch.pools[].name)"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output_json
         # COMMAND_ECHO STDOUT
@@ -35,10 +35,10 @@ function(sb_get_pools out_var config_name)
     set(${out_var} "${pools}" PARENT_SCOPE)
 endfunction()
 
-function(sb_get_pool_vm_size out_var config_name pool_name)
-    sb_get_config_files(config_files ${config_name})
+function(bacc_get_pool_vm_size out_var config_name pool_name)
+    bacc_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].virtualMachine.size | [0]" -o tsv
+        COMMAND bacc json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].virtualMachine.size | [0]" -o tsv
         COMMAND tr "[:upper:]" "[:lower:]"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
@@ -48,10 +48,10 @@ function(sb_get_pool_vm_size out_var config_name pool_name)
     set(${out_var} ${output} PARENT_SCOPE)
 endfunction()
 
-function(sb_get_pool_mounts_count out_var config_name pool_name)
-    sb_get_config_files(config_files ${config_name})
+function(bacc_get_pool_mounts_count out_var config_name pool_name)
+    bacc_get_config_files(config_files ${config_name})
     execute_process(
-        COMMAND sb json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].mounts | [0] | length(@)"
+        COMMAND bacc json concat --use-union -i ${config_files} --query "batch.pools[?name=='${pool_name}'].mounts | [0] | length(@)"
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
         # COMMAND_ECHO STDOUT
@@ -60,57 +60,57 @@ function(sb_get_pool_mounts_count out_var config_name pool_name)
     set(${out_var} ${output} PARENT_SCOPE)
 endfunction()
 
-function(sb_add_test)
+function(bacc_add_test)
     set(options)
     set(oneValueArgs PASS_REGULAR_EXPRESSION FAIL_REGULAR_EXPRESSION NAME WILL_FAIL TIMEOUT REQUIRES)
     set(multiValueArgs)
-    cmake_parse_arguments(sb_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(bacc_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if (sb_args_REQUIRES)
+    if (bacc_args_REQUIRES)
         # skip test if any of the required conditions is not met
-        string(REGEX REPLACE " +" ";" condition "${sb_args_REQUIRES}")
+        string(REGEX REPLACE " +" ";" condition "${bacc_args_REQUIRES}")
         if (${condition})
         else()
             return()
         endif()
     endif()
 
-    add_test(NAME "${sb_args_NAME}" ${sb_args_UNPARSED_ARGUMENTS})
+    add_test(NAME "${bacc_args_NAME}" ${bacc_args_UNPARSED_ARGUMENTS})
 
-    if (sb_args_PASS_REGULAR_EXPRESSION)
-        set_tests_properties("${sb_args_NAME}"
-                             PROPERTIES PASS_REGULAR_EXPRESSION "${sb_args_PASS_REGULAR_EXPRESSION}")
+    if (bacc_args_PASS_REGULAR_EXPRESSION)
+        set_tests_properties("${bacc_args_NAME}"
+                             PROPERTIES PASS_REGULAR_EXPRESSION "${bacc_args_PASS_REGULAR_EXPRESSION}")
     endif()
 
-    if (sb_args_FAIL_REGULAR_EXPRESSION)
-        set_tests_properties("${sb_args_NAME}"
-                             PROPERTIES FAIL_REGULAR_EXPRESSION "${sb_args_FAIL_REGULAR_EXPRESSION}")
+    if (bacc_args_FAIL_REGULAR_EXPRESSION)
+        set_tests_properties("${bacc_args_NAME}"
+                             PROPERTIES FAIL_REGULAR_EXPRESSION "${bacc_args_FAIL_REGULAR_EXPRESSION}")
     endif()
 
-    if (sb_args_WILL_FAIL)
-        set_tests_properties("${sb_args_NAME}"
+    if (bacc_args_WILL_FAIL)
+        set_tests_properties("${bacc_args_NAME}"
                              PROPERTIES WILL_FAIL TRUE)
     endif()
 
-    if (sb_args_TIMEOUT)
-        set_tests_properties("${sb_args_NAME}"
-                             PROPERTIES TIMEOUT "${sb_args_TIMEOUT}")
+    if (bacc_args_TIMEOUT)
+        set_tests_properties("${bacc_args_NAME}"
+                             PROPERTIES TIMEOUT "${bacc_args_TIMEOUT}")
     endif()
 
 endfunction()
 
-function(sb_test_workflow fixture_name)
+function(bacc_test_workflow fixture_name)
     set(options)
     set(oneValueArgs)
     set(multiValueArgs SETUP CLEANUP TESTS)
 
-    cmake_parse_arguments(sb_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(bacc_args "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     # raise error if unknown arguments are passed
-    if (DEFINED sb_args_UNPARSED_ARGUMENTS)
-        message(FATAL_ERROR "Unknown arguments passed to sb_test_workflow: ${sb_args_UNPARSED_ARGUMENTS}")
+    if (DEFINED bacc_args_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "Unknown arguments passed to bacc_test_workflow: ${bacc_args_UNPARSED_ARGUMENTS}")
     endif()
 
-    set(setup_tests ${sb_args_SETUP})
+    set(setup_tests ${bacc_args_SETUP})
     foreach(test IN LISTS setup_tests)
         if (TEST "${test}")
             set_property(TEST "${test}"
@@ -118,7 +118,7 @@ function(sb_test_workflow fixture_name)
         endif()
     endforeach()
 
-    set(cleanup_tests ${sb_args_CLEANUP})
+    set(cleanup_tests ${bacc_args_CLEANUP})
     foreach(test IN LISTS cleanup_tests)
         if (TEST "${test}")
             set_property(TEST "${test}"
@@ -126,7 +126,7 @@ function(sb_test_workflow fixture_name)
         endif()
     endforeach()
 
-    set(tests ${sb_args_TESTS})
+    set(tests ${bacc_args_TESTS})
     foreach(test IN LISTS tests)
         if (TEST "${test}")
             set_property(TEST "${test}"
