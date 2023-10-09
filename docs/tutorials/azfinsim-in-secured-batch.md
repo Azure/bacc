@@ -109,7 +109,7 @@ is the password you provided during the hub deployment.
 
 Once connected to the Linux Jumpbox, you can now run the demo from there. The steps are same as the
 [With Containers](./azfinsim.md) tutorial. Simply follow the steps after the deployment step
-i.e. [`Step 4: Install CLI`](./azfinsim.md#step-4-install-cli) onwards.
+i.e. [`Step 3: Install CLI`](./azfinsim-linux.md#step-3-install-cli) onwards.
 The only differences being the following:
 
 * instead of using your local machine, you will execute the commands on the Linux jumpbox.
