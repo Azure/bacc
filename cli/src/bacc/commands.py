@@ -13,9 +13,9 @@ class CommandsLoader(CLICommandsLoader):
     """Commands loader for the sbatch module."""
 
     def load_command_table(self, args):
-        with CommandGroup(self, "", "az_sbatch.commands#{}") as g:
+        with CommandGroup(self, "", "bacc.commands#{}") as g:
             g.command("show", "show")
-        with CommandGroup(self, "pool", "az_sbatch.commands#pool_{}") as g:
+        with CommandGroup(self, "pool", "bacc.commands#pool_{}") as g:
             g.command("list", "list")
             g.command("resize", "resize")
             g.command("show", "show")

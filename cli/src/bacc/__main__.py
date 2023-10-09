@@ -4,9 +4,9 @@ import sys
 from knack import CLI
 from .commands import CommandsLoader
 
-name = "sb"
+name = "bacc"
 message = r"""
-Welcome to CLI for sbatch: an  Azure Batch accelerator
+Welcome to CLI for BAcc: an Azure Batch accelerator
 """
 cli = CLI(
     cli_name=name,

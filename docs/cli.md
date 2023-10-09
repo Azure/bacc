@@ -36,7 +36,7 @@ source env0/bin/activate
 pip install ./cli
 
 # verify the CLI tool is installed
-sb --help
+bacc --help
 ```
 
 If you don't want to use a virtual environment, you can install the CLI tool globally using the following command.
@@ -51,46 +51,46 @@ cd azbatch-starter
 pip install ./cli
 
 # verify that the CLI tools are installed
-sb --help
+bacc --help
 ```
 
 ## Usage
 
-Once the CLI is installed, you can use the `sb ...` command to interact with the `sbatch`.
+Once the CLI is installed, you can use the `bacc ...` command to interact with the `sbatch`.
 The commands have the following format:
 
 ```sh
-> sb [command] [subcommand] [parameters]
+> bacc [command] [subcommand] [parameters]
 ```
 
 You can use `--help` to get help on the commands and subcommands.
 
 ```sh
 # `--help` shows all available commands
-> sb --help
+> bacc --help
 
 Group
-    sb
+    bacc
 
 Subgroups:
     pool     : Manage batch pools.
 
 Commands:
     azfinsim : Execute the azfinsim demo.
-    show     : Show the configuration of the sbatch deployment.
+    show     : Show the configuration of the baccatch deployment.
 ```
 
-### `sb show`
+### `bacc show`
 
-`sb show` command can be used to get information about the deployment. This is useful to get
+`bacc show` command can be used to get information about the deployment. This is useful to get
 information about the batch account, storage account, container registry etc. that are created as part of the deployment.
 
 ```sh
-> sb show --help
+> bacc show --help
 
 Command
-    sb show : Show the configuration of the sbatch deployment.
-        Shows the configuration details of the sbatch deployment. This is useful
+    bacc show : Show the configuration of the sbatch deployment.
+        Shows the configuration details of the baccatch deployment. This is useful
         to get access to various resources and endpoints for resources that
         are used for management and trying of the demos.
 
@@ -113,15 +113,15 @@ Global Arguments
                                           logs.
 ```
 
-### `sb pool`
+### `bacc pool`
 
-`sb pool` subcommands can be used to manage the pools in the deployment.
+`bacc pool` subcommands can be used to manage the pools in the deployment.
 
 ```sh
-> sb pool --help
+> bacc pool --help
 
 Group
-    sb pool : Manage batch pools.
+    bacc pool : Manage batch pools.
         Commands to manage batch pools.
 
 Commands:
@@ -129,14 +129,14 @@ Commands:
     resize : Resize the pool.
 ```
 
-`sb pool list`  returns a list of names for the pool setup on the batch account. Unless changed manually after deployment,
+`bacc pool list`  returns a list of names for the pool setup on the batch account. Unless changed manually after deployment,
 these will match the names specified in `batch.jsonc` configuration file.
 
 ```sh
-> sb pool list --help
+> bacc pool list --help
 
 Command
-    sb pool list : List the pools in the batch account.
+    bacc pool list : List the pools in the batch account.
         Lists the pools in the batch account.
 
 Arguments
@@ -157,15 +157,15 @@ Global Arguments
                                           logs.
 ```
 
-`sb pool resize` can be used to resize a pool. Unlike `az batch pool resize ..` commands, this command waits until
+`bacc pool resize` can be used to resize a pool. Unlike `az batch pool resize ..` commands, this command waits until
 the resize is complete (unless `--no-wait` is specified). `--await-compute-nodes` can be used to wait until
 not only the allocation of the compute nodes, but also their startup and other initialization.
 
 ```sh
-> sb pool resize --help
+> bacc pool resize --help
 
 Command
-    sb pool resize : Resize the pool.
+    bacc pool resize : Resize the pool.
 
 Arguments
     --pool-id -p             [Required] : The ID of the pool to resize.

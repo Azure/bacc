@@ -70,16 +70,16 @@ AZ_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 # set resource group name to the one used in Step 2
 AZ_RESOURCE_GROUP=azfinsim0 # or whatever you used in Step 2
 
-# use the `sb show` command
-sb show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
+# use the `bacc show` command
+bacc show -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP
 # on success, you'll get the following output
 {
   "acr_name": null,
   "batch_endpoint": "https://......batch.azure.com"
 }
 
-# To list all available pools, use the `sb pool list` command
-sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
+# To list all available pools, use the `bacc pool list` command
+bacc pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --query "[].{pool_id:id, vm_size:vmSize, state:allocationState}"
 # expected output
 [
@@ -98,11 +98,11 @@ We can now submit the AzFinSim job to the pool.
 ```bash
 #!/bin/bash
 
-AZ_POOL_ID=$(sb pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
+AZ_POOL_ID=$(bacc pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP --query "[0].id" -o tsv)
 # --- or you can just manually set AZ_POOL_ID to "linux", of course!
 
 # submit the job to generate 1000 trades, and process them using 100 concurrent tasks;
-sb azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
+bacc azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
     -p $AZ_POOL_ID                                          \
     --mode package                                          \
     --num-trades 1000                                       \
@@ -122,7 +122,7 @@ change this as follows.
 
 ```bash
 # resize pool
-sb pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 1
+bacc pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 1
 # this will block until the pool is resized and then print the following:
 {
   "current_dedicated_nodes": 1,

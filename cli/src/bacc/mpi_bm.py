@@ -17,11 +17,11 @@ helps["mpi-bm"] = r"""
 """
 
 def populate_commands(loader):
-    with CommandGroup(loader, "", "az_sbatch.mpi_bm#{}") as g:
+    with CommandGroup(loader, "", "bacc.mpi_bm#{}") as g:
         g.command("mpi-bm", "imb")
 
 def populate_commands(loader):
-    with CommandGroup(loader, "mpi-bm", "az_sbatch.mpi_bm#{}") as g:
+    with CommandGroup(loader, "mpi-bm", "bacc.mpi_bm#{}") as g:
         g.command("imb", "imb")
         g.command("osu", "osu")
 

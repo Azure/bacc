@@ -5,9 +5,9 @@ function(add_azfinsim_tests pool_name)
     set(prefix "azfinsim-${pool_name}:")
 
     # resize pool
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}resize"
-        COMMAND sb pool resize
+        COMMAND bacc pool resize
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -25,9 +25,9 @@ function(add_azfinsim_tests pool_name)
         set(downsize_target_nodes 1)
     endif()
 
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}downsize"
-        COMMAND sb pool resize
+        COMMAND bacc pool resize
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -39,9 +39,9 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS"
     )
 
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}docker-pvonly"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -57,9 +57,9 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_DOCKERHUB AND \"${pool_name}\" MATCHES \".*linux.*\""
     )
 
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}docker-deltavega"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -77,9 +77,9 @@ function(add_azfinsim_tests pool_name)
 
     #-------------------------------------------------------------------------------------------------------------------
     # add ACR tests
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}acr-pvonly"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -93,9 +93,9 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_ACR AND \"${pool_name}\" MATCHES \".*linux.*\""
     )
 
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}acr-deltavega"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -111,9 +111,9 @@ function(add_azfinsim_tests pool_name)
 
     #-------------------------------------------------------------------------------------------------------------------
     # add tests for package tasks
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}pkg-pvonly"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -128,9 +128,9 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_AZFINSIM_PREINSTALLED_PACKAGES"
     )
 
-    sb_add_test(
+    bacc_add_test(
         NAME "${prefix}pkg-deltavega"
-        COMMAND sb azfinsim
+        COMMAND bacc azfinsim
                     -g ${SB_RESOURCE_GROUP_NAME}
                     -s ${SB_SUBSCRIPTION_ID}
                     -p ${pool_name}
@@ -145,7 +145,7 @@ function(add_azfinsim_tests pool_name)
         REQUIRES "SB_SUPPORTS_AZFINSIM AND SB_SUPPORTS_NETWORK_ACCESS AND SB_SUPPORTS_AZFINSIM_PREINSTALLED_PACKAGES"
     )
 
-    sb_test_workflow("azfinsim-${pool_name}"
+    bacc_test_workflow("azfinsim-${pool_name}"
         SETUP   "${prefix}resize"
         CLEANUP "${prefix}downsize"
         TESTS
@@ -155,7 +155,7 @@ function(add_azfinsim_tests pool_name)
             "${prefix}pkg-deltavega"
     )
 
-    sb_test_workflow("azfinsim-acr-${pool_name}"
+    bacc_test_workflow("azfinsim-acr-${pool_name}"
         SETUP
             "${prefix}resize"
             "azfinsim-acr-import"
@@ -169,7 +169,7 @@ endfunction()
 #=======================================================================================================================
 
 # add ACR import tests
-sb_add_test(
+bacc_add_test(
     NAME "azfinsim-acr-import"
     COMMAND ${CMAKE_COMMAND}
             -D SB_RESOURCE_GROUP_NAME:STRING=${SB_RESOURCE_GROUP_NAME}
@@ -182,7 +182,7 @@ sb_add_test(
 )
 
 # add tests for all pools
-sb_get_pools(pool_names "${SB_CONFIG}")
+bacc_get_pools(pool_names "${SB_CONFIG}")
 foreach(pool_name IN LISTS pool_names)
     add_azfinsim_tests(${pool_name})
 endforeach()

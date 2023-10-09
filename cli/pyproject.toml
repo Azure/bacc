@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "az-sbatch"
+name = "bacc"
 version = "0.1.0"
 description = ""
 authors = ["Utkarsh Ayachit <uayachit@microsoft.com>"]
-packages = [{include = "az_sbatch", from = "src"}]
+packages = [{include = "bacc", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -15,7 +15,7 @@ azure-mgmt-resource = "^23.0.0"
 pyjson5 = "^1.6.2"
 
 [tool.poetry.scripts]
-sb = {reference = "bin/sb", type = "file"}
+bacc = {reference = "bin/bacc", type = "file"}
 
 [build-system]
 requires = ["poetry-core"]

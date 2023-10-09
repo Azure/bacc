@@ -2,7 +2,7 @@
 
 # get ACR name from deployment
 execute_process(
-    COMMAND sb show -s ${SB_SUBSCRIPTION_ID} -g ${SB_RESOURCE_GROUP_NAME} --query "acr_name" -o tsv
+    COMMAND bacc show -s ${SB_SUBSCRIPTION_ID} -g ${SB_RESOURCE_GROUP_NAME} --query "acr_name" -o tsv
     OUTPUT_VARIABLE SB_ACR_NAME
     COMMAND_ERROR_IS_FATAL ANY
     COMMAND_ECHO STDOUT
