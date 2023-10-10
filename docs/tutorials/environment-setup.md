@@ -79,21 +79,21 @@ Typical steps to setup your environment are as follows:
    for your operating system.
 2. Install Python 3.10 or higher. Follow the instructions [here](https://www.python.org/downloads/).
 
-3. Download source code from [GitHub](https://github.com/utkarshayachit/azbatch-starter). Since the repository uses
+3. Download source code from [GitHub](https://github.com/Azure/bacc). Since the repository uses
    submodules, it's easiest to clone the repository using `Git` as follows:
 
    ```bash
    cd [work-dir] # directory where you want to download the source code
 
    # clone the repository
-   git clone --recursive https://github.com/utkarshayachit/azbatch-starter
+   git clone --recursive https://github.com/Azure/bacc
    ```
 
    This fetches the code and all the submodules. If you have already cloned the repository, you can fetch the submodules
    using the following command:
 
    ```bash
-   cd [work-dir]/azbatch-starter # directory where you downloaded the source code
+   cd [work-dir]/bacc   # directory where you downloaded the source code
 
    # fetch the submodules
    git submodule update --init --recursive

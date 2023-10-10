@@ -25,7 +25,7 @@ requirements and  steps described in that document.
 For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
 simply click the following link to deploy using Azure Portal.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fazfinsim-windows_deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fbacc%2Fmain%2Ftemplates%2Fazfinsim-windows_deploy.json)
 
 Use the following steps to deploy using Azure CLI.
 
@@ -37,8 +37,8 @@ AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim-win
 AZ_RESOURCE_GROUP=azfinsim-win
 
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
+# change directory to bacc (or where you cloned/downloaded the repository)
+cd bacc
 
 az deployment sub create                                      \
   --name $AZ_DEPLOYMENT_NAME                                  \
@@ -136,4 +136,4 @@ Azure Batch Explorer.
 To understand how to monitor the AzFinSim demo using various tools available and inspect the results, please refer to the
 [understanding AzFinSim](../understanding-azfinsim.md) document.
 
-[examples/azfinsim-windows]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/azfinsim-windows
+[examples/azfinsim-windows]: https://github.com/Azure/bacc/tree/main/examples/azfinsim-windows

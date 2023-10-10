@@ -50,7 +50,7 @@ var dplSuffix = uniqueString(deployment().name, location, resourceGroupName)
 @description('tags for all resources')
 var allTags = union(tags, {
   'last deployed': timestamp
-  codebase: 'azbatch-starter'
+  codebase: 'azure/bacc'
   version: '0.1.0'
 })
 

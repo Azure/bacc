@@ -269,11 +269,6 @@ follow this practice.
 This module comes with a default library of imges that you can use. See [images.jsonc] for a list of images. The above
 is only intended for adding new images or unsupported images.
 
-[config/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
-[schemas/]: https://github.com/utkarshayachit/azbatch-starter/tree/main/schemas
-[infrastructure.bicep]: https://github.com/utkarshayachit/azbatch-starter/blob/main/modules/infrastructure.bicep 
-[spoke.jsonc]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config/spoke.jsonc
-[batch.jsonc]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config/batch.jsonc
-[storage.jsonc]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config/storage.jsonc
-[images.jsonc]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config/images.jsonc
-[hub.jsonc]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config/hub.jsonc
+[schemas/]: https://github.com/Azure/bacc/tree/main/schemas
+[infrastructure.bicep]: https://github.com/Azure/bacc/blob/main/modules/infrastructure.bicep 
+[images.jsonc]: https://github.com/Azure/bacc/tree/main/modules/images.jsonc

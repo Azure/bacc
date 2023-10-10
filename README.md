@@ -1,9 +1,9 @@
 # bacc: Batch Accelerator
 
-[![ci-cli](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-cli.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-cli.yaml)
-[![ci-validate-configs](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-validate.yaml/badge.svg?branch=main&event=push)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-validate.yaml)
-[![ci-deploy-n-test](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-deploy-n-test.yaml/badge.svg?branch=main)](https://github.com/utkarshayachit/azbatch-starter/actions/workflows/ci-deploy-n-test.yaml)
-![GitHub](https://img.shields.io/github/license/utkarshayachit/azbatch-starter)
+[![ci-cli](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml)
+[![ci-validate-configs](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml)
+[![ci-deploy-n-test](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml/badge.svg?branch=main)](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml)
+![GitHub](https://img.shields.io/github/license/Azure/bacc)
 
 [Azure Batch](https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview)
 is a service for running compute intensive workloads on Azure. It is a managed service for running
@@ -29,7 +29,7 @@ can be used by itself.
 
 ## Documentation
 
-Latest documentation is hosted on [Github Pages](https://utkarshayachit.github.io/azbatch-starter/).
+Latest documentation is hosted on [Github Pages](https://azure.github.io/bacc/).
 
 ## License
 

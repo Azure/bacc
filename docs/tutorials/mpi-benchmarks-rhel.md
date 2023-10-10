@@ -27,7 +27,7 @@ this tutorial uses **User Subscription** pool allocation mode, you will need to 
 For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
 simply click the following link to deploy using Azure Portal.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fmpi-benchmarks_deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fbacc%2Fmain%2Ftemplates%2Fmpi-benchmarks_deploy.json)
 
 Use the following steps to deploy using Azure CLI.
 
@@ -40,8 +40,8 @@ AZ_DEPLOYMENT_NAME=mpi-benchmarks0
 AZ_RESOURCE_GROUP=mpi-benchmarks0
 BATCH_SERVICE_OBJECT_ID= ....  # should be set to the id obtained in prerequisites step
 
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
+# change directory to bacc (or where you cloned/downloaded the repository)
+cd bacc
 
 az deployment sub create                                      \
   --name $AZ_DEPLOYMENT_NAME                                  \

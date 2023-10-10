@@ -52,7 +52,7 @@
                 },
                 "startTask": {
                     "commands": [
-                        "curl https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/main/examples/azfinsim-windows/start_task.ps1 -o start_task.ps1",
+                        "curl https://raw.githubusercontent.com/Azure/bacc/main/examples/azfinsim-windows/start_task.ps1 -o start_task.ps1",
                         "powershell.exe -ExecutionPolicy Bypass -File start_task.ps1"
                     ]
                 }

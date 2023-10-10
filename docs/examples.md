@@ -28,5 +28,5 @@ how to setup a start task for a pool.
 The config is also setup to run the AzFinSim demo on Windows pool in 'package' mode. Instead of using a container image,
 the application is installed on the pool in the start task. The application is then run in the task command line.
 
-[azfinsim-linux]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/azfinsim-linux
-[azfinsim-windows]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/azfinsim-windows
+[azfinsim-linux]: https://github.com/Azure/bacc/tree/main/examples/azfinsim-linux
+[azfinsim-windows]: https://github.com/Azure/bacc/tree/main/examples/azfinsim-windows
