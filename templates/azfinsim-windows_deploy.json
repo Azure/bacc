@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.21.1.54444",
-      "templateHash": "6147137057553585233"
+      "templateHash": "11177771337082021769"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
     }
   },
   "variables": {
-    "configTXT": "{\n    \"network\": {\n        \"addressPrefix\": \"${addressPrefix}\",\n        \"subnets\": {\n            \"private-endpoints\": {\n                \"addressPrefix\": \"${addressPrefix/24/0}\",\n                \"nsgRules\": [\n                    \"AllowAllHTTPSInBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowVnetAzureFilesInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n\n            \"pool\": {\n                \"addressPrefix\": \"${addressPrefix/24/1}\",\n                \"nsgRules\": [\n                    \"AllowVnetRDPInBound\",\n                    \"AllowVnetAzureFilesOutBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            }\n        }\n    },\n\n    \"storage\": {\n        \"afs0\": {\n            \"shares\": [\n                \"data\"\n            ]\n        }\n    },\n\n    \"batch\": {\n        /// intentionally keep this minimal\n        \"poolAllocationMode\": \"BatchService\",\n        \"pools\": [\n            {\n                \"name\": \"windows\",\n                \"virtualMachine\": {\n                    \"size\": \"Standard_DS5_V2\",\n                    \"taskSlotsPerNode\": 8,\n                    \"image\": \"microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest\"\n                },\n                \"subnet\": \"pool\",\n                \"mounts\": {\n                    /// for file-shares on Windows, this must be a single letter since it is used as a drive letter.\n                    \"l\": \"afs0/data\"\n                },\n                \"startTask\": {\n                    \"commands\": [\n                        \"curl https://raw.githubusercontent.com/utkarshayachit/azbatch-starter/main/examples/azfinsim-windows/start_task.ps1 -o start_task.ps1\",\n                        \"powershell.exe -ExecutionPolicy Bypass -File start_task.ps1\"\n                    ]\n                }\n            }\n        ]\n    }\n}\n",
+    "configTXT": "{\n    \"network\": {\n        \"addressPrefix\": \"${addressPrefix}\",\n        \"subnets\": {\n            \"private-endpoints\": {\n                \"addressPrefix\": \"${addressPrefix/24/0}\",\n                \"nsgRules\": [\n                    \"AllowAllHTTPSInBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"AllowVnetAzureFilesInBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            },\n\n            \"pool\": {\n                \"addressPrefix\": \"${addressPrefix/24/1}\",\n                \"nsgRules\": [\n                    \"AllowVnetRDPInBound\",\n                    \"AllowVnetAzureFilesOutBound\",\n                    \"AllowAllHTTPSOutBound\",\n                    \"DenyAllInBound\",\n                    \"DenyAllOutBound\"\n                ]\n            }\n        }\n    },\n\n    \"storage\": {\n        \"afs0\": {\n            \"shares\": [\n                \"data\"\n            ]\n        }\n    },\n\n    \"batch\": {\n        /// intentionally keep this minimal\n        \"poolAllocationMode\": \"BatchService\",\n        \"pools\": [\n            {\n                \"name\": \"windows\",\n                \"virtualMachine\": {\n                    \"size\": \"Standard_DS5_V2\",\n                    \"taskSlotsPerNode\": 8,\n                    \"image\": \"microsoftwindowsserver/windowsserver/2022-datacenter-smalldisk/latest\"\n                },\n                \"subnet\": \"pool\",\n                \"mounts\": {\n                    /// for file-shares on Windows, this must be a single letter since it is used as a drive letter.\n                    \"l\": \"afs0/data\"\n                },\n                \"startTask\": {\n                    \"commands\": [\n                        \"curl https://raw.githubusercontent.com/Azure/bacc/main/examples/azfinsim-windows/start_task.ps1 -o start_task.ps1\",\n                        \"powershell.exe -ExecutionPolicy Bypass -File start_task.ps1\"\n                    ]\n                }\n            }\n        ]\n    }\n}\n",
     "config0": "[replace(variables('configTXT'), '${addressPrefix}', parameters('addressPrefix'))]",
     "config1": "[replace(variables('config0'), '${addressPrefix/24/0}', cidrSubnet(parameters('addressPrefix'), 24, 0))]",
     "config2": "[replace(variables('config1'), '${addressPrefix/24/1}', cidrSubnet(parameters('addressPrefix'), 24, 1))]",
@@ -95,7 +95,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.21.1.54444",
-              "templateHash": "12668683698825922974"
+              "templateHash": "15344778609910377884"
             }
           },
           "parameters": {
@@ -507,7 +507,7 @@
               }
             },
             "dplSuffix": "[uniqueString(deployment().name, parameters('location'), parameters('resourceGroupName'))]",
-            "allTags": "[union(parameters('tags'), createObject('last deployed', parameters('timestamp'), 'codebase', 'azbatch-starter', 'version', '0.1.0'))]",
+            "allTags": "[union(parameters('tags'), createObject('last deployed', parameters('timestamp'), 'codebase', 'azure/bacc', 'version', '0.1.0'))]",
             "hubConfigSanitized": "[union(createObject('diagnostics', createObject('logAnalyticsWorkspace', createObject('id', ''), 'appInsights', createObject('appId', '', 'instrumentationKey', '')), 'managedIdentities', createArray(), 'network', createObject('routes', createArray(), 'peerings', createArray(), 'dnsZones', createArray())), parameters('hubConfig'))]",
             "logConfig": "[if(and(contains(variables('hubConfigSanitized').diagnostics, 'logAnalyticsWorkspace'), not(empty(variables('hubConfigSanitized').diagnostics.logAnalyticsWorkspace.id))), createObject('workspaceId', variables('hubConfigSanitized').diagnostics.logAnalyticsWorkspace.id), createObject())]",
             "hasAppInsights": "[and(and(contains(variables('hubConfigSanitized').diagnostics, 'appInsights'), not(empty(variables('hubConfigSanitized').diagnostics.appInsights.appId))), not(empty(variables('hubConfigSanitized').diagnostics.appInsights.instrumentationKey)))]",

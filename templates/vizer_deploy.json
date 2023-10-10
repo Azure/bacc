@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.21.1.54444",
-      "templateHash": "14217756581003572025"
+      "templateHash": "12367895053335569811"
     }
   },
   "parameters": {
@@ -122,7 +122,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.21.1.54444",
-              "templateHash": "12668683698825922974"
+              "templateHash": "15344778609910377884"
             }
           },
           "parameters": {
@@ -534,7 +534,7 @@
               }
             },
             "dplSuffix": "[uniqueString(deployment().name, parameters('location'), parameters('resourceGroupName'))]",
-            "allTags": "[union(parameters('tags'), createObject('last deployed', parameters('timestamp'), 'codebase', 'azbatch-starter', 'version', '0.1.0'))]",
+            "allTags": "[union(parameters('tags'), createObject('last deployed', parameters('timestamp'), 'codebase', 'azure/bacc', 'version', '0.1.0'))]",
             "hubConfigSanitized": "[union(createObject('diagnostics', createObject('logAnalyticsWorkspace', createObject('id', ''), 'appInsights', createObject('appId', '', 'instrumentationKey', '')), 'managedIdentities', createArray(), 'network', createObject('routes', createArray(), 'peerings', createArray(), 'dnsZones', createArray())), parameters('hubConfig'))]",
             "logConfig": "[if(and(contains(variables('hubConfigSanitized').diagnostics, 'logAnalyticsWorkspace'), not(empty(variables('hubConfigSanitized').diagnostics.logAnalyticsWorkspace.id))), createObject('workspaceId', variables('hubConfigSanitized').diagnostics.logAnalyticsWorkspace.id), createObject())]",
             "hasAppInsights": "[and(and(contains(variables('hubConfigSanitized').diagnostics, 'appInsights'), not(empty(variables('hubConfigSanitized').diagnostics.appInsights.appId))), not(empty(variables('hubConfigSanitized').diagnostics.appInsights.instrumentationKey)))]",
