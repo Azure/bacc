@@ -12,9 +12,8 @@ The deployment deploys a hub using the `connectivity.bicep` template from the [a
 repository. The hub is deployed in a separate resource group. The hub contains a firewall and a virtual network
 gateway. The firewall is used to route all traffic from the compute nodes through a single point of egress.
 The virtual network gateway is used to connect the hub to the spoke network. The spoke network is deployed
-using the `deployment.bicep` template from the `azbatch-starter` repository. The spoke network contains
+using the `deployment.bicep` template from the `bacc` repository. The spoke network contains
 a virtual network and a batch account.
-
 
 ## Design Considerations
 
@@ -53,7 +52,7 @@ requirements and steps described in that document for the same.
 For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
 simply click the following link to deploy using Azure Portal.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fsecured-batch_deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fbacc%2Fmain%2Ftemplates%2Fsecured-batch_deploy.json)
 
 To deploy using the CLI, use the following steps:
 
@@ -132,5 +131,5 @@ The only differences being the following:
   This is only necessary for the few commands we execute in the tutorial steps viz. obtaining the subscription ID.
   You can skip these CLI login steps and instead manually provide the subscription ID in the `bacc ...` commands.
 
-[examples/secured-batch]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/secured-batch
+[examples/secured-batch]: https://github.com/Azure/bacc/tree/main/examples/secured-batch
 [azbatch-starter-connectivity]: https://github.com/mocelj/azbatch-starter-connectivity

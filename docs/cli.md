@@ -21,10 +21,10 @@ create a virtual environment and install the CLI in it.
 # if you haven't already, obtain the source code
 # here, we use GitHub to clone the repository however you can also download the source code as a zip file and extract it
 # instead of cloning the repository.
-git clone https://github.com/utkarshayachit/azbatch-starter.git
+git clone https://github.com/Azure/bacc.git
 
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
+# change directory to bacc (or where you cloned/downloaded the repository)
+cd bacc
 
 # create a virtual environment
 python3 -m venv env0
@@ -44,8 +44,8 @@ If you don't want to use a virtual environment, you can install the CLI tool glo
 ```sh
 #!/bin/bash
 
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
+# change directory to bacc (or where you cloned/downloaded the repository)
+cd bacc 
 
 # install the CLI tools
 pip install ./cli

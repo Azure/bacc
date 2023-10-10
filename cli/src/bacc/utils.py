@@ -60,7 +60,7 @@ def validate_resource_group(credentials, subscription_id, resource_group_name):
     rclient = ResourceManagementClient(credentials, subscription_id)
     if rclient.resource_groups.check_existence(resource_group_name):
         rg = rclient.resource_groups.get(resource_group_name)
-        if rg.tags is not None and rg.tags.get("codebase") == "azbatch-starter":
+        if rg.tags is not None and rg.tags.get("codebase") == "azure/bacc":
             log.debug("rg  '%s' has expected tags; rg is valid", resource_group_name)
             return True
         log.debug(

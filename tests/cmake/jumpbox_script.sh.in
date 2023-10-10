@@ -18,7 +18,7 @@ CMAKE=/tmp/workspace/cmake/bin/cmake
 CTEST=/tmp/workspace/cmake/bin/ctest
 
 # download the source code
-git clone -q --depth 1 https://github.com/utkarshayachit/azbatch-starter.git -b main src
+git clone -q --depth 1 https://github.com/Azure/bacc.git -b main src
 
 # install package in a virtual environment
 cd /tmp/workspace/src

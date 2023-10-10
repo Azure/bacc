@@ -41,7 +41,7 @@ from a public network. If you want to let the deployment create a new storage ac
 For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
 simply click the following link to deploy using Azure Portal.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fvizer_deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fbacc%2Fmain%2Ftemplates%2Fvizer_deploy.json)
 
 To create deployment using Azure CLI for these steps. Since in this example we are using an existing storage account, we need to
 provide the storage account name, container name and the account access key or SAS token to access it.

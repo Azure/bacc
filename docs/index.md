@@ -129,6 +129,5 @@ Copyright (c) Microsoft Corporation. All rights reserved.
 
 Licensed under the [MIT License](./LICENSE)
 
-[cli]: https://github.com/utkarshayachit/azbatch-starter/tree/main/cli
-[config]: https://github.com/utkarshayachit/azbatch-starter/tree/main/config
-[`examples`]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples
+[cli]: https://github.com/Azure/bacc/tree/main/cli
+[`examples`]: https://github.com/Azure/bacc/tree/main/examples

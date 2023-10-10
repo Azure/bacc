@@ -29,7 +29,7 @@ requirements and steps described in that document.
 For this step, you have two options. You can use Azure CLI to deploy the resources using the bicep template provided. Or you can
 simply click the following link to deploy using Azure Portal.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Futkarshayachit%2Fazbatch-starter%2Fmain%2Ftemplates%2Fazfinsim-linux_deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fbacc%2Fmain%2Ftemplates%2Fazfinsim-linux_deploy.json)
 
 Use the following steps to deploy using Azure CLI.
 
@@ -41,8 +41,8 @@ AZ_LOCATION=eastus2
 AZ_DEPLOYMENT_NAME=azfinsim0
 AZ_RESOURCE_GROUP=azfinsim0
 
-# change directory to azbatch-starter (or where you cloned/downloaded the repository)
-cd azbatch-starter
+# change directory to bacc (or where you cloned/downloaded the repository)
+cd bacc
 
 az deployment sub create                                      \
   --name $AZ_DEPLOYMENT_NAME                                  \
@@ -224,4 +224,4 @@ bacc azfinsim -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP  \
 }
 ```
 
-[examples/azfinsim-linux]: https://github.com/utkarshayachit/azbatch-starter/tree/main/examples/azfinsim-linux
+[examples/azfinsim-linux]: https://github.com/Azure/bacc/tree/main/examples/azfinsim-linux
