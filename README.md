@@ -37,12 +37,7 @@ Copyright (c) Microsoft Corporation. All rights reserved.
 
 Licensed under the [MIT License](./LICENSE)
 
-# Microsoft Open Source Code of Conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-Refer to [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) for details.
-
-# Contributing
+## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to
 agree to a Contributor License Agreement (CLA) declaring that you have the right to,
