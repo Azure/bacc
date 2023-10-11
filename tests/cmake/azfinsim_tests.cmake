@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 ## This modules adds various test for azfinsim application demo.
 
 #=======================================================================================================================

@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 ## This module adds various deployment validate tests
 ## to the CTest suite.  These tests are run after the

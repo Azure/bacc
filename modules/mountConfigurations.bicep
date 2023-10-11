@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 param mounts object
 param storageConfigurations object
 param isWindows bool

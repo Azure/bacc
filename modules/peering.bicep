@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 param vnetName string
 param targetConfig object
 param enableGateway bool = false

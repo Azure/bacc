@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //------------------------------------------------------------------------------
 // Options: parameters having broad impact on the deployement.
 //------------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /**
   Simply builds a list of NSG security rules objects from a list of NSG rule names
 */

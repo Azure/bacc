@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 param dnsZoneName string
 param vnetInfo object = {
   group: null

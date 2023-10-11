@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 from knack.commands import CLICommandsLoader, CommandGroup
 from knack.arguments import ArgumentsContext
 from knack.help_files import helps
