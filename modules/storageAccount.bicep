@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 /// deploys a single storage account
 /// this code can either deploy a new one or "process" and existing one
 

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # test script to import container image to ACR
 
 # get ACR name from deployment

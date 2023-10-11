@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 function(bacc_get_config_files out_var config_name)
     set(config_files "${SB_SOURCE_DIR}/examples/${config_name}/config.jsonc")
     set(${out_var} ${config_files} PARENT_SCOPE)

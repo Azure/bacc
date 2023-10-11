@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 #-------------------------------------------------------------------------------
 # These variables are core deployment variables
 set(SB_SUBSCRIPTION_ID "" CACHE STRING "The subscription ID to use for testing")

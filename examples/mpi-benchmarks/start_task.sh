@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # This script installs Mellanox OFED drivers on RHEL 8.4
 set -x -e
 

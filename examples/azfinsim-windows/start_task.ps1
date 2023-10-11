@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 # download Python
 $url = "https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe"
 $destination = "$env:TEMP\python-3.10.11-amd64.exe"
