@@ -2,21 +2,13 @@
     "logs": [
         {
             "categoryGroup": "allLogs",
-            "enabled": true,
-            "retentionPolicy": {
-                "days": 1,
-                "enabled": true
-            }
+            "enabled": true
         }
     ],
     "metrics": [
         {
             "category": "AllMetrics",
-            "enabled": true,
-            "retentionPolicy": {
-                "days": 1,
-                "enabled": true
-            }
+            "enabled": true
         }
     ]
 }
