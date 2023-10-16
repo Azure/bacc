@@ -1,8 +1,8 @@
 # bacc: Batch Accelerator
 
-[![ci-cli](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml)
-[![ci-validate-configs](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml)
-[![ci-deploy-n-test](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml/badge.svg?branch=main)](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml)
+[![ci-cli](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml)
+[![ci-validate-configs](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml)
+[![ci-deploy-n-test](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml)
 ![GitHub](https://img.shields.io/github/license/Azure/bacc)
 
 [Azure Batch](https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview)
