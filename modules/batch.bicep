@@ -231,7 +231,7 @@ resource sa_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if
 */
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = if (enableApplicationContainers) {
   #disable-next-line BCP334
-  name: take('acr${replace(guid('acr', resourceGroup().id), '-', '')}xxx', 50)
+  name: take('acr${replace(guid('acr', resourceGroup().id), '-', '')}', 50)
   location: location
   sku: {
     name: 'Premium' // needed for private endpoints
@@ -263,7 +263,8 @@ resource acr_diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = i
   The batch account.
 */
 resource batchAccount 'Microsoft.Batch/batchAccounts@2022-10-01' = {
-  name: take('ba${join(split(guid('ba', resourceGroup().id), '-'), '')}', 24)
+  #disable-next-line BCP334
+  name: take('ba${replace(guid('ba', resourceGroup().id), '-', '')}', 24)
   location: location
   tags: union({ sbatch: 'batch-account' }, tags)
   identity: {
