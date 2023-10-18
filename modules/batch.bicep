@@ -14,10 +14,10 @@ param tags object
 @description('Batch Service Object Id (az ad sp show --id "ddbf3205-c6bd-46ae-8127-60eb93363864" --query id)')
 param batchServiceObjectId string
 
-@description('enable container suppport')
+@description('enable container support')
 param enableApplicationContainers bool
 
-@description('enable application pakacges support')
+@description('enable application packages support')
 param enableApplicationPackages bool
 
 // @description('admin password for pool nodes')
