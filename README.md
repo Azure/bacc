@@ -1,8 +1,8 @@
 # bacc: Batch Accelerator
 
-[![ci-cli](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml)
-[![ci-validate-configs](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml/badge.svg?branch=main&event=push)](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml)
-[![ci-deploy-n-test](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml/badge.svg?branch=main)](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml)
+[![ci-cli](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-cli.yaml)
+[![ci-validate-configs](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-validate.yaml)
+[![ci-deploy-n-test](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml/badge.svg?event=push)](https://github.com/Azure/bacc/actions/workflows/ci-deploy-n-test.yaml)
 ![GitHub](https://img.shields.io/github/license/Azure/bacc)
 
 [Azure Batch](https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview)
@@ -22,7 +22,7 @@ production deployments alike.
 
 This repository is a part of our accelerator solution to make it easier for customers to deploy **Azure Batch** workloads
 in a manner that follows best practices and security guidelines. When used in conjunction with a hub deployment such as
-[azbatch-starter-connectivity](https://github.com/mocelj/azbatch-starter-connectivity), it can be used to deploy
+[bacc-connectivity](https://github.com/Azure/bacc-connectivity.git), it can be used to deploy
 a locked down Azure Batch environment, designed for industrial use cases such as those in Financial Services (FSI).
 For use-cases where the complexity of a fully locked-down, hub-spoke deployment is not required, this repository
 can be used by itself.
