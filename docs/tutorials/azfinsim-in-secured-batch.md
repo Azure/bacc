@@ -8,7 +8,7 @@ For this tutorial, we will use configuration files from [examples/secured-batch]
 The `deployment.bicep` is the entry point for this deployment and `config.jonc` is the configuration
 file that contains all the resource configuration parameters for this deployment.
 
-The deployment deploys a hub using the `connectivity.bicep` template from the [azbatch-starter-connectivity]
+The deployment deploys a hub using the `connectivity.bicep` template from the [bacc-connectivity]
 repository. The hub is deployed in a separate resource group. The hub contains a firewall and a virtual network
 gateway. The firewall is used to route all traffic from the compute nodes through a single point of egress.
 The virtual network gateway is used to connect the hub to the spoke network. The spoke network is deployed
@@ -58,7 +58,7 @@ To deploy using the CLI, use the following steps:
 
 ```bash
 #!/bin/bash
-cd .../azbatch-starter-connectivity
+cd .../bacc-connectivity
 
 AZ_LOCATION=eastsus2
 AZ_DEPLOYMENT_NAME=azfinsim-sb
@@ -132,4 +132,4 @@ The only differences being the following:
   You can skip these CLI login steps and instead manually provide the subscription ID in the `bacc ...` commands.
 
 [examples/secured-batch]: https://github.com/Azure/bacc/tree/main/examples/secured-batch
-[azbatch-starter-connectivity]: https://github.com/mocelj/azbatch-starter-connectivity
+[bacc-connectivity]: https://github.com/Azure/bacc-connectivity

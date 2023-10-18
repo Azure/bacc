@@ -39,8 +39,8 @@ Let's look at the structure of these configuration parameters in more detail.
 ### hubConfig
 
 This configuration object is intended to provide information about a hub deployment to peer with. The [secured-batch] example
-uses the [azbatch-starter-connectivity](https://github.com/mocelj/azbatch-starter-connectivity) repository to deploy a hub
-and the pass the configuration information to this module. The expected strucure is as follows:
+uses the [bacc-connectivity](https://github.com/Azure/bacc-connectivity) repository to deploy a hub
+and the pass the configuration information to this module. The expected structure is as follows:
 
 ```jsonc
 {
