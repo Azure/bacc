@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.21.1.54444",
-      "templateHash": "11177771337082021769"
+      "version": "0.22.6.54827",
+      "templateHash": "6498035052619151442"
     }
   },
   "parameters": {
@@ -94,8 +94,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.21.1.54444",
-              "templateHash": "15344778609910377884"
+              "version": "0.22.6.54827",
+              "templateHash": "3512257475860923839"
             }
           },
           "parameters": {
@@ -560,8 +560,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "10252677314460662572"
+                      "version": "0.22.6.54827",
+                      "templateHash": "2852241739788598289"
                     }
                   },
                   "parameters": {
@@ -610,21 +610,13 @@
                       "logs": [
                         {
                           "categoryGroup": "allLogs",
-                          "enabled": true,
-                          "retentionPolicy": {
-                            "days": 1,
-                            "enabled": true
-                          }
+                          "enabled": true
                         }
                       ],
                       "metrics": [
                         {
                           "category": "AllMetrics",
-                          "enabled": true,
-                          "retentionPolicy": {
-                            "days": 1,
-                            "enabled": true
-                          }
+                          "enabled": true
                         }
                       ]
                     },
@@ -741,8 +733,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "10381560863554466408"
+                              "version": "0.22.6.54827",
+                              "templateHash": "13546425480392186852"
                             }
                           },
                           "parameters": {
@@ -946,8 +938,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "27857195044618223"
+                              "version": "0.22.6.54827",
+                              "templateHash": "17427984334228129395"
                             }
                           },
                           "parameters": {
@@ -1024,8 +1016,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "27857195044618223"
+                              "version": "0.22.6.54827",
+                              "templateHash": "17427984334228129395"
                             }
                           },
                           "parameters": {
@@ -1134,8 +1126,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "6288222897179725283"
+                      "version": "0.22.6.54827",
+                      "templateHash": "14030985837876093403"
                     }
                   },
                   "parameters": {
@@ -1198,8 +1190,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "10240081480022150970"
+                              "version": "0.22.6.54827",
+                              "templateHash": "16424710864942209720"
                             }
                           },
                           "parameters": {
@@ -1433,8 +1425,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "7432536924927961134"
+                      "version": "0.22.6.54827",
+                      "templateHash": "15777526477325507978"
                     }
                   },
                   "parameters": {
@@ -1522,21 +1514,13 @@
                       "logs": [
                         {
                           "categoryGroup": "allLogs",
-                          "enabled": true,
-                          "retentionPolicy": {
-                            "days": 1,
-                            "enabled": true
-                          }
+                          "enabled": true
                         }
                       ],
                       "metrics": [
                         {
                           "category": "AllMetrics",
-                          "enabled": true,
-                          "retentionPolicy": {
-                            "days": 1,
-                            "enabled": true
-                          }
+                          "enabled": true
                         }
                       ]
                     },
@@ -1547,11 +1531,11 @@
                     "publicNetworkAccess": "[if(equals(variables('batchConfig').publicNetworkAccess, 'auto'), not(parameters('gatewayPeeringEnabled')), variables('batchConfig').publicNetworkAccess)]",
                     "needsKeyVault": "[equals(variables('batchConfig').poolAllocationMode, 'UserSubscription')]",
                     "saRoleAssignments": "[if(parameters('enableApplicationPackages'), createArray(createObject('kind', 'storage', 'name', take(format('sa0{0}', join(split(guid('sa', resourceGroup().id), '-'), '')), 24), 'group', resourceGroup().name, 'roles', createArray('Storage Blob Data Contributor'))), createArray())]",
-                    "acrRoleAssignments": "[if(parameters('enableApplicationContainers'), createArray(createObject('kind', 'acr', 'name', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50), 'group', resourceGroup().name, 'roles', createArray('AcrPull', 'AcrPush', 'AcrDelete', 'AcrImageSigner'))), createArray())]",
+                    "acrRoleAssignments": "[if(parameters('enableApplicationContainers'), createArray(createObject('kind', 'acr', 'name', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50), 'group', resourceGroup().name, 'roles', createArray('AcrPull', 'AcrPush', 'AcrDelete', 'AcrImageSigner'))), createArray())]",
                     "baRoleAssignments": [
                       {
                         "kind": "ba",
-                        "name": "[take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)]",
+                        "name": "[take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)]",
                         "group": "[resourceGroup().name]",
                         "roles": [
                           "Contributor"
@@ -1561,25 +1545,25 @@
                     "batchInsightsStartTask": "[if(not(empty(parameters('appInsightsConfig'))), createObject('windows', createObject('commands', createArray('powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command \"iex ((New-Object System.Net.WebClient).DownloadString(''https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-windows.ps1''))\"'), 'environmentSettings', createArray(createObject('name', 'APP_INSIGHTS_INSTRUMENTATION_KEY', 'value', if(not(empty(parameters('appInsightsConfig'))), parameters('appInsightsConfig').instrumentationKey, '')), createObject('name', 'APP_INSIGHTS_APP_ID', 'value', if(not(empty(parameters('appInsightsConfig'))), parameters('appInsightsConfig').appId, '')), createObject('name', 'BATCH_INSIGHTS_DOWNLOAD_URL', 'value', 'https://github.com/Azure/batch-insights/releases/download/v1.3.0/batch-insights.exe'))), 'linux', createObject('commands', createArray('wget  -O - https://raw.githubusercontent.com/Azure/batch-insights/master/scripts/run-linux.sh | bash'), 'environmentSettings', createArray(createObject('name', 'APP_INSIGHTS_INSTRUMENTATION_KEY', 'value', if(not(empty(parameters('appInsightsConfig'))), parameters('appInsightsConfig').instrumentationKey, '')), createObject('name', 'APP_INSIGHTS_APP_ID', 'value', if(not(empty(parameters('appInsightsConfig'))), parameters('appInsightsConfig').appId, '')), createObject('name', 'BATCH_INSIGHTS_DOWNLOAD_URL', 'value', 'https://github.com/Azure/batch-insights/releases/download/v1.3.0/batch-insights')))), createObject('windows', createObject('commands', createArray(), 'environmentSettings', createArray()), 'linux', createObject('commands', createArray(), 'environmentSettings', createArray())))]",
                     "endpoints": [
                       {
-                        "name": "[take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)]",
+                        "name": "[take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)]",
                         "group": "[resourceGroup().name]",
-                        "privateLinkServiceId": "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]",
+                        "privateLinkServiceId": "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]",
                         "groupIds": [
                           "batchAccount"
                         ],
                         "privateDnsZoneName": "privatelink.batch.azure.com"
                       },
                       {
-                        "name": "[take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)]",
+                        "name": "[take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)]",
                         "group": "[resourceGroup().name]",
-                        "privateLinkServiceId": "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]",
+                        "privateLinkServiceId": "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]",
                         "groupIds": [
                           "nodeManagement"
                         ],
                         "privateDnsZoneName": "privatelink.batch.azure.com"
                       },
                       "[if(variables('needsKeyVault'), createObject('name', take(format('kv-{0}', guid('kv', resourceGroup().id)), 24), 'group', resourceGroup().name, 'privateLinkServiceId', resourceId('Microsoft.KeyVault/vaults', take(format('kv-{0}', guid('kv', resourceGroup().id)), 24)), 'groupIds', createArray('vault'), 'privateDnsZoneName', 'privatelink.vaultcore.azure.net'), createObject())]",
-                      "[if(parameters('enableApplicationContainers'), createObject('name', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50), 'group', resourceGroup().name, 'privateLinkServiceId', resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)), 'groupIds', createArray('registry'), 'privateDnsZoneName', format('privatelink{0}', environment().suffixes.acrLoginServer)), createObject())]",
+                      "[if(parameters('enableApplicationContainers'), createObject('name', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50), 'group', resourceGroup().name, 'privateLinkServiceId', resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50)), 'groupIds', createArray('registry'), 'privateDnsZoneName', format('privatelink{0}', environment().suffixes.acrLoginServer)), createObject())]",
                       "[if(parameters('enableApplicationPackages'), createObject('name', take(format('sa0{0}', join(split(guid('sa', resourceGroup().id), '-'), '')), 24), 'group', resourceGroup().name, 'privateLinkServiceId', resourceId('Microsoft.Storage/storageAccounts', take(format('sa0{0}', join(split(guid('sa', resourceGroup().id), '-'), '')), 24)), 'groupIds', createArray('blob'), 'privateDnsZoneName', format('privatelink.blob.{0}', environment().suffixes.storage)), createObject())]"
                     ]
                   },
@@ -1700,7 +1684,7 @@
                       "condition": "[parameters('enableApplicationContainers')]",
                       "type": "Microsoft.ContainerRegistry/registries",
                       "apiVersion": "2022-12-01",
-                      "name": "[take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)]",
+                      "name": "[take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50)]",
                       "location": "[parameters('location')]",
                       "sku": {
                         "name": "Premium"
@@ -1717,17 +1701,17 @@
                       "condition": "[and(parameters('enableApplicationContainers'), not(empty(parameters('logConfig'))))]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
-                      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50))]",
-                      "name": "[format('{0}-diag', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50))]",
+                      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50))]",
+                      "name": "[format('{0}-diag', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50))]",
                       "properties": "[union(parameters('logConfig'), variables('diagConfig'))]",
                       "dependsOn": [
-                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50))]"
+                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50))]"
                       ]
                     },
                     {
                       "type": "Microsoft.Batch/batchAccounts",
                       "apiVersion": "2022-10-01",
-                      "name": "[take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)]",
+                      "name": "[take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)]",
                       "location": "[parameters('location')]",
                       "tags": "[union(createObject('sbatch', 'batch-account'), parameters('tags'))]",
                       "identity": {
@@ -1762,11 +1746,11 @@
                       "condition": "[not(empty(parameters('logConfig')))]",
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2021-05-01-preview",
-                      "scope": "[format('Microsoft.Batch/batchAccounts/{0}', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]",
-                      "name": "[format('{0}-diag', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]",
+                      "scope": "[format('Microsoft.Batch/batchAccounts/{0}', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]",
+                      "name": "[format('{0}-diag', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]",
                       "properties": "[union(parameters('logConfig'), variables('diagConfig'))]",
                       "dependsOn": [
-                        "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]"
+                        "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]"
                       ]
                     },
                     {
@@ -1776,7 +1760,7 @@
                       },
                       "type": "Microsoft.Batch/batchAccounts/pools",
                       "apiVersion": "2022-10-01",
-                      "name": "[format('{0}/{1}', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24), variables('poolsConfig')[copyIndex()].name)]",
+                      "name": "[format('{0}/{1}', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24), variables('poolsConfig')[copyIndex()].name)]",
                       "identity": {
                         "type": "UserAssigned",
                         "userAssignedIdentities": {
@@ -1793,7 +1777,7 @@
                           "virtualMachineConfiguration": {
                             "imageReference": "[parameters('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].imageReference]",
                             "nodeAgentSkuId": "[parameters('images')[variables('poolsConfig')[copyIndex()].virtualMachine.image].nodeAgentSkuId]",
-                            "containerConfiguration": "[if(variables('poolsConfig')[copyIndex()].supportsContainers, createObject('type', 'DockerCompatible', 'containerRegistries', if(parameters('enableApplicationContainers'), createArray(createObject('registryServer', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)), '2022-12-01').loginServer, 'identityReference', createObject('resourceId', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'mi-batch')))), null()), 'containerImageNames', reference(resourceId('Microsoft.Resources/deployments', take(format('containerImages-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64)), '2022-09-01').outputs.containerImageNames.value), null())]"
+                            "containerConfiguration": "[if(variables('poolsConfig')[copyIndex()].supportsContainers, createObject('type', 'DockerCompatible', 'containerRegistries', if(parameters('enableApplicationContainers'), createArray(createObject('registryServer', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50)), '2022-12-01').loginServer, 'identityReference', createObject('resourceId', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'mi-batch')))), null()), 'containerImageNames', reference(resourceId('Microsoft.Resources/deployments', take(format('containerImages-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64)), '2022-09-01').outputs.containerImageNames.value), null())]"
                           }
                         },
                         "scaleSettings": {
@@ -1815,8 +1799,8 @@
                         "mountConfiguration": "[reference(resourceId('Microsoft.Resources/deployments', take(format('mountConfigurations-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64)), '2022-09-01').outputs.mountConfigurations.value]"
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50))]",
-                        "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24))]",
+                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50))]",
+                        "[resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24))]",
                         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'mi-batch')]",
                         "[resourceId('Microsoft.Resources/deployments', take(format('containerImages-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64))]",
                         "[resourceId('Microsoft.Resources/deployments', take(format('mountConfigurations-{0}-{1}', variables('poolsConfig')[copyIndex()].name, variables('dplSuffix')), 64))]",
@@ -1856,8 +1840,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "16160205847879748183"
+                              "version": "0.22.6.54827",
+                              "templateHash": "13709802275870195908"
                             }
                           },
                           "parameters": {
@@ -1917,7 +1901,7 @@
                           "images": {
                             "value": "[variables('poolsConfig')[copyIndex()].containerImages]"
                           },
-                          "acrLoginServer": "[if(parameters('enableApplicationContainers'), createObject('value', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50)), '2022-12-01').loginServer), createObject('value', '<invalidACRName>'))]"
+                          "acrLoginServer": "[if(parameters('enableApplicationContainers'), createObject('value', reference(resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50)), '2022-12-01').loginServer), createObject('value', '<invalidACRName>'))]"
                         },
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1925,8 +1909,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "1856520036028729413"
+                              "version": "0.22.6.54827",
+                              "templateHash": "15805905697961153053"
                             }
                           },
                           "parameters": {
@@ -1949,7 +1933,7 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50))]"
+                        "[resourceId('Microsoft.ContainerRegistry/registries', take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50))]"
                       ],
                       "metadata": {
                         "description": "process pool container images"
@@ -1985,8 +1969,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "16050681291154361719"
+                              "version": "0.22.6.54827",
+                              "templateHash": "15513693422947814998"
                             }
                           },
                           "parameters": {
@@ -2036,14 +2020,14 @@
                       "metadata": {
                         "description": "batch account endpoint"
                       },
-                      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)), '2022-10-01').accountEndpoint]"
+                      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)), '2022-10-01').accountEndpoint]"
                     },
                     "batchAccountName": {
                       "type": "string",
                       "metadata": {
                         "description": "batch account name"
                       },
-                      "value": "[take(format('ba{0}', join(split(guid('ba', resourceGroup().id), '-'), '')), 24)]"
+                      "value": "[take(format('ba{0}', replace(guid('ba', resourceGroup().id), '-', '')), 24)]"
                     },
                     "batchAccountResourceGroup": {
                       "type": "string",
@@ -2071,7 +2055,7 @@
                       "metadata": {
                         "description": "acr name, if deployed"
                       },
-                      "value": "[if(parameters('enableApplicationContainers'), take(format('acr{0}', join(split(guid('acr', resourceGroup().id), '-'), '')), 50), '')]"
+                      "value": "[if(parameters('enableApplicationContainers'), take(format('acr{0}', replace(guid('acr', resourceGroup().id), '-', '')), 50), '')]"
                     },
                     "miConfig": {
                       "type": "object",
@@ -2125,8 +2109,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "17309160143169170406"
+                      "version": "0.22.6.54827",
+                      "templateHash": "9647547632395932866"
                     }
                   },
                   "parameters": {
@@ -2221,8 +2205,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "13337401551208951083"
+                              "version": "0.22.6.54827",
+                              "templateHash": "17727148404072912886"
                             }
                           },
                           "parameters": {
@@ -2305,8 +2289,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "18230123485547608202"
+                              "version": "0.22.6.54827",
+                              "templateHash": "1796696251957068502"
                             }
                           },
                           "parameters": {
@@ -2431,8 +2415,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "11474686836054391008"
+                      "version": "0.22.6.54827",
+                      "templateHash": "610463805085798854"
                     }
                   },
                   "parameters": {
@@ -2481,8 +2465,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "10702426060679684626"
+                              "version": "0.22.6.54827",
+                              "templateHash": "959394951805738286"
                             }
                           },
                           "parameters": {
@@ -2987,8 +2971,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.21.1.54444",
-                      "templateHash": "11474686836054391008"
+                      "version": "0.22.6.54827",
+                      "templateHash": "610463805085798854"
                     }
                   },
                   "parameters": {
@@ -3037,8 +3021,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.21.1.54444",
-                              "templateHash": "10702426060679684626"
+                              "version": "0.22.6.54827",
+                              "templateHash": "959394951805738286"
                             }
                           },
                           "parameters": {
