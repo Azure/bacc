@@ -1538,13 +1538,13 @@
                     "enableApplicationContainers": {
                       "type": "bool",
                       "metadata": {
-                        "description": "enable container suppport"
+                        "description": "enable container support"
                       }
                     },
                     "enableApplicationPackages": {
                       "type": "bool",
                       "metadata": {
-                        "description": "enable application pakacges support"
+                        "description": "enable application packages support"
                       }
                     },
                     "batchJS": {
