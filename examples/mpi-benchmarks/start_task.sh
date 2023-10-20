@@ -4,8 +4,117 @@
 # Licensed under the MIT License.
 
 # This script installs Mellanox OFED drivers on RHEL 8.4
-set -x -e
+set -e
 
+#-----------------------------------------------------------------------------------------------------------------------
+# command line parsing
+#-----------------------------------------------------------------------------------------------------------------------
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	echo "$1" >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options='omiuh'
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# THE DEFAULTS INITIALIZATION - OPTIONALS
+_arg_mofed="on"
+_arg_mpis="on"
+_arg_ibm="on"
+_arg_osu="on"
+
+print_help()
+{
+	printf '%s\n' "Startup script for Azure Batch compute nodes for using MPI"
+	printf 'Usage: %s [-o|--(no-)mofed] [-m|--(no-)mpis] [-i|--(no-)ibm] [-u|--(no-)osu] [-h|--help]\n' "$0"
+	printf '\t%s\n' "-o, --mofed, --no-mofed: install Mellanox OFED drivers (on by default)"
+	printf '\t%s\n' "-m, --mpis, --no-mpis: install MPI implementations (on by default)"
+	printf '\t%s\n' "-i, --ibm, --no-ibm: install Intel MPI benchmarks (on by default)"
+	printf '\t%s\n' "-u, --osu, --no-osu: install OSU Micro benchmarks (on by default)"
+	printf '\t%s\n' "-h, --help: Prints help"
+}
+
+parse_commandline()
+{
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			-o|--no-mofed|--mofed)
+				_arg_mofed="on"
+				test "${1:0:5}" = "--no-" && _arg_mofed="off"
+				;;
+			-o*)
+				_arg_mofed="on"
+				_next="${_key##-o}"
+				if test -n "$_next" -a "$_next" != "$_key"
+				then
+					{ begins_with_short_option "$_next" && shift && set -- "-o" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+				fi
+				;;
+			-m|--no-mpis|--mpis)
+				_arg_mpis="on"
+				test "${1:0:5}" = "--no-" && _arg_mpis="off"
+				;;
+			-m*)
+				_arg_mpis="on"
+				_next="${_key##-m}"
+				if test -n "$_next" -a "$_next" != "$_key"
+				then
+					{ begins_with_short_option "$_next" && shift && set -- "-m" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+				fi
+				;;
+			-i|--no-ibm|--ibm)
+				_arg_ibm="on"
+				test "${1:0:5}" = "--no-" && _arg_ibm="off"
+				;;
+			-i*)
+				_arg_ibm="on"
+				_next="${_key##-i}"
+				if test -n "$_next" -a "$_next" != "$_key"
+				then
+					{ begins_with_short_option "$_next" && shift && set -- "-i" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+				fi
+				;;
+			-u|--no-osu|--osu)
+				_arg_osu="on"
+				test "${1:0:5}" = "--no-" && _arg_osu="off"
+				;;
+			-u*)
+				_arg_osu="on"
+				_next="${_key##-u}"
+				if test -n "$_next" -a "$_next" != "$_key"
+				then
+					{ begins_with_short_option "$_next" && shift && set -- "-u" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+				fi
+				;;
+			-h|--help)
+				print_help
+				exit 0
+				;;
+			-h*)
+				print_help
+				exit 0
+				;;
+			*)
+				_PRINT_HELP=yes die "FATAL ERROR: Got an unexpected argument '$1'" 1
+				;;
+		esac
+		shift
+	done
+}
+parse_commandline "$@"
+#-----------------------------------------------------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------------------------------------------------
 # THIS SCRIPT NEEDS TO BE IDEMPOTENT
 
 INSTALL_PREFIX="/mnt"
@@ -56,6 +165,9 @@ install_mofed () {
     yum install -y kernel-devel-${KERNEL}
     ./mlnxofedinstall --tmpdir ${MOFED_TEMP_PREFIX}/tmp --kernel $KERNEL --kernel-sources /usr/src/kernels/${KERNEL} --add-kernel-support --skip-repo
     popd
+
+    # Restarting openibd
+    /etc/init.d/openibd force-restart
 
     # cleanup
     rm -rf "${MOFED_TEMP_PREFIX}"
@@ -206,14 +318,32 @@ export AZ_BATCH_OMPI_HOSTS=\$(get_openmpi_hosts_with_slots)
 EOF
 }
 
-install_dependencies
-install_mofed
-install_hpcx
+if [ "${_arg_mofed}" = "on" ]; then
+    echo "Installing Mellanox OFED drivers"
+    install_dependencies
+    install_mofed
+fi
+
+if [ "${_arg_mpis}" = "on" ]; then
+    echo "Installing MPI implementations"
+    install_hpcx
+fi
+
+
+if [ "${_arg_ibm}" = "on" ]; then
+    echo "Installing Intel MPI Benchmarks"
+    source /etc/profile.d/modules.sh
+    install_intel_benchmarks hpcx
+    module purge
+fi
+
+if [ "${_arg_osu}" = "on" ]; then
+    echo "Installing OSU Micro Benchmarks"
+    source /etc/profile.d/modules.sh
+    install_osu_benchmarks hpcx
+    module purge
+fi
+
 hpc_tuning
-
-source /etc/profile.d/modules.sh
-install_intel_benchmarks hpcx
-install_osu_benchmarks hpcx
-
 # save batch_utils to /mnt/batch_utils.sh
 save_batch_utils
