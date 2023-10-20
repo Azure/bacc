@@ -322,13 +322,13 @@ if [ "${_arg_mofed}" = "on" ]; then
     echo "Installing Mellanox OFED drivers"
     install_dependencies
     install_mofed
+    hpc_tuning
 fi
 
 if [ "${_arg_mpis}" = "on" ]; then
     echo "Installing MPI implementations"
     install_hpcx
 fi
-
 
 if [ "${_arg_ibm}" = "on" ]; then
     echo "Installing Intel MPI Benchmarks"
@@ -344,6 +344,5 @@ if [ "${_arg_osu}" = "on" ]; then
     module purge
 fi
 
-hpc_tuning
 # save batch_utils to /mnt/batch_utils.sh
 save_batch_utils

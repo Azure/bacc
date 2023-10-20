@@ -60,7 +60,7 @@ def populate_arguments(loader):
             "pool_id",
             options_list=["--pool-id", "-p"],
             help="The ID of the pool to use for the job.",
-            choices=['linux-HBv3']
+            # choices=['linux-HBv3']
         )
         c.argument(
             "await_completion",

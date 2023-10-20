@@ -27,12 +27,21 @@ param vnetPeerResourceGroupName string = ''
 @description('vnet peer name')
 param vnetPeerName string = ''
 
+@description('compute node SKUs')
+param sku string = 'Standard_HB120rs_v3'
+
+@description('CIDR to use as the address prefix for the virtual network deployed')
+param addressPrefix string = '10.121.0.0/16'
 
 @description('Batch Service Object Id (az ad sp show --id "ddbf3205-c6bd-46ae-8127-60eb93363864" --query id)')
 param batchServiceObjectId string
 
 //------------------------------------------------------------------------------
-var config = loadJsonContent('./config.jsonc')
+var c0 = replace(loadTextContent('./config.jsonc'), '\${sku}', sku)
+var c1 = replace(c0, '\${addressPrefix}', addressPrefix)
+var c2 = replace(c1, '\${addressPrefix/24/0}', cidrSubnet(addressPrefix, 24, 0))
+var c3 = replace(c2, '\${addressPrefix/24/1}', cidrSubnet(addressPrefix, 24, 1))
+var config = json(c3)
 
 var peerings = !empty(vnetPeerResourceGroupName) && !empty(vnetPeerName) ? [{
   group: vnetPeerResourceGroupName

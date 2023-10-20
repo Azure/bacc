@@ -1,9 +1,9 @@
 {
     "network": {
-        "addressPrefix": "10.123.0.0/16",
+        "addressPrefix": "${addressPrefix}",
         "subnets": {
             "private-endpoints": {
-                "addressPrefix": "10.123.0.0/24",
+                "addressPrefix": "${addressPrefix/24/0}",
                 "nsgRules": [
                     "AllowAllHTTPSInBound",
                     "AllowAllHTTPSOutBound",
@@ -14,7 +14,7 @@
             },
 
             "pool": {
-                "addressPrefix": "10.123.1.0/24",
+                "addressPrefix": "${addressPrefix/24/1}",
                 "nsgRules": [
                     // "AllowVnetNFSv3OutBound",
                     "AllowAllHTTPSOutBound",
@@ -36,6 +36,7 @@
     },
 
     "images": {
+
         // add a custom image definition
         "redhat/rhel/8_4/latest": {
             "imageReference": {
@@ -47,6 +48,30 @@
             "isWindows": false,
             "nodeAgentSkuId": "batch.node.el 8",
             "supportsContainers": false
+        },
+
+        "almalinux-hpc/almalinux/8_6-hpc-gen2/latest": {
+            "imageReference": {
+                "publisher": "almalinux",
+                "offer": "almalinux-hpc",
+                "sku": "8_6-hpc-gen2",
+                "version": "latest"
+            },
+            "isWindows": false,
+            "nodeAgentSkuId": "batch.node.el 8",
+            "supportsContainers": false
+        },
+
+        "ubuntu-hpc/microsoft-dsvm/2204/latest": {
+            "imageReference": {
+                "publisher": "microsoft-dsvm",
+                "offer": "ubuntu-hpc",
+                "sku": "2204",
+                "version": "latest",
+            },
+            "isWindows": false,
+            "nodeAgentSKUId": "batch.node.ubuntu 22.04",
+            "supportsContainers": false
         }
     },
 
@@ -55,9 +80,9 @@
         "publicNetworkAccess": true,
         "pools": [
             {
-                "name": "linux-HBv3",
+                "name": "rhel8",
                 "virtualMachine": {
-                    "size": "Standard_HB120rs_v3",
+                    "size": "${sku}",
                     "image": "redhat/rhel/8_4/latest",
                     "taskSlotsPerNode": 1
                 },
@@ -66,12 +91,47 @@
                 "startTask": {
                     "commands": [
                         "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
-                        "chmod +x start_task.sh",
-                        "bash start_task.sh"
+                        "bash start_task.sh",
+                        "echo 'done'"
+                    ]
+                }
+            },
+            {
+                "name": "almalinux",
+                "virtualMachine": {
+                    "size": "${sku}",
+                    "image": "almalinux-hpc/almalinux/8_6-hpc-gen2/latest",
+                    "taskSlotsPerNode": 1
+                },
+                "subnet": "pool",
+                "interNodeCommunication": true,
+                "startTask": {
+                    "commands": [
+                        "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
+                        // uses HPC image, so don't install pre-reqs
+                        "bash start_task.sh --no-mofed --no-mpis",
+                        "echo 'done'"
+                    ]
+                }
+            },
+            {
+                "name": "ubuntu",
+                "virtualMachine": {
+                    "size": "${sku}",
+                    "image": "ubuntu-hpc/microsoft-dsvm/2204/latest",
+                    "taskSlotsPerNode": 1
+                },
+                "subnet": "pool",
+                "interNodeCommunication": true,
+                "startTask": {
+                    "commands": [
+                        "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
+                        // uses HPC image, so don't install pre-reqs
+                        "bash start_task.sh --no-mofed --no-mpis",
+                        "echo 'done'"
                     ]
                 }
             }
         ]
     }
-    
 }
