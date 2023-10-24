@@ -60,18 +60,6 @@
             "isWindows": false,
             "nodeAgentSkuId": "batch.node.el 8",
             "supportsContainers": false
-        },
-
-        "ubuntu-hpc/microsoft-dsvm/2204/latest": {
-            "imageReference": {
-                "publisher": "microsoft-dsvm",
-                "offer": "ubuntu-hpc",
-                "sku": "2204",
-                "version": "latest",
-            },
-            "isWindows": false,
-            "nodeAgentSKUId": "batch.node.ubuntu 22.04",
-            "supportsContainers": false
         }
     },
 
@@ -91,7 +79,7 @@
                 "startTask": {
                     "commands": [
                         "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
-                        "bash start_task.sh",
+                        "bash start_task.sh ${extraArgs}",
                         "echo 'done'"
                     ]
                 }
@@ -109,25 +97,7 @@
                     "commands": [
                         "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
                         // uses HPC image, so don't install pre-reqs
-                        "bash start_task.sh --no-mofed --no-mpis",
-                        "echo 'done'"
-                    ]
-                }
-            },
-            {
-                "name": "ubuntu",
-                "virtualMachine": {
-                    "size": "${sku}",
-                    "image": "ubuntu-hpc/microsoft-dsvm/2204/latest",
-                    "taskSlotsPerNode": 1
-                },
-                "subnet": "pool",
-                "interNodeCommunication": true,
-                "startTask": {
-                    "commands": [
-                        "curl -O -L https://raw.githubusercontent.com/Azure/bacc/main/examples/mpi-benchmarks/start_task.sh",
-                        // uses HPC image, so don't install pre-reqs
-                        "bash start_task.sh --no-mofed --no-mpis",
+                        "bash start_task.sh --no-mofed --no-mpis ${extraArgs}",
                         "echo 'done'"
                     ]
                 }

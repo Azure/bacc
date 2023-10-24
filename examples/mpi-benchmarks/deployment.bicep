@@ -30,6 +30,15 @@ param vnetPeerName string = ''
 @description('compute node SKUs')
 param sku string = 'Standard_HB120rs_v3'
 
+@description('GIT repository URL for custom CMake-based MPI workload to deploy')
+param mpiWorkloadGitUrl string = 'https://github.com/utkarshayachit/mpi_workload.git'
+
+@description('GIT repository branch for custom CMake-based MPI workload to deploy')
+param mpiWorkloadGitBranch string = 'main'
+
+@description('GIT repository path to CMakeLists.txt for custom CMake-based MPI workload to deploy')
+param mpiWorkloadGitCMakePath string = '.'
+
 @description('CIDR to use as the address prefix for the virtual network deployed')
 param addressPrefix string = '10.121.0.0/16'
 
@@ -37,11 +46,13 @@ param addressPrefix string = '10.121.0.0/16'
 param batchServiceObjectId string
 
 //------------------------------------------------------------------------------
+var extraArgs = !empty(mpiWorkloadGitUrl) && !empty(mpiWorkloadGitBranch) && !empty(mpiWorkloadGitCMakePath) ? '-g ${mpiWorkloadGitUrl} -b ${mpiWorkloadGitBranch} -p ${mpiWorkloadGitCMakePath}' : ''
 var c0 = replace(loadTextContent('./config.jsonc'), '\${sku}', sku)
 var c1 = replace(c0, '\${addressPrefix}', addressPrefix)
 var c2 = replace(c1, '\${addressPrefix/24/0}', cidrSubnet(addressPrefix, 24, 0))
 var c3 = replace(c2, '\${addressPrefix/24/1}', cidrSubnet(addressPrefix, 24, 1))
-var config = json(c3)
+var c4 = replace(c3, '\${extraArgs}', extraArgs)
+var config = json(c4)
 
 var peerings = !empty(vnetPeerResourceGroupName) && !empty(vnetPeerName) ? [{
   group: vnetPeerResourceGroupName

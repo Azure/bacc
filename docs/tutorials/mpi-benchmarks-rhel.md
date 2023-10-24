@@ -90,7 +90,12 @@ bacc pool list -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
 # expected output
 [
   {
-    "pool_id": "linux-HBv3",
+    "pool_id": "almalinux",
+    "state": "steady",
+    "vm_size": "standard_hb120rs_v3"
+  },
+  {
+    "pool_id": "rhel8",
     "state": "steady",
     "vm_size": "standard_hb120rs_v3"
   }
@@ -103,6 +108,9 @@ Before we submit jobs, we need to resize the pool to the desired size. This is b
 For this MPI application demo, we need at least 2 nodes. So we resize the pool to 2 nodes.
 
 ```bash
+
+AZ_POOL_ID=rhel8 # or whichever pool id you want to use
+
 # resize pool
 bacc pool resize -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP -p $AZ_POOL_ID --target-dedicated-nodes 2
 # this will block until the pool is resized and then print the following:
@@ -120,7 +128,7 @@ The startup script installs the required software on the nodes. Once the pool is
 # submit job
 bacc mpi-bm imb -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
     --num-nodes 2 --num-ranks 2 \
-    -e IMB-MPI1 -a PingPong
+    -p $AZ_POOL_ID -e IMB-MPI1 -a PingPong
 # expected output
 {
     "job_id": "imb-mpi1-pingpong-[...]",
@@ -203,7 +211,7 @@ Likewise, you can run OSU benchmarks using the following command.
 
 # submit job
 bacc mpi-bm osu -s $AZ_SUBSCRIPTION_ID -g $AZ_RESOURCE_GROUP \
-  -e osu_bcast -n 2 -r 64
+  -p $AZ_POOL_ID -e osu_bcast -n 2 -r 64
 {
   "job_id": "osu_bcast-[...]"
 }
