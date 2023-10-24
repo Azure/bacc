@@ -30,17 +30,24 @@ _arg_mofed="on"
 _arg_mpis="on"
 _arg_ibm="on"
 _arg_osu="on"
+_arg_git_url=
+_arg_git_branch="main"
+_arg_git_path="."
 
 print_help()
 {
-	printf '%s\n' "Startup script for Azure Batch compute nodes for using MPI"
-	printf 'Usage: %s [-o|--(no-)mofed] [-m|--(no-)mpis] [-i|--(no-)ibm] [-u|--(no-)osu] [-h|--help]\n' "$0"
+	printf '%s\n' "Startup script for Azure Batch compute nodes for using MPI\""
+	printf 'Usage: %s [-o|--(no-)mofed] [-m|--(no-)mpis] [-i|--(no-)ibm] [-u|--(no-)osu] [-g|--git-url <arg>] [-b|--git-branch <arg>] [-p|--git-path <arg>] [-h|--help]\n' "$0"
 	printf '\t%s\n' "-o, --mofed, --no-mofed: install Mellanox OFED drivers (on by default)"
 	printf '\t%s\n' "-m, --mpis, --no-mpis: install MPI implementations (on by default)"
 	printf '\t%s\n' "-i, --ibm, --no-ibm: install Intel MPI benchmarks (on by default)"
 	printf '\t%s\n' "-u, --osu, --no-osu: install OSU Micro benchmarks (on by default)"
+	printf '\t%s\n' "-g, --git-url: Git URL for project to build (no default)"
+	printf '\t%s\n' "-b, --git-branch: Git branch (default: 'main')"
+	printf '\t%s\n' "-p, --git-path: Relative path to project source (default: '.')"
 	printf '\t%s\n' "-h, --help: Prints help"
 }
+
 
 parse_commandline()
 {
@@ -96,6 +103,39 @@ parse_commandline()
 					{ begins_with_short_option "$_next" && shift && set -- "-u" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
 				fi
 				;;
+			-g|--git-url)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_git_url="$2"
+				shift
+				;;
+			--git-url=*)
+				_arg_git_url="${_key##--git-url=}"
+				;;
+			-g*)
+				_arg_git_url="${_key##-g}"
+				;;
+			-b|--git-branch)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_git_branch="$2"
+				shift
+				;;
+			--git-branch=*)
+				_arg_git_branch="${_key##--git-branch=}"
+				;;
+			-b*)
+				_arg_git_branch="${_key##-b}"
+				;;
+			-p|--git-path)
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_git_path="$2"
+				shift
+				;;
+			--git-path=*)
+				_arg_git_path="${_key##--git-path=}"
+				;;
+			-p*)
+				_arg_git_path="${_key##-p}"
+				;;
 			-h|--help)
 				print_help
 				exit 0
@@ -111,8 +151,8 @@ parse_commandline()
 		shift
 	done
 }
+
 parse_commandline "$@"
-#-----------------------------------------------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------------------------------------------
 # THIS SCRIPT NEEDS TO BE IDEMPOTENT
@@ -272,6 +312,38 @@ install_osu_benchmarks () {
     touch "${status_file}"
 }
 
+install_mpi_workload() {
+    git_url=$1
+    git_branch=$2
+    git_path=$3
+    mpi_impl=$4
+
+    status_file="${STATUS_PREFIX}/mpi_workload_installed_${mpi_impl}"
+    if [ -f "${status_file}" ]; then
+        echo "MPI workload (${mpi_impl}) already installed. Skipping."
+        return
+    fi
+
+    module purge
+    module load mpi/${mpi_impl}
+
+    #--------
+    # Build MPI Workload
+
+    # clone git repo
+    git clone "${git_url}" --recursive --depth 1 --branch "${git_branch}" --single-branch "${TEMP_PREFIX}/mpi_workload"
+    pushd "${TEMP_PREFIX}/mpi_workload"
+
+    cmake -B build -S "${git_path}" -DCMAKE_BUILD_TYPE=Release
+    cmake --build build --parallel $(nproc)
+    cmake --install build --prefix "${INSTALL_PREFIX}/mpi_workload/${mpi_impl}"
+
+    popd
+
+    rm -rf "${TEMP_PREFIX}/mpi_workload"
+    touch "${status_file}"
+}
+
 hpc_tuning() {
     # Disable some unneeded services by default (administrators can re-enable if desired)
     systemctl disable firewalld
@@ -322,6 +394,7 @@ if [ "${_arg_mofed}" = "on" ]; then
     echo "Installing Mellanox OFED drivers"
     install_dependencies
     install_mofed
+    hpc_tuning
 fi
 
 if [ "${_arg_mpis}" = "on" ]; then
@@ -329,21 +402,25 @@ if [ "${_arg_mpis}" = "on" ]; then
     install_hpcx
 fi
 
-
+source /etc/profile.d/modules.sh
 if [ "${_arg_ibm}" = "on" ]; then
     echo "Installing Intel MPI Benchmarks"
-    source /etc/profile.d/modules.sh
     install_intel_benchmarks hpcx
     module purge
 fi
 
 if [ "${_arg_osu}" = "on" ]; then
     echo "Installing OSU Micro Benchmarks"
-    source /etc/profile.d/modules.sh
     install_osu_benchmarks hpcx
     module purge
 fi
 
-hpc_tuning
+# build mpi workload
+if [ -n "${_arg_git_url}" ]; then
+    echo "Building MPI workload from git repo"
+    install_mpi_workload "${_arg_git_url}" "${_arg_git_branch}" "${_arg_git_path}" "hpcx"
+    module purge
+fi
+
 # save batch_utils to /mnt/batch_utils.sh
 save_batch_utils
