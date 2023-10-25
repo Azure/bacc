@@ -72,8 +72,8 @@ def populate_arguments(loader):
         c.argument(
             "mpi_impl",
             options_list=["--mpi-implementation", "-m"],
-            help="The MPI implementation to use for the job.",
-            choices=['hpcx'],
+            help="The MPI implementation to use for the job. Ensure that the MPI implementation is available on the compute node.",
+            choices=['hpcx', 'openmpi', 'impi-2021', 'mvapich2'],
             arg_group="MPI Arguments",
         )
 
@@ -173,7 +173,13 @@ def execute(resource_group_name:str, subscription_id:str,
 
     num_ranks_per_node = math.ceil(num_ranks / num_nodes)
     if mpi_impl == "hpcx":
-        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=rc -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=tcp,self -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+    elif mpi_impl == "openmpi":
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+    elif mpi_impl == "impi-2021":
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+    elif mpi_impl == "mvapich2":
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
 
     wrk_command = f"$(find {prefix}/{mpi_impl}/ -name {bm_exe} -type f | head -n 1) {bm_args}"
     task_cmd = f"bash -c 'source /etc/profile.d/modules.sh  && source /mnt/batch_utils.sh && module load mpi/{mpi_impl} && {mpi_cmd} {wrk_command}'"
