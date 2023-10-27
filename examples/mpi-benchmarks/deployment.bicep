@@ -45,6 +45,9 @@ param addressPrefix string = '10.121.0.0/16'
 @description('Batch Service Object Id (az ad sp show --id "ddbf3205-c6bd-46ae-8127-60eb93363864" --query id)')
 param batchServiceObjectId string
 
+@description('log analysis workspace resource id (optional). leave empty to disable log analytics')
+param logAnalyticsWorkspaceId string = ''
+
 //------------------------------------------------------------------------------
 var extraArgs = !empty(mpiWorkloadGitUrl) && !empty(mpiWorkloadGitBranch) && !empty(mpiWorkloadGitCMakePath) ? '-g ${mpiWorkloadGitUrl} -b ${mpiWorkloadGitBranch} -p ${mpiWorkloadGitCMakePath}' : ''
 var c0 = replace(loadTextContent('./config.jsonc'), '\${sku}', sku)
@@ -60,9 +63,15 @@ var peerings = !empty(vnetPeerResourceGroupName) && !empty(vnetPeerName) ? [{
   useGateway: true
 }] : []
 
-var hubConfig = !empty(peerings) ? {
+var hc0 = !empty(peerings) ? {
   network: {
     peerings: peerings
+  }
+} : {}
+
+var hc1 = !empty(logAnalyticsWorkspaceId) ? {
+  diagnostics: {
+    logAnalyticsWorkspace: { id: logAnalyticsWorkspaceId }
   }
 } : {}
 
@@ -74,7 +83,7 @@ module mdlInfrastructure '../../modules/infrastructure.bicep' = {
   name: 'infrastructure-${dplSuffix}'
   params: {
     config: config
-    hubConfig: hubConfig
+    hubConfig: union(hc0, hc1)
     resourceGroupName: resourceGroupName
     location: location
     tags: tags
