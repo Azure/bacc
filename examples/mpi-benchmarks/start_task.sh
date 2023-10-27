@@ -246,12 +246,6 @@ EOF
 install_intel_benchmarks () {
     mpi_impl=$1
 
-    # check if arguments are valid
-    if [ "$mpi_impl" != "hpcx" ]; then
-        echo "Invalid MPI implementation: ${mpi_impl}"
-        exit 1
-    fi
-
     status_file="${STATUS_PREFIX}/intel_benchmarks_installed_${mpi_impl}"
     if [ -f "${status_file}" ]; then
         echo "Intel MPI Benchmarks (${mpi_impl}) already installed. Skipping."
@@ -284,12 +278,6 @@ install_osu_benchmarks () {
     #--------
     mpi_impl=$1
 
-    # check if arguments are valid
-    if [ "$mpi_impl" != "hpcx" ]; then
-        echo "Invalid MPI implementation: ${mpi_impl}"
-        exit 1
-    fi
-
     status_file="${STATUS_PREFIX}/osu_benchmarks_installed_${mpi_impl}"
     if [ -f "${status_file}" ]; then
         echo "OSU Benchmarks (${mpi_impl}) already installed. Skipping."
@@ -303,7 +291,7 @@ install_osu_benchmarks () {
     tar -xvf osu-micro-benchmarks-7.0.1.tar.gz
     pushd osu-micro-benchmarks-7.0.1
 
-    ./configure CC=mpicc CXX=mpicxx --prefix=/mnt/osu-micro-benchmarks/${mpi_impl}
+    ./configure CC=mpicc CXX=mpicxx --prefix=${INSTALL_PREFIX}/osu-micro-benchmarks/${mpi_impl}
     make -j $(nproc)
     make install
     popd
@@ -366,7 +354,7 @@ EOF
 
 save_batch_utils () {
     # This function has utility functions for Batch tasks
-    cat << EOF > /mnt/batch_utils.sh
+    cat << EOF > ${INSTALL_PREFIX}/batch_utils.sh
 #!/usr/bin/env bash
 
 # This script has utility functions for Batch tasks
@@ -390,6 +378,17 @@ export AZ_BATCH_OMPI_HOSTS=\$(get_openmpi_hosts_with_slots)
 EOF
 }
 
+get_mpi_impls () {
+    mpi_impls=""
+    mpis_to_test="hpcx openmpi mvapich2 impi-2021"
+    for mpi in $mpis_to_test; do
+        if [ $(module avail -t mpi 2>&1 | grep -c $mpi) -gt 0 ]; then
+            mpi_impls="$mpi_impls $mpi"
+        fi
+    done
+    echo $mpi_impls
+}
+
 if [ "${_arg_mofed}" = "on" ]; then
     echo "Installing Mellanox OFED drivers"
     install_dependencies
@@ -403,24 +402,32 @@ if [ "${_arg_mpis}" = "on" ]; then
 fi
 
 source /etc/profile.d/modules.sh
+mpi_impls=$(get_mpi_impls)
+
 if [ "${_arg_ibm}" = "on" ]; then
     echo "Installing Intel MPI Benchmarks"
-    install_intel_benchmarks hpcx
+    for mpi in $mpi_impls; do
+        install_intel_benchmarks $mpi
+    done
     module purge
 fi
 
 if [ "${_arg_osu}" = "on" ]; then
     echo "Installing OSU Micro Benchmarks"
-    install_osu_benchmarks hpcx
+    for mpi in $mpi_impls; do
+        install_osu_benchmarks $mpi
+    done
     module purge
 fi
 
 # build mpi workload
 if [ -n "${_arg_git_url}" ]; then
     echo "Building MPI workload from git repo"
-    install_mpi_workload "${_arg_git_url}" "${_arg_git_branch}" "${_arg_git_path}" "hpcx"
+    for mpi in $mpi_impls; do
+        install_mpi_workload "${_arg_git_url}" "${_arg_git_branch}" "${_arg_git_path}" $mpi
+    done
     module purge
 fi
 
-# save batch_utils to /mnt/batch_utils.sh
+# save batch_utils to ${INSTALL_PREFIX}/batch_utils.sh
 save_batch_utils
