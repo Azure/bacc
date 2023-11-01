@@ -61,7 +61,7 @@ def populate_arguments(loader):
             "pool_id",
             options_list=["--pool-id", "-p"],
             help="The ID of the pool to use for the job.",
-            choices=['almalinux', 'rhel8']
+            # choices=['almalinux', 'rhel8']
         )
         c.argument(
             "await_completion",
@@ -172,12 +172,10 @@ def execute(resource_group_name:str, subscription_id:str,
     job_id = "{}-{}".format('custom', uid)
 
     num_ranks_per_node = math.ceil(num_ranks / num_nodes)
-    if mpi_impl == "hpcx":
-        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=tcp,self -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
-    elif mpi_impl == "openmpi":
-        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+    if mpi_impl == "hpcx" or mpi_impl == "openmpi":
+        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x UCX_TLS=tcp,self -x LD_LIBRARY_PATH -x UCX_NET_DEVICES=eth0 -x HCOLL_MAIN_IB=eth0 --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
     elif mpi_impl == "impi-2021":
-        mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
+        mpi_cmd=f"mpirun -hosts $(echo $AZ_BATCH_NODE_LIST | sed \"s/;/,/g\") -genv I_MPI_DEBUG 5 -genv I_MPI_FABRICS ofi -ppn {num_ranks_per_node} -np {num_ranks}"
     elif mpi_impl == "mvapich2":
         mpi_cmd=f"mpirun -host $(get_openmpi_hosts_with_slots) -x LD_LIBRARY_PATH --map-by ppr:{num_ranks_per_node}:node -np {num_ranks}"
 
