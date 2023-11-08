@@ -1,0 +1,78 @@
+{
+    "network": {
+        "addressPrefix": "${addressPrefix}",
+        "subnets": {
+            "private-endpoints": {
+                "addressPrefix": "${addressPrefix/24/0}",
+                "nsgRules": [
+                    "AllowAllHTTPSInBound",
+                    "AllowAllHTTPSOutBound",
+                    // "AllowVnetNFSv3InBound",
+                    "DenyAllInBound",
+                    "DenyAllOutBound"
+                ]
+            },
+
+            "pool": {
+                "addressPrefix": "${addressPrefix/24/1}",
+                "nsgRules": [
+                    // "AllowVnetNFSv3OutBound",
+                    "AllowAllHTTPSOutBound",
+                    "AllowAllHTTPOutBound",
+                    "AllowVnetSSHInBound",
+                    "AllowVnetSSHOutBound",
+                    // "DenyAllInBound",
+                    // "DenyAllOutBound"
+                ] 
+            }
+        }
+    },
+
+    "storage": {
+        // "storage0": {
+        //     "enableNFSv3": false,
+        //     "containers": [ "data" ]
+        // }
+    },
+
+    "images": {
+
+        // add a custom image definition
+        "almalinux-hpc/almalinux/8_6-hpc-gen2/latest": {
+            "imageReference": {
+                "publisher": "almalinux",
+                "offer": "almalinux-hpc",
+                "sku": "8_6-hpc-gen2",
+                "version": "latest"
+            },
+            "isWindows": false,
+            "nodeAgentSkuId": "batch.node.el 8",
+            "supportsContainers": false
+        }
+    },
+
+    "batch": {
+        "poolAllocationMode": "UserSubscription",
+        "publicNetworkAccess": true,
+        "pools": [
+            {
+                "name": "almalinux",
+                "virtualMachine": {
+                    "size": "${sku}",
+                    "image": "almalinux-hpc/almalinux/8_6-hpc-gen2/latest",
+                    "taskSlotsPerNode": 1
+                },
+                "subnet": "pool",
+                "interNodeCommunication": true,
+                "startTask": {
+                    "commands": [
+                        "curl -O -L https://raw.githubusercontent.com/Azure/bacc/openfoam/examples/openfoam/start_task.sh",
+                        // uses HPC image, so don't install pre-reqs
+                        "bash start_task.sh",
+                        "echo 'done'"
+                    ]
+                }
+            }
+        ]
+    }
+}
