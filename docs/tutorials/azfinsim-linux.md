@@ -18,6 +18,12 @@ resource configuration parameters for this deployment.
 * AzFinSim application is packaged as a container image. The container image is pulled from either from
   Docker Hub repository or Azure Container Registry (ACR) depending on the deployment configuration.
 
+## Architecture
+
+The following diagram shows the architecture of the deployment.
+
+![AzFinSim on Linux pool with containers](./azfinsim-linux.png)
+
 ## Step 1: Prerequisites and environment setup
 
 Follow the [environment setup instructions](./environment-setup.md) to set up your environment. Since
